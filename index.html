@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nazia Stitching Studio | Bespoke & Luxury Prêt</title>
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="apple-touch-icon" href="images/favicon.svg">
+  <meta name="description" content="Nazia Stitching Studio offers premium bespoke stitching, bridal wear, and luxury Pakistani Prêt. Serving Ahmedpur Lamma, Rahimyar Khan, Bahawalpur, and international clients in USA & UK.">
+  <meta name="keywords" content="Nazia Stitching Studio, Luxury Pakistani Fashion, Bespoke Prêt, Bridal Tailoring, Custom Stitching, Ahmedpur Lamma, Rahimyar Khan, Sadiqabad, Bahawalpur, Punjab, International Shipping, USA, UK, Women's Wear">
+  <link rel="canonical" href="https://naziastitchingstudio.vercel.app/">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://naziastitchingstudio.vercel.app/">
+  <meta property="og:title" content="Nazia Stitching Studio | Bespoke & Luxury Prêt">
+  <meta property="og:description" content="Experience premium bespoke stitching and luxury Pakistani fashion. International shipping available.">
+  <meta property="og:image" content="https://naziastitchingstudio.vercel.app/images/women-bridal-red-lehenga.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://naziastitchingstudio.vercel.app/">
+  <meta property="twitter:title" content="Nazia Stitching Studio | Bespoke & Luxury Prêt">
+  <meta property="twitter:description" content="Experience premium bespoke stitching and luxury Pakistani fashion. International shipping available.">
+  <meta property="twitter:image" content="https://naziastitchingstudio.vercel.app/images/women-bridal-red-lehenga.png">
+
+  <!-- JSON-LD LocalBusiness Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TailorShop",
+    "name": "Nazia Stitching Studio",
+    "image": "https://naziastitchingstudio.vercel.app/images/women-bridal-red-lehenga.png",
+    "@id": "https://naziastitchingstudio.vercel.app/",
+    "url": "https://naziastitchingstudio.vercel.app/",
+    "telephone": "+923106845085",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "8385+C7H",
+      "addressLocality": "Ahmedpur Lamma",
+      "addressRegion": "Punjab",
+      "addressCountry": "PK"
+    },
+    "areaServed": [
+      "Ahmedpur Lamma",
+      "Rahimyar Khan",
+      "Sadiqabad",
+      "Bahawalpur",
+      "Punjab",
+      "United States",
+      "United Kingdom"
+    ],
+    "priceRange": "$$$",
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ],
+      "opens": "10:00",
+      "closes": "20:00"
+    }
+  }
+  </script>
+
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  
+  <style>
+    /* Home specific styles */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      padding-top: var(--nav-h);
+      background: var(--c-pearl);
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      top: 0; right: 0; bottom: 0;
+      width: 55%;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .hero-bg .slide {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%; object-fit: cover;
+      object-position: center top;
+      opacity: 0;
+      animation: heroSlideshow 20s infinite linear;
+    }
+    .hero-bg .slide-1 { animation-delay: 0s; }
+    .hero-bg .slide-2 { animation-delay: 5s; }
+    .hero-bg .slide-3 { animation-delay: 10s; }
+    .hero-bg .slide-4 { animation-delay: 15s; }
+
+    @keyframes heroSlideshow {
+      0% { opacity: 0; transform: scale(1.05); }
+      5% { opacity: 1; transform: scale(1); }
+      25% { opacity: 1; transform: scale(1); }
+      30% { opacity: 0; transform: scale(1.05); }
+      100% { opacity: 0; transform: scale(1.05); }
+    }
+    .hero-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(90deg, var(--c-pearl) 0%, rgba(248, 245, 240, 0) 100%);
+      z-index: 2;
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative; z-index: 1;
+      width: 50%;
+      padding-right: var(--sp-8);
+    }
+    .hero-content .eyebrow {
+      color: var(--c-gold-dark);
+      font-weight: var(--fw-bold);
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+    }
+    .hero-content .shimmer-text {
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+    }
+    @media (max-width: 1200px) {
+      .hero-bg { width: 60%; }
+    }
+    @media (max-width: 1024px) {
+      .hero-bg { width: 100%; }
+      .hero-bg::after { 
+        background: linear-gradient(to bottom, rgba(248, 245, 240, 0) 0%, rgba(248, 245, 240, 0.7) 60%, var(--c-pearl) 100%); 
+      }
+      .hero-content { width: 100%; padding-right: 0; text-align: center; }
+      .hero-content .eyebrow {
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+      }
+      .hero-content .flex {
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+    }
+
+    /* Stats */
+    .stats-bar {
+      background: var(--grad-bg-soft-gold);
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: var(--r-xl);
+      padding: var(--sp-8);
+      transform: translateY(-50%);
+      box-shadow: var(--sh-lg);
+      position: relative; z-index: 10;
+    }
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-family: var(--ff-heading); font-size: var(--fs-4xl);
+      color: var(--c-gold); font-weight: var(--fw-bold);
+    }
+    .stat-label {
+      font-size: var(--fs-sm); text-transform: uppercase;
+      letter-spacing: var(--ls-wide); color: var(--c-text-sub);
+      margin-top: var(--sp-2);
+    }
+
+    /* Testimonials */
+    .review-card {
+      background: var(--c-white);
+      padding: var(--sp-8);
+      border-radius: var(--r-xl);
+      box-shadow: var(--sh-sm);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .reviewer { display: flex; align-items: center; gap: var(--sp-4); margin-top: auto; padding-top: var(--sp-6); }
+    .reviewer-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
+    .reviewer-info h5 { font-family: var(--ff-body); font-weight: var(--fw-bold); margin-bottom: 2px; }
+    .reviewer-info span { font-size: var(--fs-xs); color: var(--c-text-muted); }
+    
+    .testimonials-swiper .swiper-wrapper { align-items: stretch; }
+    .testimonials-swiper .swiper-slide { height: auto; display: flex; }
+    .testimonials-swiper .swiper-slide > div { flex: 1; }
+
+    .testimonials-wrapper {
+      position: relative;
+      padding: 0 50px;
+    }
+    .testimonials-wrapper .swiper-button-prev { left: 0; }
+    .testimonials-wrapper .swiper-button-next { right: 0; }
+
+    .testimonials-wrapper .swiper-button-prev,
+    .testimonials-wrapper .swiper-button-next {
+      top: calc(50% - 25px);
+    }
+
+    @media (max-width: 768px) {
+      .testimonials-wrapper {
+        padding: 0 20px;
+      }
+      .testimonials-wrapper .swiper-button-prev,
+      .testimonials-wrapper .swiper-button-next {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- PRELOADER -->
+  <div id="preloader" >
+    <div class="preloader-bg"></div>
+    <div class="preloader-content" id="preloader-content">
+      <div class="preloader-crest" id="preloader-crest">
+        <svg class="preloader-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <mask id="draw-mask">
+              <circle cx="50" cy="50" r="42" stroke="white" stroke-width="6" fill="none" stroke-dasharray="264" stroke-dashoffset="264" class="crest-border-mask" transform="rotate(-90 50 50)"/>
+            </mask>
+          </defs>
+          <circle cx="50" cy="50" r="48" fill="var(--c-primary-dark)" class="crest-bg"/>
+          <g class="crest-golden-group">
+            <circle cx="50" cy="50" r="42" stroke="var(--c-gold)" stroke-width="2" stroke-dasharray="6 4" mask="url(#draw-mask)" class="crest-border"/>
+            <path d="M35 70V30L65 70V30" stroke="var(--c-gold)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="crest-n"/>
+          </g>
+        </svg>
+      </div>
+      <div class="preloader-text">
+        <div class="preloader-title" id="preloader-title">
+          <span>N</span><span>a</span><span>z</span><span>i</span><span>a</span>
+        </div>
+        <div class="preloader-subtitle" id="preloader-subtitle">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if (!sessionStorage.getItem('preloaderShown')) {
+      document.getElementById('preloader').style.display = 'flex';
+      
+      // Immediately hide the real navbar brand to prevent double vision during the glide
+      document.addEventListener('DOMContentLoaded', () => {
+        const mainNavBrand = document.getElementById('main-nav-brand');
+        if (mainNavBrand) mainNavBrand.style.opacity = '0';
+      });
+      
+
+
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const preloader = document.getElementById('preloader');
+        const content = document.getElementById('preloader-content');
+        const subtitle = document.getElementById('preloader-subtitle');
+        const textToSplit = "STITCHING STUDIO";
+        
+        // Split subtitle text into spans
+        for (let i = 0; i < textToSplit.length; i++) {
+          if (textToSplit[i] === ' ') {
+            const space = document.createElement('span');
+            space.innerHTML = '&nbsp;';
+            subtitle.appendChild(space);
+            continue;
+          }
+          const span = document.createElement('span');
+          span.textContent = textToSplit[i];
+          // Randomize direction: left or right
+          const isLeft = Math.random() > 0.5;
+          // Delay: text box starts opening at 3.2s, fully open ~4.2s
+          // Letters start appearing from 5.0s onward
+          const delay = 5.0 + (i * 0.1);
+          span.style.animation = `danceIn${isLeft ? 'Left' : 'Right'} 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards ${delay}s`;
+          subtitle.appendChild(span);
+        }
+        
+        // Trigger Phase 2a (Text Reveal) — letters begin dancing in
+        setTimeout(() => {
+          content.classList.add('run-dance');
+        }, 100);
+
+        // Phase 2b: Smoothly slide crest left & open text box
+        // The CSS transition on max-width + opacity does the smooth glide
+        setTimeout(() => {
+          content.classList.add('run-reveal-text');
+        }, 3200);
+
+        // Phase 2c: Start crest flip (slightly after text box begins opening)
+        setTimeout(() => {
+          content.classList.add('run-flip');
+        }, 3700);
+
+        // Phase 3: Lock and Shine (after all subtitle letters land ~6.6s + buffer)
+        setTimeout(() => {
+          content.classList.add('run-shine');
+          // Clear inline animations to allow shine CSS to apply
+          subtitle.querySelectorAll('span').forEach(s => s.style.animation = '');
+        }, 7800);
+
+        let preloaderEnded = false;
+        const endPreloader = () => {
+          if (preloaderEnded) return;
+          preloaderEnded = true;
+          const mainNavBrand = document.getElementById('main-nav-brand');
+          if (mainNavBrand) mainNavBrand.style.opacity = '1';
+          if (preloader.parentNode) preloader.remove();
+          sessionStorage.setItem('preloaderShown', 'true');
+        };
+
+        // Hard fallback: force-end preloader after 18s no matter what
+        setTimeout(endPreloader, 18000);
+
+        // Phase 4: Transition to Navbar (6 seconds after shine starts)
+        setTimeout(() => {
+          try {
+            content.classList.remove('run-shine');
+            const originalFilter = content.style.filter;
+            content.style.filter = 'none';
+            
+            const mainNavBrand = document.getElementById('main-nav-brand');
+            if (mainNavBrand) mainNavBrand.style.opacity = '1';
+            
+            const brandIcon = mainNavBrand ? mainNavBrand.querySelector('.brand-icon') : null;
+            const targetRect = brandIcon ? brandIcon.getBoundingClientRect() : mainNavBrand.getBoundingClientRect();
+            const sourceCrest = document.getElementById('preloader-crest');
+            const sourceRect = sourceCrest.getBoundingClientRect();
+            const contentRect = content.getBoundingClientRect();
+            
+            content.style.filter = originalFilter;
+            
+            const targetWidth = 44; 
+            const sourceWidth = window.innerWidth <= 768 ? 100 : 150;
+            const scaleRatio = targetWidth / sourceWidth;
+            
+            const xMove = targetRect.left - (contentRect.left + (sourceRect.left - contentRect.left) * scaleRatio);
+            const yMove = targetRect.top - (contentRect.top + (sourceRect.top - contentRect.top) * scaleRatio);
+            
+            content.style.transform = `translate(${xMove}px, ${yMove}px) scale(${scaleRatio})`;
+          } catch(e) {
+            console.error(e);
+          } finally {
+            preloader.classList.add('fade-up');
+            setTimeout(endPreloader, 2000);
+          }
+        }, 14000);
+      });
+    } else {
+      // Preloader already shown this session, hide it immediately
+      document.getElementById('preloader').style.display = 'none';
+      document.addEventListener('DOMContentLoaded', () => {
+        const mainNavBrand = document.getElementById('main-nav-brand');
+        if (mainNavBrand) mainNavBrand.style.opacity = '1';
+      });
+    }
+  </script>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand brand-logo" id="main-nav-brand" style="opacity: 1; transition: opacity 0.3s;">
+            <svg class="brand-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="48" fill="var(--c-primary-dark)"/>
+        <circle cx="50" cy="50" r="42" stroke="var(--c-gold)" stroke-width="2" stroke-dasharray="6 4"/>
+        <path d="M35 70V30L65 70V30" stroke="var(--c-gold)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-title" style="color: inherit;">Nazia</span>
+        <span class="brand-subtitle">Stitching Studio</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link active">Home</a>
+      <a href="services.html" class="nav-link">Services</a>
+      <a href="catalog.html" class="nav-link">Catalog</a>
+      <a href="portal.html" class="nav-link">Portal</a>
+      <a href="contact.html" class="nav-link">Contact</a>
+      <button class="btn btn-orange hide-desktop nav-login-btn" style="margin-top: 1rem; width: 100%;" onclick="Auth.openModal()">Login</button>
+      <a href="cart.html" class="btn btn-outline-gold hide-desktop nav-cart-btn" style="margin-top: 1rem;">Cart (0)</a>
+    </div>
+    <div class="flex items-center gap-4">
+      <button class="btn btn-orange hide-mobile nav-login-btn" onclick="Auth.openModal()">Login</button>
+      <a href="cart.html" class="btn btn-outline-gold hide-mobile nav-cart-btn" >Cart (0)</a>
+      <button class="menu-toggle"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-bg reveal reveal-left">
+        <img src="images/women-bridal-red-lehenga.png" alt="Luxury Bridal Couture" class="slide slide-1">
+        <img src="images/women-emerald-silk-gharara.jpg" alt="Emerald Silk Gharara" class="slide slide-2">
+        <img src="images/girls-pink-frock.png" alt="Girls Pink Frock" class="slide slide-3">
+        <img src="images/women-casual-lawn.png" alt="Women Casual Lawn" class="slide slide-4">
+      </div>
+      <div class="container">
+        <div class="hero-content reveal reveal-up">
+          <span class="eyebrow">Maison de Couture</span>
+          <h1 class="mb-6">Where Elegance Meets <span class="shimmer-text">Perfection</span></h1>
+          <p class="section-subtitle mb-8">Experience world-class stitching, meticulous embroidery, and luxury Pakistani fashion tailored exclusively for you.</p>
+          <div class="flex gap-4 items-center">
+            <a href="services.html" class="btn btn-primary">Explore Services</a>
+            <a href="catalog.html" class="btn btn-outline">View Collection</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <div class="container">
+      <div class="stats-bar grid-3 reveal reveal-up delay-2">
+        <div class="stat-item">
+          <div class="stat-num"><span class="counter-val" data-target="25" data-suffix="+">0</span></div>
+          <div class="stat-label">Years of Excellence</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num"><span class="counter-val" data-target="130" data-suffix="K+">0</span></div>
+          <div class="stat-label">Garments Stitched</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num"><span class="counter-val" data-target="99" data-suffix="%">0</span></div>
+          <div class="stat-label">Client Satisfaction</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SERVICES PREVIEW -->
+    <section class="section section--white">
+      <div class="container">
+        <div class="text-center mb-12">
+          <span class="eyebrow reveal reveal-up">Our Expertise</span>
+          <h2 class="section-title reveal reveal-up delay-1">Artisan Services</h2>
+          <div class="divider-gold reveal reveal-scale delay-2"></div>
+          <p class="section-subtitle reveal reveal-up delay-3">From bespoke tailoring to intricate hand-embroidery, we bring your vision to life.</p>
+        </div>
+
+        <div class="grid-3 mt-12">
+          <!-- Service 1 -->
+          <div class="card reveal reveal-up delay-1">
+            <div class="card-img-wrap" style="aspect-ratio: auto; height: 350px; background: var(--c-pearl); padding: 10px;">
+              <img src="images/artisan-service-1.png" alt="Stitching" class="card-img" style="object-fit: contain; height: 100%; width: 100%;">
+            </div>
+            <div class="card-body text-center">
+              <h3 class="card-title">Premium Stitching</h3>
+              <p class="mb-6">Flawless fits and exquisite detailing for men, women, and children.</p>
+              <a href="services.html#tab-stitching" class="btn btn-link mt-auto">Learn More &rarr;</a>
+            </div>
+          </div>
+          <!-- Service 2 -->
+          <div class="card reveal reveal-up delay-2">
+            <div class="card-img-wrap" style="aspect-ratio: auto; height: 350px; background: var(--c-pearl); padding: 10px;">
+              <img src="images/artisan-service-2.png" alt="Embroidery" class="card-img" style="object-fit: contain; height: 100%; width: 100%;">
+            </div>
+            <div class="card-body text-center">
+              <h3 class="card-title">Hand Embroidery</h3>
+              <p class="mb-6">Intricate zardozi and threadwork crafted by master artisans.</p>
+              <a href="services.html#tab-embroidery" class="btn btn-link mt-auto">Learn More &rarr;</a>
+            </div>
+          </div>
+          <!-- Service 3 -->
+          <div class="card reveal reveal-up delay-3">
+            <div class="card-img-wrap" style="aspect-ratio: auto; height: 350px; background: var(--c-pearl); padding: 10px;">
+              <img src="images/artisan-service-3.png" alt="Consulting" class="card-img" style="object-fit: contain; height: 100%; width: 100%;">
+            </div>
+            <div class="card-body text-center">
+              <h3 class="card-title">Design Consulting</h3>
+              <p class="mb-6">Personalized styling and fabric selection with our senior designers.</p>
+              <a href="services.html#tab-consulting" class="btn btn-link mt-auto">Learn More &rarr;</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="section section--pearl">
+      <div class="container">
+        <div class="text-center mb-12">
+          <span class="eyebrow reveal reveal-up">Wall of Love</span>
+          <h2 class="section-title reveal reveal-up delay-1">Client Stories</h2>
+          <div class="divider-gold reveal reveal-scale delay-2"></div>
+        </div>
+        
+        <div class="testimonials-wrapper">
+          <div class="swiper testimonials-swiper mt-12 reveal reveal-scale delay-1" style="padding-bottom: 50px;">
+            <div class="swiper-wrapper">
+              <!-- Slide 1 -->
+              <div class="swiper-slide">
+                <div class="review-card">
+                  <div class="stars mb-4">★★★★★</div>
+                  <p>"The attention to detail on my bridal dress was absolutely breathtaking. Nazia Studio exceeded all my expectations. Shipped perfectly to Dubai."</p>
+                  <div class="reviewer">
+                    <img src="https://i.pravatar.cc/150?img=1" alt="Sara" class="reviewer-img">
+                    <div class="reviewer-info">
+                      <h5>Sara Ahmed</h5><span>Dubai, UAE</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Slide 2 -->
+              <div class="swiper-slide">
+                <div class="review-card">
+                  <div class="stars mb-4">★★★★★</div>
+                  <p>"I ordered three custom shalwar kameez suits. The fit is perfect and the fabric quality is exceptional. Highly recommended!"</p>
+                  <div class="reviewer">
+                    <img src="https://i.pravatar.cc/150?img=11" alt="Ali" class="reviewer-img">
+                    <div class="reviewer-info">
+                      <h5>Ali Hassan</h5><span>Lahore, Pakistan</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Slide 3 -->
+              <div class="swiper-slide">
+                <div class="review-card">
+                  <div class="stars mb-4">★★★★★</div>
+                  <p>"Professional, timely, and the embroidery work is pure art. They made the whole design process so seamless from overseas."</p>
+                  <div class="reviewer">
+                    <img src="https://i.pravatar.cc/150?img=5" alt="Fatima" class="reviewer-img">
+                    <div class="reviewer-info">
+                      <h5>Fatima K.</h5><span>New York, USA</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Slide 4 -->
+              <div class="swiper-slide">
+                <div class="review-card">
+                  <div class="stars mb-4">★★★★★</div>
+                  <p>"Exceptional craftsmanship. I wanted a traditional sherwani for my wedding and they delivered exactly what I envisioned. Fast delivery to the UK."</p>
+                  <div class="reviewer">
+                    <img src="https://i.pravatar.cc/150?img=8" alt="Omar" class="reviewer-img">
+                    <div class="reviewer-info">
+                      <h5>Omar Farooq</h5><span>London, UK</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Slide 5 -->
+              <div class="swiper-slide">
+                <div class="review-card">
+                  <div class="stars mb-4">★★★★★</div>
+                  <p>"Stunning thread work and perfect fitting! The remote consultation was very helpful. Proud to wear this in Singapore."</p>
+                  <div class="reviewer">
+                    <img src="https://i.pravatar.cc/150?img=9" alt="Aisha" class="reviewer-img">
+                    <div class="reviewer-info">
+                      <h5>Aisha Rahman</h5><span>Singapore</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Swiper Pagination & Navigation -->
+            <div class="swiper-pagination"></div>
+          </div>
+          <div class="swiper-button-prev" style="color: var(--c-gold);"></div>
+          <div class="swiper-button-next" style="color: var(--c-gold);"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section section--dark text-center" style="position: relative; overflow:hidden;">
+      <div class="container" style="position:relative; z-index:2;">
+        <h2 class="section-title section-title--light reveal reveal-up">Ready to Create Your Masterpiece?</h2>
+        <p class="section-subtitle section-subtitle--light reveal reveal-up delay-1 mt-4 mb-8">Book a consultation today or browse our ready-to-wear collection.</p>
+        <div class="flex justify-center gap-4 reveal reveal-up delay-2" style="flex-wrap: wrap;">
+          <a href="contact.html" class="btn btn-gold">Book Appointment</a>
+          <a href="catalog.html" class="btn btn-outline-gold" style="color: var(--c-pearl);">Browse Collection</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container grid-4">
+      <div>
+        <a href="index.html" class="footer-logo brand-logo" style="margin-bottom: var(--sp-4);">
+                <svg class="brand-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="48" fill="var(--c-primary-dark)"/>
+        <circle cx="50" cy="50" r="42" stroke="var(--c-gold)" stroke-width="2" stroke-dasharray="6 4"/>
+        <path d="M35 70V30L65 70V30" stroke="var(--c-gold)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+          <div class="brand-text">
+            <span class="brand-title" style="color: inherit;">Nazia</span>
+            <span class="brand-subtitle">Stitching Studio</span>
+          </div>
+        </a>
+        <p class="footer-text">Elevating traditional elegance with modern sophistication. Premium tailoring and luxury fashion manufacturing.</p>
+      </div>
+      <div>
+        <h4 class="footer-heading">Services</h4>
+        <ul class="footer-links">
+          <li><a href="services.html">Bespoke Stitching</a></li>
+          <li><a href="services.html">Hand Embroidery</a></li>
+          <li><a href="services.html">Design Consulting</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-heading">Quick Links</h4>
+        <ul class="footer-links">
+          <li><a href="catalog.html">Collections</a></li>
+          <li><a href="portal.html">Customer Portal</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-heading">Contact</h4>
+        <p class="footer-text">8385+C7H Ahmedpur Lamma<br>Email: info@naziastudio.com<br>Phone: +92 310 6845085</p>
+      </div>
+    </div>
+    <div class="container">
+      <div class="footer-bottom">
+        &copy; 2026 Nazia Stitching Studio. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- FLOATING WA -->
+  <a href="https://wa.me/923106845085" target="_blank" class="floating-wa">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+  </a>
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/cart.js"></script>
+  
+  <script src="js/auth.js"></script>
+  <script src="js/chatbot.js"></script>
+</body>
+</html>

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Portal | Nazia Stitching Studio</title>
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="apple-touch-icon" href="images/favicon.svg">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Client portal for Nazia Stitching Studio.">
+  
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/auth.css">
+
+  <script>
+    // Prevent Flash of Unauthenticated Content (FOUC)
+    if (localStorage.getItem('currentUser')) {
+      document.documentElement.classList.add('is-auth');
+    }
+  </script>
+  <style>
+    /* Immediate UI override to prevent login form flash */
+    html.is-auth #portal-guest { display: none !important; }
+    html.is-auth #portal-dashboard { display: block !important; }
+    html.is-auth #portal-wrapper { 
+      background-image: none !important; 
+      background-color: var(--c-pearl) !important; 
+      align-items: flex-start !important; 
+      padding: 0 !important; 
+    }
+    
+    .portal-wrapper {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background-image: linear-gradient(rgba(13,34,71,0.5), rgba(13,34,71,0.7)), url('https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      padding: var(--sp-12) var(--sp-4);
+    }
+    .auth-card {
+      background: var(--c-white);
+      border-radius: var(--r-xl);
+      box-shadow: var(--sh-xl);
+      width: 100%; max-width: 480px;
+      padding: var(--sp-8);
+      position: relative; overflow: hidden;
+    }
+    .auth-header { text-align: center; margin-bottom: var(--sp-8); }
+    .auth-toggle {
+      display: flex; background: var(--c-pearl);
+      border-radius: var(--r-full); padding: 4px;
+      margin-bottom: var(--sp-8);
+    }
+    .auth-toggle button {
+      flex: 1; padding: var(--sp-2); border-radius: var(--r-full);
+      font-weight: var(--fw-semibold); color: var(--c-text-sub);
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .auth-toggle button.active {
+      background: var(--c-white); color: var(--c-primary);
+      box-shadow: var(--sh-xs);
+    }
+    .auth-form { display: none; animation: fadeUp var(--dur-fast) var(--ease); }
+    .auth-form.active { display: block; }
+    
+    .back-link {
+      display: none;
+    }
+
+    /* studio Dashboard Redesign - Luxury Theme */
+    .studio-dashboard-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 40px;
+      align-items: start;
+      padding: 60px 20px;
+      width: 100%;
+    }
+
+    .studio-sidebar { 
+      background: var(--c-primary-dark); 
+      border-radius: var(--r-lg);
+      padding: 30px 20px;
+      text-align: left; 
+      box-shadow: var(--sh-md);
+    }
+    .studio-greeting { font-size: 15px; color: var(--c-pearl); margin-bottom: 30px; opacity: 0.9; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .studio-greeting strong { color: var(--c-gold); font-weight: 600; font-size: 18px; display: block; margin-top: 4px; }
+    .studio-menu { list-style: none; padding: 0; margin: 0; }
+    .studio-menu > li { font-size: 15px; color: #fff; margin-bottom: 20px; font-weight: 500; cursor: pointer; letter-spacing: 0.5px;}
+    .studio-menu > li.active { color: var(--c-gold); }
+    .studio-submenu { list-style: none; padding: 0 0 0 16px; margin: 12px 0 0 0; border-left: 1px solid rgba(255,255,255,0.1); }
+    .studio-submenu li { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 14px; font-weight: 400; cursor: pointer; transition: color 0.2s;}
+    .studio-submenu li:hover { color: var(--c-gold); }
+
+    .studio-content { text-align: left; }
+    .studio-content h2 { font-size: 28px; color: var(--c-primary-dark); font-weight: 600; margin-bottom: 30px; font-family: var(--ff-heading); }
+    .studio-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+    .studio-box { background: var(--c-white); padding: 30px; border-radius: var(--r-md); box-shadow: var(--sh-sm); min-height: 200px; border: 1px solid rgba(212, 175, 55, 0.2); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .studio-box:hover { transform: translateY(-4px); box-shadow: var(--sh-md); border-color: rgba(212, 175, 55, 0.5); }
+    .studio-box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--c-border); }
+    .studio-box-header h3 { font-size: 18px; color: var(--c-primary); font-weight: 600; margin: 0; font-family: var(--ff-heading); }
+    .studio-box-header a { font-size: 13px; color: var(--c-gold-dark); text-decoration: none; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+    .studio-box p { font-size: 15px; color: var(--c-text); margin-bottom: 8px; }
+    .studio-box .muted { color: var(--c-text-muted); font-size: 14px; }
+    .studio-checkbox-group { margin-top: 20px; display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--c-text-sub); }
+    
+    .pin-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--c-pearl); display: flex; align-items: center; justify-content: center; margin-top: 20px; color: var(--c-gold); border: 1px solid rgba(212, 175, 55, 0.2); }
+    .pin-icon svg { stroke: var(--c-gold); }
+
+    .studio-logout-btn { margin-top: 40px; background: var(--c-white); border: 1px solid var(--c-gold); padding: 12px 32px; color: var(--c-gold-dark); border-radius: var(--r-full); cursor: pointer; font-weight: 600; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; font-size: 13px; }
+    .studio-logout-btn:hover { background: var(--c-gold); color: var(--c-white); box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); }
+
+    @media (max-width: 768px) {
+      .studio-dashboard-inner { grid-template-columns: 1fr; padding: 30px 15px; }
+      .studio-sidebar { padding: 20px 15px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Global Navigation -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand brand-logo">
+            <svg class="brand-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="48" fill="var(--c-primary-dark)"/>
+        <circle cx="50" cy="50" r="42" stroke="var(--c-gold)" stroke-width="2" stroke-dasharray="6 4"/>
+        <path d="M35 70V30L65 70V30" stroke="var(--c-gold)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-title" style="color: inherit;">Nazia</span>
+        <span class="brand-subtitle">Stitching Studio</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="services.html" class="nav-link">Services</a>
+      <a href="catalog.html" class="nav-link">Catalog</a>
+      <a href="portal.html" class="nav-link active">Portal</a>
+      <a href="contact.html" class="nav-link">Contact</a>
+      <button class="btn btn-orange hide-desktop nav-login-btn" style="margin-top: 1rem; width: 100%;" onclick="Auth.openModal()">Login</button>
+      <a href="cart.html" class="btn btn-outline-gold hide-desktop nav-cart-btn" style="margin-top: 1rem;">Cart (0)</a>
+    </div>
+    <div class="flex items-center gap-4">
+      <button class="btn btn-orange hide-mobile nav-login-btn" onclick="Auth.openModal()">Login</button>
+      <a href="cart.html" class="btn btn-outline-gold hide-mobile nav-cart-btn" >Cart (0)</a>
+      <button class="menu-toggle"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <div class="portal-wrapper" id="portal-wrapper">
+    <div class="auth-card" id="portal-guest">
+      <a href="index.html" class="back-link">&larr; Home</a>
+      
+      <div class="auth-header mt-8">
+        <h2 class="mb-2" style="color: var(--c-primary);">Welcome Back</h2>
+        <p style="color: var(--c-text-sub);">Manage your measurements and orders.</p>
+      </div>
+
+      <div class="auth-toggle">
+        <button class="active" onclick="switchForm('login', this)">Login</button>
+        <button onclick="switchForm('signup', this)">Sign Up</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form active">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-control" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label" style="margin:0;">Password</label>
+            <a href="#" style="font-size: var(--fs-xs); color: var(--c-gold-dark);">Forgot?</a>
+          </div>
+          <input type="password" class="form-control" placeholder="Enter password" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--sp-4);">Login</button>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signup-form" class="auth-form">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-control" placeholder="John Doe" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-control" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-control" placeholder="Create password" required>
+        </div>
+        <button type="submit" class="btn btn-gold" style="width: 100%; margin-top: var(--sp-4);">Create Account</button>
+      </form>
+
+    </div>
+    
+    <div id="portal-dashboard" style="display: none; width: 100%;">
+      <div class="studio-dashboard-inner">
+        <!-- Sidebar -->
+        <aside class="studio-sidebar">
+          <div class="studio-greeting">Hello, <strong id="dashName"></strong></div>
+          <ul class="studio-menu">
+            <li class="active">Manage My Account
+              <ul class="studio-submenu">
+                <li style="color: #1a9cb7;">My Profile</li>
+                <li>Address Book</li>
+                <li>My Payment Options</li>
+                <li>Personal Wallet</li>
+              </ul>
+            </li>
+            <li>My Orders
+              <ul class="studio-submenu">
+                <li>My Returns</li>
+                <li>My Cancellations</li>
+              </ul>
+            </li>
+            <li>My Reviews</li>
+            <li>My Wishlist</li>
+            <li style="margin-top: 20px;">Sell Your Designs</li>
+          </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="studio-content">
+          <h2>Manage My Account</h2>
+          <div class="studio-grid">
+            
+            <div class="studio-box">
+              <div class="studio-box-header">
+                <h3>Personal Profile</h3>
+                <a href="#" onclick="window.ShowAlert('Profile editing coming soon!'); return false;">| EDIT</a>
+              </div>
+              <p id="dashUsername"></p>
+              <p id="dashEmail" class="muted"></p>
+              <div class="studio-checkbox-group">
+                <input type="checkbox" checked id="marketingCheck">
+                <label for="marketingCheck">Receive marketing emails</label>
+              </div>
+            </div>
+
+            <div class="studio-box">
+              <div class="studio-box-header">
+                <h3>Address Book</h3>
+                <a href="#" onclick="window.ShowAlert('Address book coming soon!'); return false;">| Add</a>
+              </div>
+              <p class="muted" style="font-size: 13px;">Save your shipping address here.</p>
+              <div class="pin-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              </div>
+            </div>
+
+            <div class="studio-box" style="display: flex; align-items: center;">
+              <p class="muted" style="font-size: 13px;">Save your billing address here.</p>
+            </div>
+
+          </div>
+          
+          <button onclick="Auth.logout();" class="studio-logout-btn">Logout</button>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING WA -->
+  <a href="https://wa.me/923106845085" target="_blank" class="floating-wa">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+  </a>
+
+
+  <script src="js/main.js"></script>
+  <script src="js/cart.js"></script>
+  
+  <script src="js/auth.js"></script>
+  <script src="js/chatbot.js"></script>
+  <script>
+    // Handle dynamic state changes from the central Auth system
+    document.addEventListener('authStateChanged', (e) => {
+      const user = e.detail;
+      const wrapper = document.getElementById('portal-wrapper');
+      
+      if (user) {
+        document.documentElement.classList.add('is-auth');
+        document.getElementById('portal-guest').style.display = 'none';
+        
+        if (!user.isVerified) {
+          // Unverified dashboard
+          document.getElementById('portal-dashboard').style.display = 'none';
+          
+          let unverifiedBox = document.getElementById('portal-unverified');
+          if (!unverifiedBox) {
+            unverifiedBox = document.createElement('div');
+            unverifiedBox.id = 'portal-unverified';
+            unverifiedBox.style.cssText = 'width: 100%; display: flex; justify-content: center; padding: 6rem 1rem;';
+            unverifiedBox.innerHTML = `
+              <div style="background: white; padding: 48px; border-radius: 20px; box-shadow: var(--sh-lg); width: 100%; max-width: 500px; text-align: center; border: 1px solid rgba(201,168,76,0.3); animation: scaleIn 0.4s ease-out;">
+                <div style="font-size: 56px; margin-bottom: 20px;">🔒</div>
+                <h2 style="font-family: var(--ff-heading); color: var(--c-primary); font-size: 26px; margin-bottom: 12px;">Account Verification Required</h2>
+                <p style="color: var(--c-text-sub); line-height: 1.6; font-size: 14px; margin-bottom: 30px; font-family: 'Inter', sans-serif;">
+                  Your account is currently unverified. To protect your personal information and secure your luxury orders, the client dashboard features are temporarily locked. Please verify your account via WhatsApp.
+                </p>
+                <a href="https://wa.me/923106845085?text=${encodeURIComponent('Hi, I would like to verify my account.\n\nEmail/Phone: ' + (user.email || user.phone || 'N/A') + '\n\nPlease verify my account so I can access the portal. Thank you!')}" target="_blank" style="background: #25D366; color: white; border: none; border-radius: 8px; padding: 14px 28px; font-size: 15px; font-weight: bold; cursor: pointer; display: inline-block; text-decoration: none; width: 100%; box-sizing: border-box; margin-bottom: 24px; transition: background 0.3s; font-family: 'Inter', sans-serif;">Verify via WhatsApp</a>
+                <div style="border-top: 1px solid #eaeaea; padding-top: 20px;">
+                  <button onclick="Auth.logout();" style="background: transparent; color: #666; border: none; cursor: pointer; text-decoration: underline; font-size: 14px; font-weight: 500; font-family: 'Inter', sans-serif;">Logout</button>
+                </div>
+              </div>
+            `;
+            wrapper.appendChild(unverifiedBox);
+          } else {
+            unverifiedBox.style.display = 'flex';
+          }
+          wrapper.style.backgroundImage = 'none';
+          wrapper.style.backgroundColor = 'var(--c-pearl)';
+          wrapper.style.alignItems = 'center';
+        } else {
+          // Fully verified dashboard
+          const unverifiedBox = document.getElementById('portal-unverified');
+          if (unverifiedBox) unverifiedBox.style.display = 'none';
+          
+          document.getElementById('portal-dashboard').style.display = 'block';
+          document.getElementById('dashName').textContent = user.name;
+          document.getElementById('dashUsername').textContent = user.name;
+          document.getElementById('dashEmail').textContent = user.email;
+          
+          wrapper.style.backgroundImage = 'none';
+          wrapper.style.backgroundColor = 'var(--c-pearl)';
+          wrapper.style.alignItems = 'flex-start';
+          wrapper.style.padding = '0';
+        }
+      } else {
+        // Logged out
+        const unverifiedBox = document.getElementById('portal-unverified');
+        if (unverifiedBox) unverifiedBox.style.display = 'none';
+        document.documentElement.classList.remove('is-auth');
+        document.getElementById('portal-guest').style.display = 'block';
+        document.getElementById('portal-dashboard').style.display = 'none';
+        
+        // Reset wrapper background
+        wrapper.style.backgroundImage = "linear-gradient(rgba(13,34,71,0.5), rgba(13,34,71,0.7)), url('https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80')";
+        wrapper.style.backgroundColor = 'transparent';
+        wrapper.style.alignItems = 'center';
+        wrapper.style.padding = 'var(--sp-12) var(--sp-4)';
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Trigger the initial state immediately without timeout
+      if (typeof Auth !== 'undefined' && Auth.currentUser) {
+        document.dispatchEvent(new CustomEvent('authStateChanged', { detail: Auth.currentUser }));
+      } else if (typeof Auth !== 'undefined' && !Auth.currentUser) {
+        document.dispatchEvent(new CustomEvent('authStateChanged', { detail: null }));
+      } else {
+        document.getElementById('portal-guest').style.display = 'block';
+        document.getElementById('portal-dashboard').style.display = 'none';
+      }
+    });
+
+    function switchForm(formId, btn) {
+      document.querySelectorAll('.auth-toggle button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+      
+      btn.classList.add('active');
+      document.getElementById(formId + '-form').classList.add('active');
+      
+      const headerTitle = document.querySelector('.auth-header h2');
+      const headerSub = document.querySelector('.auth-header p');
+      if(formId === 'login') {
+        headerTitle.textContent = 'Welcome Back';
+        headerSub.textContent = 'Manage your measurements and orders.';
+      } else {
+        headerTitle.textContent = 'Create Account';
+        headerSub.textContent = 'Join us for a premium tailoring experience.';
+      }
+    }
+    
+    // Wire up the local forms to the Auth system
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = e.target.querySelector('input[type="email"]').value;
+      const password = e.target.querySelector('input[type="password"]').value;
+      
+      const btn = e.target.querySelector('button[type="submit"]');
+      Auth.setLoading(btn, true);
+      
+      try {
+        const res = await fetch('/api/auth-handler?action=login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        
+        if (res.ok && data.success) {
+          Auth.currentUser = data.user;
+          localStorage.setItem('currentUser', JSON.stringify(Auth.currentUser));
+          window.ShowAlert('Login Successful! Welcome ' + Auth.currentUser.name);
+          Auth.checkAuth();
+        } else {
+          if (data.error === 'NOT_FOUND') {
+            window.ShowAlert(`The email or phone number you entered is not yet registered. Please sign up to register yourself.<br><br><button onclick="Auth.showSignup(event); if(window.CloseAlert) window.CloseAlert();" style="background: var(--c-gold); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 15px;">Go to Sign Up</button>`);
+          } else if (data.error === 'WRONG_PASSWORD') {
+            window.ShowAlert("Incorrect password. Please try again.");
+          } else {
+            window.ShowAlert(data.error || 'Login Failed');
+          }
+        }
+      } catch(err) {
+        window.ShowAlert("Network error occurred during login.");
+      } finally {
+        Auth.setLoading(btn, false);
+      }
+    });
+    
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = e.target.querySelector('input[type="text"]').value;
+      const email = e.target.querySelector('input[type="email"]').value;
+      const password = e.target.querySelector('input[type="password"]').value;
+      
+      const btn = e.target.querySelector('button[type="submit"]');
+      Auth.setLoading(btn, true);
+      
+      try {
+        // Send OTP first
+        const res = await fetch('/api/auth-handler?action=signup-otp-send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        
+        if (res.ok && data.success) {
+          Auth.signupPayload = { name, email, password };
+          Auth.openModal();
+          document.getElementById('signupVerifyEmail').innerText = email;
+          Auth.showSignupVerify(null);
+          Auth.startSignupResendTimer();
+        } else if (data.error === 'ALREADY_EXISTS') {
+          window.ShowAlert(`This email is already registered.<br><br><button onclick="Auth.showLogin(event); if(window.CloseAlert) window.CloseAlert();" style="background: var(--c-gold); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 15px;">Go to Sign in</button>`);
+        } else {
+          window.ShowAlert(data.error || 'Failed to send verification code.');
+        }
+      } catch(err) {
+        window.ShowAlert("Network error occurred during signup.");
+      } finally {
+        Auth.setLoading(btn, false);
+      }
+    });
+  </script>
+</body>
+</html>

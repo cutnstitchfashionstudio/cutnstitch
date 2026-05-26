@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catalog | Nazia Stitching Studio</title>
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="apple-touch-icon" href="images/favicon.svg">
+  <meta name="description" content="Shop luxury Pakistani fashion, bespoke prêt, and elegant bridal wear at Nazia Stitching Studio. Hand-crafted outfits shipped globally.">
+  <meta name="keywords" content="Buy Pakistani Dresses, Luxury Prêt Online, Bespoke Tailoring Shop, Nazia Stitching Studio Catalog, Bridal Wear, Custom Stitching, Ahmedpur Lamma Fashion, Rahimyar Khan Boutiques, International Shipping">
+  <link rel="canonical" href="https://naziastitchingstudio.vercel.app/catalog.html">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://naziastitchingstudio.vercel.app/catalog.html">
+  <meta property="og:title" content="Catalog | Nazia Stitching Studio">
+  <meta property="og:description" content="Shop luxury Pakistani fashion, bespoke prêt, and elegant bridal wear. Hand-crafted outfits shipped globally.">
+  <meta property="og:image" content="https://naziastitchingstudio.vercel.app/images/women-emerald-silk-gharara.jpg">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://naziastitchingstudio.vercel.app/catalog.html">
+  <meta property="twitter:title" content="Catalog | Nazia Stitching Studio">
+  <meta property="twitter:description" content="Shop luxury Pakistani fashion, bespoke prêt, and elegant bridal wear. Hand-crafted outfits shipped globally.">
+  <meta property="twitter:image" content="https://naziastitchingstudio.vercel.app/images/women-emerald-silk-gharara.jpg">
+
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/auth.css">
+
+  <style>
+
+    .quick-view-btn {
+      position: absolute;
+      bottom: var(--sp-4);
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      opacity: 0;
+      transition: all var(--dur-base) var(--ease);
+      z-index: 10;
+    }
+    .card:hover .quick-view-btn {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+    
+    .badge-price {
+      position: absolute;
+      top: var(--sp-4);
+      left: var(--sp-4);
+      background: rgba(255,255,255,0.9);
+      color: var(--c-primary);
+      padding: var(--sp-1) var(--sp-3);
+      border-radius: var(--r-full);
+      font-weight: var(--fw-bold);
+      box-shadow: var(--sh-sm);
+      z-index: 2;
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed; inset: 0; z-index: 10000;
+      display: none; align-items: center; justify-content: center;
+      padding: var(--sp-4);
+    }
+    .modal.active { display: flex; }
+    .modal-backdrop {
+      position: absolute; inset: 0; background: rgba(13,34,71,0.8);
+      backdrop-filter: blur(5px);
+    }
+    .modal-content {
+      position: relative; z-index: 1;
+      background: var(--c-white); border-radius: var(--r-xl);
+      max-width: 900px; width: 100%; max-height: 90vh;
+      display: flex; flex-direction: column; overflow: hidden;
+      animation: scaleIn var(--dur-base) var(--ease);
+    }
+    @media(min-width: 768px) { .modal-content { flex-direction: row; } }
+    .modal-img { flex: 1; width: 100%; min-height: 300px; object-fit: cover; }
+    @media(min-width: 768px) { .modal-img { width: 50%; max-height: 100%; } }
+    .modal-body { flex: 1; padding: var(--sp-8); overflow-y: auto; max-height: 90vh; }
+    .modal-close {
+      position: absolute; top: var(--sp-4); right: var(--sp-4);
+      background: var(--c-pearl); width: 40px; height: 40px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: bold; font-size: 20px; z-index: 10; cursor: pointer; border: none;
+    }
+  
+    .quick-add-btn {
+      position: absolute; top: var(--sp-4); right: var(--sp-4);
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--c-white); color: var(--c-primary);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--sh-md); font-size: var(--fs-lg); font-weight: bold;
+      z-index: 10; transition: all var(--dur-fast); border: none; cursor: pointer;
+    }
+    .quick-add-btn:hover {
+      background: var(--c-primary); color: var(--c-white); transform: scale(1.1);
+    }
+
+  </style>
+</head>
+<body>
+
+  <nav class="navbar scrolled">
+    <a href="index.html" class="nav-brand brand-logo">
+            <svg class="brand-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="48" fill="var(--c-primary-dark)"/>
+        <circle cx="50" cy="50" r="42" stroke="var(--c-gold)" stroke-width="2" stroke-dasharray="6 4"/>
+        <path d="M35 70V30L65 70V30" stroke="var(--c-gold)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-title" style="color: inherit;">Nazia</span>
+        <span class="brand-subtitle">Stitching Studio</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="services.html" class="nav-link">Services</a>
+      <a href="catalog.html" class="nav-link active">Catalog</a>
+      <a href="portal.html" class="nav-link">Portal</a>
+      <a href="contact.html" class="nav-link">Contact</a>
+      <button class="btn btn-orange hide-desktop nav-login-btn" style="margin-top: 1rem; width: 100%;" onclick="Auth.openModal()">Login</button>
+      <a href="cart.html" class="btn btn-outline-gold hide-desktop nav-cart-btn" style="margin-top: 1rem;">Cart (0)</a>
+    </div>
+    <div class="flex items-center gap-4">
+      <button class="btn btn-orange hide-mobile nav-login-btn" onclick="Auth.openModal()">Login</button>
+      <a href="cart.html" class="btn btn-outline-gold hide-mobile nav-cart-btn" >Cart (0)</a>
+      <button class="menu-toggle"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-header" style="background-image: linear-gradient(rgba(13,34,71,0.5), rgba(13,34,71,0.7)), url('https://images.unsplash.com/photo-1566150905458-1bf1fc113f0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80'); background-size: cover; background-position: center; background-repeat: no-repeat; padding-top: calc(var(--nav-h) + var(--sp-20)); padding-bottom: var(--sp-20);">
+      <div class="container">
+        <h1 class="section-title section-title--light reveal reveal-up">The Collection</h1>
+        <p class="section-subtitle section-subtitle--light reveal reveal-up delay-1 mt-4">Curated ready-to-wear and bespoke inspirations.</p>
+      </div>
+    </div>
+
+    <section class="section section--white">
+      <div class="container">
+        
+        <div class="tabs-nav reveal reveal-up mb-12">
+          <button class="tab-btn active" onclick="filterItems('all', this)">All</button>
+          <button class="tab-btn" onclick="filterItems('men', this)">Men</button>
+          <button class="tab-btn" onclick="filterItems('women', this)">Women</button>
+          <button class="tab-btn" onclick="filterItems('kids', this)">Kids</button>
+        </div>
+
+        <div class="grid-3" id="catalog-grid">
+          
+          <!-- WOMEN'S COLLECTION -->
+          <div class="card catalog-item women reveal reveal-up">
+            <div class="card-img-wrap">
+              <button class="quick-add-btn" onclick="event.stopPropagation(); quickAdd('Royal Blue Chiffon Suit', 'Rs. 15,500', 'Women', 'images/women-royal-blue-suit.png')" title="Add to Cart">+</button>
+              <span class="badge-price">Rs. 15,500</span>
+              <img src="images/women-royal-blue-suit.png" alt="Royal Blue Chiffon Suit" class="card-img">
+              <button class="btn btn-gold quick-view-btn" onclick="openModal('Royal Blue Chiffon Suit', 'Rs. 15,500', 'Premium pure chiffon 3-piece suit with intricate zardozi work on neckline and dupatta borders.', 'Women', 'images/women-royal-blue-suit.png')">Quick View</button>
+            </div>
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-2">
+                <span class="badge badge--gold">Women</span><span class="stars">★★★★★</span>
+              </div>
+              <h3 class="card-title" style="font-size: var(--fs-lg);">Royal Blue Chiffon Suit</h3>
+            </div>
+          </div>
+          
+          <div class="card catalog-item women reveal reveal-up">
+            <div class="card-img-wrap">
+              <button class="quick-add-btn" onclick="event.stopPropagation(); quickAdd('Bridal Red Lehenga', 'Rs. 45,000', 'Women', 'images/women-bridal-red-lehenga.png')" title="Add to Cart">+</button>
+              <span class="badge-price">Rs. 45,000</span>
+              <img src="images/women-bridal-red-lehenga.png" alt="Bridal Red Lehenga" class="card-img">
+              <button class="btn btn-gold quick-view-btn" onclick="openModal('Bridal Red Lehenga', 'Rs. 45,000', 'Heavily embroidered bridal lehenga in rich crimson with gold dabka and tilla work.', 'Women', 'images/women-bridal-red-lehenga.png')">Quick View</button>
+            </div>
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-2">
+                <span class="badge badge--gold">Women</span><span class="stars">★★★★★</span>
+              </div>
+              <h3 class="card-title" style="font-size: var(--fs-lg);">Bridal Red Lehenga</h3>
+            </div>
+          </div>
+          
+          <div class="card catalog-item women reveal reveal-up">
+            <div class="card-img-wrap">
+              <button class="quick-add-btn" onclick="event.stopPropagation(); quickAdd('Emerald Silk Gharara', 'Rs. 12,000', 'Women', 'images/women-emerald-silk-gharara.jpg')" title="Add to Cart">+</button>
+              <span class="badge-price">Rs. 12,000</span>
+              <img src="images/women-emerald-silk-gharara.jpg" alt="Emerald Silk Gharara" class="card-img">
+              <button class="btn btn-gold quick-view-btn" onclick="openModal('Emerald Silk Gharara', 'Rs. 12,000', 'Elegant silk gharara paired with a short embroidered kurti and pure chiffon dupatta.', 'Women', 'images/women-emerald-silk-gharara.jpg')">Quick View</button>
+            </div>
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-2">
+                <span class="badge badge--gold">Women</span><span class="stars">★★★★☆</span>
+              </div>
+              <h3 class="card-title" style="font-size: var(--fs-lg);">Emerald Silk Gharara</h3>
+            </div>
+          </div>
+
+          <div class="card catalog-item women reveal reveal-up">
+            <div class="card-img-wrap">
+              <button class="quick-add-btn" onclick="event.stopPropagation(); quickAdd('Casual Lawn Ensemble', 'Rs. 8,500', 'Women', 'images/women-casual-lawn.png')" title="Add to Cart">+</button>
+              <span class="badge-price">Rs. 8,500</span>
+              <img src="images/women-casual-lawn.png" alt="Casual Lawn Ensemble" class="card-img">
+              <button class="btn btn-gold quick-view-btn" onclick="openModal('Casual Lawn Ensemble', 'Rs. 8,500', 'Printed lawn suit with light neckline embroidery. Perfect for summer gatherings.', 'Women', 'images/women-casual-lawn.png')">Quick View</button>
+            </div>
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-2">
+                <span class="badge badge--gold">Women</span><span class="stars">★★★★★</span>
+              </div>
+              <h3 class="card-title" style="font-size: var(--fs-lg);">Casual Lawn Ensemble</h3>
+            </div>
+          </div>
+
+          <div class="card catalog-item women reveal reveal-up">
+            <div class="card-img-wrap">
+              <button class="quick-add-btn" onclick="event.stopPropagation(); quickAdd('Gold Tissue Maxi', 'Rs. 18,000', 'Women', 'images/women-gold-tissue-maxi.jpg')" title="Add to Cart">+</button>
+              <span class="badge-price">Rs. 18,000</span>
+              <img src="images/women-gold-tissue-maxi.jpg" alt="Gold Tissue Maxi" class="card-img">
+              <button class="btn btn-gold quick-view-btn" onclick="openModal('Gold Tissue Maxi', 'Rs. 18,000', 'Floor-length gold tissue maxi dress with sequin spray and heavy borders.', 'Women', 'images/women-gold-tissue-maxi.jpg')">Quick View</button>
+            </div>
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-2">
+                <span class="badge badge--gold">Women</span><span class="stars">★★★★★</span>
+              </div>
+              <h3 class="card-title" style="font-size: var(--fs-lg);">Gold Tissue Maxi</h3>
+            </div>
+          </div>
+
+          <!-- MEN'S COLLECTION -->
+          <div class="card catalog-item men reveal reveal-up">
+            <div class="card-img-wrap">
+              <button class="quick-add-btn" onclick="event.stopPropagation(); quickAdd('Classic Navy Kurta', 'Rs. 8,000', 'Men', 'https://images.unsplash.com/photo-1603106845085-9783cb2b7bc4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80')" title="Add to Cart">+</button>
+              <span class="badge-price">Rs. 8,000</span>
+              <img src="https://images.unsplash.com/photo-1603106845085-9783cb2b7bc4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Men's Classic Tailored Suit" class="card-img">
+              <button class="btn btn-gold quick-view-btn" onclick="openModal('Classic Navy Kurta', 'Rs. 8,000', 'Elegant wash-and-wear navy blue kurta with subtle gold thread embroidery on collar.', 'Men', 'https://images.unsplash.com/photo-1603106845085-9783cb2b7bc4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80')">Quick View</button>
+            </div>
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-2">
+                <span class="badge badge--blue">Men</span><span class="stars">★★★★★</span>
+              </div>
+              <h3 class="card-title" style="font-size: var(--fs-lg);">Classic Navy Kurta</h3>
+            </div>
+          </div>
+          
+          <div class="card catalog-item men reveal reveal-up">
+            <div class="card-img-wrap">
+              <button class="quick-add-btn" onclick="event.stopPropagation(); quickAdd('Ivory Groom Sherwani', 'Rs. 25,000', 'Men', 'https://images.unsplash.com/photo-1616422285623-aa30a84e2777?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80')" title="Add to Cart">+</button>
+              <span class="badge-price">Rs. 25,000</span>
+              <img src="https://images.unsplash.com/photo-1616422285623-aa30a84e2777?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Men's Designer Wedding Suit" class="card-img">
+              <button class="btn btn-gold quick-view-btn" onclick="openModal('Ivory Groom Sherwani', 'Rs. 25,000', 'Premium ivory jamawar sherwani with gold motifs, paired with an inner suit.', 'Men', 'https://images.unsplash.com/photo-1616422285623-aa30a84e2777?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80')">Quick View</button>
+            </div>
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-2">
+                <span class="badge badge--blue">Men</span><span class="stars">★★★★★</span>
+              </div>
+              <h3 class="card-title" style="font-size: var(--fs-lg);">Ivory Groom Sherwani</h3>
+            </div>
+          </div>
+
+          <div class="card catalog-item men reveal reveal-up">
+            <div class="card-img-wrap">
+              <button class="quick-add-btn" onclick="event.stopPropagation(); quickAdd('Charcoal Wash & Wear', 'Rs. 6,500', 'Men', 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80')" title="Add to Cart">+</button>
+              <span class="badge-price">Rs. 6,500</span>
+              <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Men's Formal Black Suit" class="card-img">
+              <button class="btn btn-gold quick-view-btn" onclick="openModal('Charcoal Wash & Wear', 'Rs. 6,500', 'Everyday classic charcoal suit with standard collar and cuffed sleeves.', 'Men', 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80')">Quick View</button>
+            </div>
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-2">
+                <span class="badge badge--blue">Men</span><span class="stars">★★★★☆</span>
+              </div>
+              <h3 class="card-title" style="font-size: var(--fs-lg);">Charcoal Wash & Wear</h3>
+            </div>
+          </div>
+          
+          <div class="card catalog-item men reveal reveal-up">
+            <div class="card-img-wrap">
+              <button class="quick-add-btn" onclick="event.stopPropagation(); quickAdd('Black Boski Suit', 'Rs. 9,000', 'Men', 'https://images.unsplash.com/photo-1592878904946-b3cd8ae243d0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80')" title="Add to Cart">+</button>
+              <span class="badge-price">Rs. 9,000</span>
+              <img src="https://images.unsplash.com/photo-1592878904946-b3cd8ae243d0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Men's Luxury Sherwani Suit" class="card-img">
+              <button class="btn btn-gold quick-view-btn" onclick="openModal('Black Boski Suit', 'Rs. 9,000', 'Rich black boski silk shalwar kameez. Perfect for formal events.', 'Men', 'https://images.unsplash.com/photo-1592878904946-b3cd8ae243d0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80')">Quick View</button>
+            </div>
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-2">
+                <span class="badge badge--blue">Men</span><span class="stars">★★★★★</span>
+              </div>
+              <h3 class="card-title" style="font-size: var(--fs-lg);">Black Boski Suit</h3>
+            </div>
+          </div>
+
+          <div class="card catalog-item men reveal reveal-up">
+            <div class="card-img-wrap">
+              <button class="quick-add-btn" onclick="event.stopPropagation(); quickAdd('Embroidered White Kurta', 'Rs. 11,500', 'Men', 'https://images.unsplash.com/photo-1555689912-32104dc25ea4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80')" title="Add to Cart">+</button>
+              <span class="badge-price">Rs. 11,500</span>
+              <img src="https://images.unsplash.com/photo-1555689912-32104dc25ea4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Men's Bespoke Navy Suit" class="card-img">
+              <button class="btn btn-gold quick-view-btn" onclick="openModal('Embroidered White Kurta', 'Rs. 11,500', 'Pure cotton white kurta with intricate self-embroidery on the front placket.', 'Men', 'https://images.unsplash.com/photo-1555689912-32104dc25ea4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80')">Quick View</button>
+            </div>
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-2">
+                <span class="badge badge--blue">Men</span><span class="stars">★★★★★</span>
+              </div>
+              <h3 class="card-title" style="font-size: var(--fs-lg);">Embroidered White Kurta</h3>
+            </div>
+          </div>
+
+          <!-- KIDS COLLECTION -->
+          <div class="card catalog-item kids reveal reveal-up">
+            <div class="card-img-wrap">
+              <button class="quick-add-btn" onclick="event.stopPropagation(); quickAdd('Boys Festive Waistcoat Set', 'Rs. 5,500', 'Kids', 'images/boys-festive-waistcoat.png')" title="Add to Cart">+</button>
+              <span class="badge-price">Rs. 5,500</span>
+              <img src="images/boys-festive-waistcoat.png" alt="Boys Festive Waistcoat Set" class="card-img">
+              <button class="btn btn-gold quick-view-btn" onclick="openModal('Boys Festive Waistcoat Set', 'Rs. 5,500', 'Cute jamawar waistcoat paired with a soft cotton off-white shalwar kameez.', 'Kids', 'images/boys-festive-waistcoat.png')">Quick View</button>
+            </div>
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-2">
+                <span class="badge badge--green">Kids</span><span class="stars">★★★★☆</span>
+              </div>
+              <h3 class="card-title" style="font-size: var(--fs-lg);">Boys Festive Waistcoat Set</h3>
+            </div>
+          </div>
+          
+          <div class="card catalog-item kids reveal reveal-up">
+            <div class="card-img-wrap">
+              <button class="quick-add-btn" onclick="event.stopPropagation(); quickAdd('Girls Pink Frock', 'Rs. 6,800', 'Kids', 'images/girls-pink-frock.png')" title="Add to Cart">+</button>
+              <span class="badge-price">Rs. 6,800</span>
+              <img src="images/girls-pink-frock.png" alt="Girls Pink Frock" class="card-img">
+              <button class="btn btn-gold quick-view-btn" onclick="openModal('Girls Pink Frock', 'Rs. 6,800', 'Adorable pink chiffon frock with gold gota details and matching trousers.', 'Kids', 'images/girls-pink-frock.png')">Quick View</button>
+            </div>
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-2">
+                <span class="badge badge--green">Kids</span><span class="stars">★★★★★</span>
+              </div>
+              <h3 class="card-title" style="font-size: var(--fs-lg);">Girls Pink Frock</h3>
+            </div>
+          </div>
+          
+          <div class="card catalog-item kids reveal reveal-up">
+            <div class="card-img-wrap">
+              <button class="quick-add-btn" onclick="event.stopPropagation(); quickAdd('Boys Casual Kurta', 'Rs. 4,500', 'Kids', 'images/boys-casual-kurta.png')" title="Add to Cart">+</button>
+              <span class="badge-price">Rs. 4,500</span>
+              <img src="images/boys-casual-kurta.png" alt="Boys Casual Kurta" class="card-img">
+              <button class="btn btn-gold quick-view-btn" onclick="openModal('Boys Casual Kurta', 'Rs. 4,500', 'Lightweight cotton blue kurta for toddlers. Breathable and comfortable.', 'Kids', 'images/boys-casual-kurta.png')">Quick View</button>
+            </div>
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-2">
+                <span class="badge badge--green">Kids</span><span class="stars">★★★★☆</span>
+              </div>
+              <h3 class="card-title" style="font-size: var(--fs-lg);">Boys Casual Kurta</h3>
+            </div>
+          </div>
+          
+          <div class="card catalog-item kids reveal reveal-up">
+            <div class="card-img-wrap">
+              <button class="quick-add-btn" onclick="event.stopPropagation(); quickAdd('Girls Mini Lehenga', 'Rs. 7,200', 'Kids', 'images/girls-mini-lehenga.png')" title="Add to Cart">+</button>
+              <span class="badge-price">Rs. 7,200</span>
+              <img src="images/girls-mini-lehenga.png" alt="Girls Mini Lehenga" class="card-img">
+              <button class="btn btn-gold quick-view-btn" onclick="openModal('Girls Mini Lehenga', 'Rs. 7,200', 'Miniature traditional lehenga choli with bright colors and tilla borders.', 'Kids', 'images/girls-mini-lehenga.png')">Quick View</button>
+            </div>
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-2">
+                <span class="badge badge--green">Kids</span><span class="stars">★★★★★</span>
+              </div>
+              <h3 class="card-title" style="font-size: var(--fs-lg);">Girls Mini Lehenga</h3>
+            </div>
+          </div>
+          
+          <div class="card catalog-item kids reveal reveal-up">
+            <div class="card-img-wrap">
+              <button class="quick-add-btn" onclick="event.stopPropagation(); quickAdd('Boys Prince Suit', 'Rs. 8,500', 'Kids', 'images/boys-prince-suit.png')" title="Add to Cart">+</button>
+              <span class="badge-price">Rs. 8,500</span>
+              <img src="images/boys-prince-suit.png" alt="Boys Prince Suit" class="card-img">
+              <button class="btn btn-gold quick-view-btn" onclick="openModal('Boys Prince Suit', 'Rs. 8,500', 'Formal prince suit for young boys. Includes tailored pants and a velvet coat.', 'Kids', 'images/boys-prince-suit.png')">Quick View</button>
+            </div>
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-2">
+                <span class="badge badge--green">Kids</span><span class="stars">★★★★★</span>
+              </div>
+              <h3 class="card-title" style="font-size: var(--fs-lg);">Boys Prince Suit</h3>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- QUICK VIEW MODAL -->
+  <div class="modal" id="quickViewModal">
+    <div class="modal-backdrop" onclick="closeModal()"></div>
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Product" class="modal-img" id="modalImg">
+      <div class="modal-body">
+        <span class="badge badge--gold mb-4" id="modalCategory">Category</span>
+        <h3 class="mb-2" id="modalTitle">Product Title</h3>
+        <h4 class="mb-6" style="color: var(--c-gold-dark);" id="modalPrice">Price</h4>
+        <p class="mb-8" id="modalDesc">Detailed description here.</p>
+        
+        <div class="form-group mb-6">
+          <label class="form-label">Size</label>
+          <select class="form-control" id="modalSizeSelect">
+            <option>Small</option><option>Medium</option><option>Large</option><option>Custom Measurement</option>
+          </select>
+        </div>
+        
+        <div class="flex gap-4">
+          <button class="btn btn-primary" id="modalAddToCartBtn" style="flex:1;">Add to Cart</button>
+          <button class="btn btn-gold" id="modalBuyNowBtn" style="flex:1;">Buy Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container text-center">
+      <a href="index.html" class="footer-logo brand-logo" style="justify-content: center; margin-bottom: var(--sp-4);">
+              <svg class="brand-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="48" fill="var(--c-primary-dark)"/>
+        <circle cx="50" cy="50" r="42" stroke="var(--c-gold)" stroke-width="2" stroke-dasharray="6 4"/>
+        <path d="M35 70V30L65 70V30" stroke="var(--c-gold)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+        <div class="brand-text" style="text-align: left;">
+          <span class="brand-title" style="color: inherit;">Nazia</span>
+          <span class="brand-subtitle">Stitching Studio</span>
+        </div>
+      </a>
+      <p class="footer-text mt-4">&copy; 2026 Nazia Stitching Studio. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- FLOATING WA -->
+  <a href="https://wa.me/923106845085" target="_blank" class="floating-wa">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+  </a>
+
+  <script src="js/main.js"></script>
+  <script src="js/cart.js"></script>
+  
+  <script src="js/auth.js"></script>
+  <script src="js/chatbot.js"></script>
+  <script>
+    function filterItems(category, btnElement) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      if(btnElement) btnElement.classList.add('active');
+      
+      const items = document.querySelectorAll('.catalog-item');
+      items.forEach(item => {
+        item.classList.remove('revealed'); // reset animation state
+        if (category === 'all' || item.classList.contains(category)) {
+          item.style.display = 'flex';
+          setTimeout(() => item.classList.add('revealed'), 50);
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    const modal = document.getElementById('quickViewModal');
+    let currentModalItem = null;
+    
+    function openModal(title, price, desc, category, imgUrl) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalPrice').textContent = price;
+      document.getElementById('modalDesc').textContent = desc;
+      document.getElementById('modalCategory').textContent = category;
+      document.getElementById('modalImg').src = imgUrl;
+      
+      currentModalItem = { title, price, desc, category, image: imgUrl };
+      
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal() {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      currentModalItem = null;
+    }
+
+    document.getElementById('modalAddToCartBtn').addEventListener('click', () => {
+      if(!currentModalItem) return;
+      const size = document.getElementById('modalSizeSelect').value;
+      Cart.addItem({ ...currentModalItem, size });
+      closeModal();
+    });
+
+    document.getElementById('modalBuyNowBtn').addEventListener('click', () => {
+      if(!currentModalItem) return;
+      if (typeof Auth !== 'undefined' && Auth.currentUser && !Auth.currentUser.isVerified) {
+        Auth.showVerificationModal();
+        return;
+      }
+      const size = document.getElementById('modalSizeSelect').value;
+      Cart.clearCart();
+      Cart.addItem({ ...currentModalItem, size });
+      window.location.href = 'checkout.html';
+    });
+    
+    // Quick add function for catalog cards
+    function quickAdd(title, price, category, imgUrl) {
+      Cart.addItem({ title, price, category, image: imgUrl, size: 'Standard' });
+    }
+
+    // Direct Buy function for clicking titles
+    function buyItemNow(title, price, category, imgUrl) {
+      if (typeof Auth !== 'undefined' && Auth.currentUser && !Auth.currentUser.isVerified) {
+        Auth.showVerificationModal();
+        return;
+      }
+      Cart.clearCart();
+      Cart.addItem({ title, price, category, image: imgUrl, size: 'Standard' });
+      window.location.href = 'checkout.html';
+    }
+
+    // Make all product titles clickable
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.catalog-item').forEach(card => {
+        const titleEl = card.querySelector('.card-title');
+        if(titleEl) {
+          titleEl.style.cursor = 'pointer';
+          titleEl.title = "Buy " + titleEl.textContent + " Now";
+          
+          // Add subtle hover effect directly
+          titleEl.addEventListener('mouseenter', () => titleEl.style.color = 'var(--c-gold)');
+          titleEl.addEventListener('mouseleave', () => titleEl.style.color = '');
+          
+          titleEl.addEventListener('click', (e) => {
+            e.preventDefault();
+            const quickViewBtn = card.querySelector('.quick-view-btn');
+            if (quickViewBtn) {
+              const onclickStr = quickViewBtn.getAttribute('onclick');
+              const paramsMatch = onclickStr.match(/openModal\('([^']*)',\s*'([^']*)',\s*'([^']*)',\s*'([^']*)',\s*'([^']*)'\)/);
+              if(paramsMatch) {
+                const title = paramsMatch[1];
+                const price = paramsMatch[2];
+                const category = paramsMatch[4];
+                const imgUrl = paramsMatch[5];
+                buyItemNow(title, price, category, imgUrl);
+              }
+            }
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

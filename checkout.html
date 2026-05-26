@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout | Nazia Stitching Studio</title>
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="apple-touch-icon" href="images/favicon.svg">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Secure checkout at Nazia Stitching Studio.">
+  
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/auth.css">
+
+  <style>
+    body { background: var(--c-pearl); }
+    .checkout-header {
+      background: var(--c-white);
+      padding: var(--sp-4) var(--container-pad);
+      box-shadow: var(--sh-sm);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    
+    .checkout-layout {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: var(--sp-8);
+      margin-top: var(--sp-8);
+      align-items: start;
+    }
+    @media (max-width: 992px) {
+      .checkout-layout { grid-template-columns: 1fr; }
+    }
+
+    .step-indicator {
+      display: flex; gap: var(--sp-2); margin-bottom: var(--sp-8);
+    }
+    .step {
+      flex: 1; padding: var(--sp-2); border-bottom: 3px solid var(--c-border);
+      color: var(--c-text-muted); font-weight: var(--fw-semibold);
+      font-size: var(--fs-sm); text-transform: uppercase;
+    }
+    .step.active { border-color: var(--c-primary); color: var(--c-primary); }
+    .step.completed { border-color: var(--c-gold); color: var(--c-gold-dark); }
+
+    .payment-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4); margin-bottom: var(--sp-6); }
+    .pm-btn {
+      padding: var(--sp-4); border: 1px solid var(--c-border);
+      border-radius: var(--r-md); background: var(--c-white);
+      text-align: center; font-weight: var(--fw-medium);
+      color: var(--c-text-sub); transition: all var(--dur-fast) var(--ease);
+    }
+    .pm-btn.active { border-color: var(--c-primary); background: var(--c-primary-pale); color: var(--c-primary); box-shadow: 0 0 0 2px var(--c-primary-pale); }
+    @media (max-width: 640px) {
+      .payment-methods { grid-template-columns: 1fr; }
+    }
+    
+    .summary-card {
+      background: var(--c-white); border-radius: var(--r-xl);
+      padding: var(--sp-6); box-shadow: var(--sh-md); position: sticky; top: var(--sp-8);
+    }
+    .summary-item { display: flex; justify-content: space-between; margin-bottom: var(--sp-4); }
+    .summary-item img { width: 60px; height: 80px; object-fit: cover; border-radius: var(--r-sm); margin-right: var(--sp-4); }
+    .total-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: var(--sp-6); padding-top: var(--sp-4);
+      border-top: 1px solid var(--c-border); font-family: var(--ff-heading);
+      font-size: var(--fs-xl); color: var(--c-primary); font-weight: var(--fw-bold);
+    }
+    
+    @media (max-width: 480px) {
+      .brand-subtitle { display: none; }
+      .brand-title { font-size: 1.25rem; }
+      .brand-icon { width: 36px; height: 36px; }
+      .btn-link { font-size: 12px; white-space: nowrap; padding: 4px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="checkout-header">
+    <a href="index.html" class="nav-brand brand-logo">
+            <svg class="brand-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="48" fill="var(--c-primary-dark)"/>
+        <circle cx="50" cy="50" r="42" stroke="var(--c-gold)" stroke-width="2" stroke-dasharray="6 4"/>
+        <path d="M35 70V30L65 70V30" stroke="var(--c-gold)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-title" style="color: inherit;">Nazia</span>
+        <span class="brand-subtitle">Stitching Studio</span>
+      </div>
+    </a>
+    <a href="catalog.html" class="btn btn-link">Continue Shopping</a>
+  </header>
+  
+  <div class="page-header" style="padding: 4rem 2rem; text-align: center; background-image: linear-gradient(rgba(13,34,71,0.5), rgba(13,34,71,0.7)), url('https://images.unsplash.com/photo-1605335133615-385ee0fb0750?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80'); background-size: cover; background-position: center; background-repeat: no-repeat; color: white;">
+    <h1 class="section-title section-title--light" style="margin-bottom: 0;">Secure Checkout</h1>
+  </div>
+
+  <main class="container mb-16">
+    <div class="step-indicator">
+      <div class="step completed">1. Cart</div>
+      <div class="step active">2. Details</div>
+      <div class="step">3. Payment</div>
+    </div>
+    
+    <div class="checkout-layout">
+      
+      <!-- MAIN CHECKOUT AREA -->
+      <div>
+        <div class="card" style="padding: var(--sp-8);">
+          <h2 class="mb-6">Shipping Details</h2>
+          <div class="grid-2 mb-4">
+            <div class="form-group">
+              <label class="form-label">First Name</label>
+              <input type="text" id="chkFirstName" class="form-control" placeholder="e.g. Ali">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              <input type="text" id="chkLastName" class="form-control" placeholder="e.g. Hassan">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Address</label>
+            <input type="text" id="chkAddress" class="form-control" placeholder="e.g. House 42, Street 5, DHA">
+          </div>
+          <div class="grid-2 mb-8">
+            <div class="form-group">
+              <label class="form-label">City</label>
+              <input type="text" id="chkCity" class="form-control" placeholder="e.g. Lahore">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input type="tel" id="chkPhone" class="form-control" placeholder="e.g. +92 300 1234567">
+            </div>
+          </div>
+
+          <h2 class="pt-6" style="border-top: 1px solid var(--c-border); margin-bottom: 2rem;">Payment Method</h2>
+          <div class="payment-methods">
+            <button class="pm-btn active" onclick="selectPayment(this)">Credit Card</button>
+            <button class="pm-btn" onclick="selectPayment(this)">Bank Transfer</button>
+            <button class="pm-btn" onclick="selectPayment(this)">JazzCash / Easypaisa</button>
+          </div>
+
+          <div class="form-group mb-4">
+            <label class="form-label">Card Number</label>
+            <input type="text" class="form-control" placeholder="0000 0000 0000 0000">
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Expiry (MM/YY)</label>
+              <input type="text" class="form-control" placeholder="12/25">
+            </div>
+            <div class="form-group">
+              <label class="form-label">CVC</label>
+              <input type="text" class="form-control" placeholder="123">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORDER SUMMARY -->
+      <div>
+        <div class="summary-card">
+          <h3 class="mb-6">Order Summary</h3>
+          
+          <div id="checkout-items-container"></div>
+
+          <div class="summary-item mt-6" style="padding-top:var(--sp-4); border-top:1px dashed var(--c-border); display:flex; justify-content:space-between; color: var(--c-text-sub);">
+            <span>Subtotal</span><span id="checkout-subtotal">Rs. 0</span>
+          </div>
+          <div class="summary-item" style="display:flex; justify-content:space-between; color: var(--c-text-sub);">
+            <span>Shipping</span><span>Free</span>
+          </div>
+          
+          <div class="total-row">
+            <span>Total</span><span id="checkout-total">Rs. 0</span>
+          </div>
+
+          <button onclick="processCheckout(this)" class="btn btn-primary mt-8" style="width: 100%; height: 60px; font-size: var(--fs-lg);">Complete Order</button>
+          <div class="text-center mt-4" style="font-size: var(--fs-xs); color: var(--c-text-muted);">
+            🔒 Secure 256-bit SSL encryption
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FLOATING WA -->
+  <a href="https://wa.me/923106845085" target="_blank" class="floating-wa">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+  </a>
+
+  <script src="js/cart.js"></script>
+  <script>
+    function selectPayment(btn) {
+      document.querySelectorAll('.pm-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedUser = localStorage.getItem('currentUser');
+      const user = savedUser ? JSON.parse(savedUser) : null;
+      
+      if (user && !user.isVerified) {
+        const layout = document.querySelector('.checkout-layout');
+        if (layout) {
+          layout.style.gridTemplateColumns = '1fr';
+          layout.innerHTML = `
+            <div style="background: white; padding: 48px; border-radius: 20px; box-shadow: var(--sh-lg); width: 100%; max-width: 500px; margin: 40px auto; text-align: center; border: 1px solid rgba(201,168,76,0.3); animation: scaleIn 0.4s ease-out;">
+              <div style="font-size: 56px; margin-bottom: 20px;">🔒</div>
+              <h2 style="font-family: var(--ff-heading); color: var(--c-primary); font-size: 26px; margin-bottom: 12px;">Verification Required to Checkout</h2>
+              <p style="color: var(--c-text-sub); line-height: 1.6; font-size: 14px; margin-bottom: 30px; font-family: 'Inter', sans-serif;">
+                Your account is unverified. To protect your orders and prevent fraudulent activity, unverified accounts cannot place orders. Please click below to verify your account via WhatsApp.
+              </p>
+              <a href="https://wa.me/923106845085?text=${encodeURIComponent('Hi, I would like to verify my account.\n\nEmail/Phone: ' + (user.email || user.phone || 'N/A') + '\n\nPlease verify my account so I can place my order. Thank you!')}" target="_blank" style="background: #25D366; color: white; border: none; border-radius: 8px; padding: 14px 28px; font-size: 15px; font-weight: bold; cursor: pointer; display: inline-block; text-decoration: none; width: 100%; box-sizing: border-box; margin-bottom: 24px; transition: background 0.3s; font-family: 'Inter', sans-serif;">Verify via WhatsApp</a>
+              <div style="border-top: 1px solid #eaeaea; padding-top: 20px;">
+                <a href="cart.html" style="color: var(--c-primary); text-decoration: underline; font-size: 14px; font-weight: 500; font-family: 'Inter', sans-serif;">Return to Cart</a>
+              </div>
+            </div>
+          `;
+        }
+        return;
+      }
+
+      const cart = Cart.getCart();
+      const container = document.getElementById('checkout-items-container');
+      const subtotalEl = document.getElementById('checkout-subtotal');
+      const totalEl = document.getElementById('checkout-total');
+      
+      let subtotal = 0;
+      
+      if (cart.length === 0) {
+        container.innerHTML = '<p style="color: var(--c-text-muted);">Your cart is empty.</p>';
+      } else {
+        container.innerHTML = cart.map(item => {
+          subtotal += Cart.parsePrice(item.price) * item.quantity;
+          return `
+            <div class="summary-item">
+              <div class="flex">
+                <img src="${item.image}" alt="${item.title}">
+                <div>
+                  <h5 class="mb-1">${item.title}</h5>
+                  <span style="font-size: var(--fs-xs); color: var(--c-text-muted);">Size: ${item.size} | Qty: ${item.quantity}</span>
+                </div>
+              </div>
+              <div style="font-weight: var(--fw-bold);">${item.price}</div>
+            </div>
+          `;
+        }).join('');
+      }
+      
+      const formattedTotal = Cart.formatPrice(subtotal);
+      subtotalEl.textContent = formattedTotal;
+      totalEl.textContent = formattedTotal;
+      
+      // Store total for API
+      window.checkoutTotal = subtotal;
+    });
+
+    async function processCheckout(btn) {
+      const cart = Cart.getCart();
+      if (cart.length === 0) {
+        window.ShowAlert("Your cart is empty.");
+        return;
+      }
+
+      // We need user email, verify if logged in, else mock
+      const savedUser = localStorage.getItem('currentUser');
+      const email = savedUser ? JSON.parse(savedUser).email : 'guest@example.com';
+
+      const firstName = document.getElementById('chkFirstName').value;
+      const phone = document.getElementById('chkPhone').value;
+      const address = document.getElementById('chkAddress').value;
+      const city = document.getElementById('chkCity').value;
+
+      if (!firstName || !phone || !address || !city) {
+        window.ShowAlert("Please fill in all shipping details.");
+        return;
+      }
+
+      const activeBtn = document.querySelector('.pm-btn.active');
+      const paymentMethod = activeBtn ? activeBtn.textContent : 'Credit Card';
+
+      btn.disabled = true;
+      const origText = btn.textContent;
+      btn.textContent = "Processing securely...";
+
+      try {
+        const payload = {
+          items: cart.map(i => ({ name: i.title, quantity: i.quantity, price: Cart.parsePrice(i.price) })),
+          total: window.checkoutTotal,
+          paymentMethod,
+          customer: { firstName, phone, address, city, email }
+        };
+
+        const res = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok) {
+          // Clear cart
+          localStorage.removeItem('nazia_cart');
+          Cart.updateCartCount();
+          
+          window.ShowAlert(`Order Successful! Your Order ID is: ${data.orderId}`);
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 2000);
+        } else if (data.error === 'ACCOUNT_UNVERIFIED') {
+          // Server-side unverified rejection — show verification prompt
+          if (typeof Auth !== 'undefined') Auth.showVerificationModal();
+          btn.disabled = false;
+          btn.textContent = origText;
+        } else {
+          window.ShowAlert(data.error || "Failed to process order.");
+          btn.disabled = false;
+          btn.textContent = origText;
+        }
+      } catch (e) {
+        window.ShowAlert("Network error. Please try again later.");
+        btn.disabled = false;
+        btn.textContent = origText;
+      }
+    }
+  </script>
+  
+  <script src="js/auth.js"></script>
+  <script src="js/chatbot.js"></script>
+</body>
+</html>
