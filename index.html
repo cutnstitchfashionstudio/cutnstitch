@@ -3,36 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nazia Stitching Studio | Bespoke & Luxury Prêt</title>
+  <title>Cut &amp; Stitch Fashion Studio | Bespoke & Luxury Prêt</title>
   <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
   <link rel="apple-touch-icon" href="images/favicon.svg">
-  <meta name="description" content="Nazia Stitching Studio offers premium bespoke stitching, bridal wear, and luxury Pakistani Prêt. Serving Ahmedpur Lamma, Rahimyar Khan, Bahawalpur, and international clients in USA & UK.">
-  <meta name="keywords" content="Nazia Stitching Studio, Luxury Pakistani Fashion, Bespoke Prêt, Bridal Tailoring, Custom Stitching, Ahmedpur Lamma, Rahimyar Khan, Sadiqabad, Bahawalpur, Punjab, International Shipping, USA, UK, Women's Wear">
-  <link rel="canonical" href="https://naziastitchingstudio.vercel.app/">
+  <meta name="description" content="Cut &amp; Stitch Fashion Studio offers premium bespoke stitching, bridal wear, and luxury Pakistani Prêt. Serving Ahmedpur Lamma, Rahimyar Khan, Bahawalpur, and international clients in USA & UK.">
+  <meta name="keywords" content="Cut &amp; Stitch Fashion Studio, Luxury Pakistani Fashion, Bespoke Prêt, Bridal Tailoring, Custom Stitching, Ahmedpur Lamma, Rahimyar Khan, Sadiqabad, Bahawalpur, Punjab, International Shipping, USA, UK, Women's Wear">
+  <link rel="canonical" href="https://cutnstitchfashionstudio.vercel.app/">
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://naziastitchingstudio.vercel.app/">
-  <meta property="og:title" content="Nazia Stitching Studio | Bespoke & Luxury Prêt">
+  <meta property="og:url" content="https://cutnstitchfashionstudio.vercel.app/">
+  <meta property="og:title" content="Cut &amp; Stitch Fashion Studio | Bespoke & Luxury Prêt">
   <meta property="og:description" content="Experience premium bespoke stitching and luxury Pakistani fashion. International shipping available.">
-  <meta property="og:image" content="https://naziastitchingstudio.vercel.app/images/women-bridal-red-lehenga.png">
+  <meta property="og:image" content="https://cutnstitchfashionstudio.vercel.app/images/women-bridal-red-lehenga.png">
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:url" content="https://naziastitchingstudio.vercel.app/">
-  <meta property="twitter:title" content="Nazia Stitching Studio | Bespoke & Luxury Prêt">
+  <meta property="twitter:url" content="https://cutnstitchfashionstudio.vercel.app/">
+  <meta property="twitter:title" content="Cut &amp; Stitch Fashion Studio | Bespoke & Luxury Prêt">
   <meta property="twitter:description" content="Experience premium bespoke stitching and luxury Pakistani fashion. International shipping available.">
-  <meta property="twitter:image" content="https://naziastitchingstudio.vercel.app/images/women-bridal-red-lehenga.png">
+  <meta property="twitter:image" content="https://cutnstitchfashionstudio.vercel.app/images/women-bridal-red-lehenga.png">
 
   <!-- JSON-LD LocalBusiness Schema -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "TailorShop",
-    "name": "Nazia Stitching Studio",
-    "image": "https://naziastitchingstudio.vercel.app/images/women-bridal-red-lehenga.png",
-    "@id": "https://naziastitchingstudio.vercel.app/",
-    "url": "https://naziastitchingstudio.vercel.app/",
+    "name": "Cut & Stitch Fashion Studio",
+    "image": "https://cutnstitchfashionstudio.vercel.app/images/women-bridal-red-lehenga.png",
+    "@id": "https://cutnstitchfashionstudio.vercel.app/",
+    "url": "https://cutnstitchfashionstudio.vercel.app/",
     "telephone": "+923106845085",
     "address": {
       "@type": "PostalAddress",
@@ -75,6 +75,150 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
   
   <style>
+    /* ── Marquee ticker ─────────────────────────────────────────────────── */
+    .marquee-strip {
+      background: linear-gradient(90deg, var(--c-primary-dark) 0%, #1a3a6e 50%, var(--c-primary-dark) 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      overflow: hidden;
+      height: 44px;
+      border-bottom: 1px solid rgba(201,168,76,0.3);
+      position: relative;
+      z-index: 100;
+    }
+    .marquee-label {
+      flex-shrink: 0;
+      background: var(--c-gold);
+      color: var(--c-primary-dark);
+      font-weight: var(--fw-bold);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      padding: 0 16px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+    .marquee-track-wrap {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    .marquee-track {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      animation: marqueeScroll 30s linear infinite;
+      white-space: nowrap;
+      width: max-content;
+    }
+    .marquee-track:hover { animation-play-state: paused; }
+    @keyframes marqueeScroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    .marquee-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 28px;
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.92);
+      text-decoration: none;
+      border-right: 1px solid rgba(255,255,255,0.15);
+      transition: color var(--dur-fast);
+      height: 44px;
+    }
+    .marquee-item:hover { color: var(--c-gold); }
+    .marquee-item .mi-price {
+      color: var(--c-gold);
+      font-weight: var(--fw-bold);
+    }
+    .marquee-item .mi-offer {
+      background: rgba(201,168,76,0.2);
+      color: var(--c-gold);
+      padding: 1px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: var(--fw-semibold);
+    }
+    .marquee-item .mi-thumb {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid rgba(201,168,76,0.4);
+      flex-shrink: 0;
+    }
+
+    /* ── Featured product cards ──────────────────────────────────────── */
+    .featured-card {
+      background: var(--c-white);
+      border-radius: var(--r-xl);
+      overflow: hidden;
+      box-shadow: var(--sh-md);
+      transition: transform var(--dur-base) var(--ease), box-shadow var(--dur-base);
+      display: flex;
+      flex-direction: column;
+    }
+    .featured-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--sh-xl);
+    }
+    .featured-card-img-wrap {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 3/4;
+    }
+    .featured-card-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s var(--ease);
+    }
+    .featured-card:hover .featured-card-img-wrap img { transform: scale(1.06); }
+    .featured-card-badge {
+      position: absolute;
+      top: 12px; left: 12px;
+      background: var(--c-gold);
+      color: var(--c-primary-dark);
+      font-size: 11px;
+      font-weight: var(--fw-bold);
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    .featured-card-body {
+      padding: var(--sp-5);
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .featured-card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: var(--fs-lg);
+      font-weight: var(--fw-bold);
+      color: var(--c-primary);
+      margin-bottom: var(--sp-1);
+    }
+    .featured-card-price {
+      font-size: var(--fs-base);
+      font-weight: var(--fw-bold);
+      color: var(--c-gold-dark);
+      margin-bottom: var(--sp-4);
+    }
+    .featured-card-desc {
+      font-size: var(--fs-sm);
+      color: var(--c-text-muted);
+      line-height: 1.6;
+      margin-bottom: var(--sp-5);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      flex: 1;
+    }
+
     /* Home specific styles */
     .hero {
       min-height: 100vh;
@@ -369,8 +513,8 @@
         <path d="M35 70V30L65 70V30" stroke="var(--c-gold)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <div class="brand-text">
-        <span class="brand-title" style="color: inherit;">Nazia</span>
-        <span class="brand-subtitle">Stitching Studio</span>
+        <span class="brand-title">Cut &amp; Stitch</span>
+        <span class="brand-subtitle">Fashion Studio</span>
       </div>
     </a>
     <div class="nav-links">
@@ -411,6 +555,14 @@
       </div>
     </section>
 
+    <!-- ═══ LIVE MARQUEE TICKER ═══════════════════════════════════════ -->
+    <div class="marquee-strip" id="marqueeStrip" style="display:none;">
+      <div class="marquee-label">🔥 LIVE OFFERS</div>
+      <div class="marquee-track-wrap">
+        <div class="marquee-track" id="marqueeTrack"></div>
+      </div>
+    </div>
+
     <!-- STATS -->
     <div class="container">
       <div class="stats-bar grid-3 reveal reveal-up delay-2">
@@ -429,7 +581,23 @@
       </div>
     </div>
 
-    <!-- SERVICES PREVIEW -->
+    <!-- ═══ FEATURED PRODUCTS (LIVE) ══════════════════════════════════ -->
+    <section class="section section--pearl" id="featuredSection" style="display:none;">
+      <div class="container">
+        <div class="text-center mb-12">
+          <span class="eyebrow reveal reveal-up">Hot Right Now</span>
+          <h2 class="section-title reveal reveal-up delay-1">Featured Collection</h2>
+          <div class="divider-gold reveal reveal-scale delay-2"></div>
+          <p class="section-subtitle reveal reveal-up delay-3">New arrivals, exclusive offers, and top picks — updated live by our team.</p>
+        </div>
+        <div class="grid-3" id="featuredGrid"></div>
+        <div class="text-center mt-12 reveal reveal-up">
+          <a href="catalog.html" class="btn btn-primary">View Full Collection &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+
     <section class="section section--white">
       <div class="container">
         <div class="text-center mb-12">
@@ -493,7 +661,7 @@
               <div class="swiper-slide">
                 <div class="review-card">
                   <div class="stars mb-4">★★★★★</div>
-                  <p>"The attention to detail on my bridal dress was absolutely breathtaking. Nazia Studio exceeded all my expectations. Shipped perfectly to Dubai."</p>
+                  <p>"The attention to detail on my bridal dress was absolutely breathtaking. Cut &amp; Stitch Fashion Studio exceeded all my expectations. Shipped perfectly to Dubai."</p>
                   <div class="reviewer">
                     <img src="https://i.pravatar.cc/150?img=1" alt="Sara" class="reviewer-img">
                     <div class="reviewer-info">
@@ -589,8 +757,8 @@
         <path d="M35 70V30L65 70V30" stroke="var(--c-gold)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
           <div class="brand-text">
-            <span class="brand-title" style="color: inherit;">Nazia</span>
-            <span class="brand-subtitle">Stitching Studio</span>
+            <span class="brand-title">Cut &amp; Stitch</span>
+            <span class="brand-subtitle">Fashion Studio</span>
           </div>
         </a>
         <p class="footer-text">Elevating traditional elegance with modern sophistication. Premium tailoring and luxury fashion manufacturing.</p>
@@ -613,12 +781,12 @@
       </div>
       <div>
         <h4 class="footer-heading">Contact</h4>
-        <p class="footer-text">8385+C7H Ahmedpur Lamma<br>Email: info@naziastudio.com<br>Phone: +92 310 6845085</p>
+        <p class="footer-text">8385+C7H Ahmedpur Lamma<br>Email: cutnstitchfashionstudio@gmail.com<br>Phone: +92 310 6845085</p>
       </div>
     </div>
     <div class="container">
       <div class="footer-bottom">
-        &copy; 2026 Nazia Stitching Studio. All rights reserved.
+        &copy; 2026 Cut &amp; Stitch Fashion Studio. All rights reserved.
       </div>
     </div>
   </footer>
@@ -634,5 +802,104 @@
   
   <script src="js/auth.js"></script>
   <script src="js/chatbot.js"></script>
+
+  <script>
+    // ── Homepage Live Products ─────────────────────────────────────────────
+    (async function initHomeProducts() {
+      try {
+        const res  = await fetch('/api/products');
+        if (!res.ok) return;
+        const data = await res.json();
+
+        buildMarquee(data.marqueeItems  || []);
+        buildFeatured(data.featuredProducts || []);
+      } catch (e) {
+        console.warn('Homepage products fetch failed:', e);
+      }
+    })();
+
+    // ── Marquee ticker ─────────────────────────────────────────────────────
+    function buildMarquee(items) {
+      if (!items.length) return;
+      const strip = document.getElementById('marqueeStrip');
+      const track = document.getElementById('marqueeTrack');
+
+      // Build one set of items; duplicate for seamless loop
+      const itemsHTML = items.map(item => {
+        const label = item.offerText
+          ? `<span class="mi-offer">🏷 ${item.offerText}</span>`
+          : `<span class="mi-offer">🌟 New Arrival</span>`;
+        const discount = item.discountPct > 0
+          ? `<span style="text-decoration:line-through;opacity:0.5;font-size:11px;">Rs.${Number(item.price).toLocaleString()}</span>` : '';
+        const thumb = item.image
+          ? `<img class="mi-thumb" src="${item.image}" alt="${item.name}" onerror="this.style.display='none'">`
+          : '';
+        return `<a href="product.html?id=${item.id}" class="marquee-item">
+          ${thumb}
+          <span>${item.name}</span>
+          ${label}
+          <span class="mi-price">Rs. ${Number(item.price).toLocaleString('en-PK')}</span>
+          ${discount}
+        </a>`;
+      }).join('');
+
+      // Duplicate so the scroll is seamless
+      track.innerHTML = itemsHTML + itemsHTML;
+      strip.style.display = 'flex';
+
+      // Adjust animation speed based on number of items
+      const duration = Math.max(20, items.length * 6);
+      track.style.animationDuration = duration + 's';
+    }
+
+    // ── Featured products grid ─────────────────────────────────────────────
+    function buildFeatured(products) {
+      if (!products.length) return;
+      const section = document.getElementById('featuredSection');
+      const grid    = document.getElementById('featuredGrid');
+
+      // Show max 3 featured
+      const toShow = products.slice(0, 3);
+
+      grid.innerHTML = toShow.map(p => {
+        const catLabel = { men: 'Men', women: 'Women', kids: 'Kids' }[p.category] || p.category;
+        const badge = p.discountPct > 0
+          ? `<span class="featured-card-badge">-${p.discountPct}% OFF</span>`
+          : p.hot
+            ? `<span class="featured-card-badge">🔥 Hot Pick</span>`
+            : `<span class="featured-card-badge">✨ Featured</span>`;
+        const origPrice = p.origPrice > p.price
+          ? `<s style="font-size:12px;color:var(--c-text-muted);margin-left:6px;">Rs. ${Number(p.origPrice).toLocaleString('en-PK')}</s>`
+          : '';
+        return `
+          <div class="featured-card reveal reveal-up">
+            <div class="featured-card-img-wrap">
+              ${badge}
+              <img src="${p.images[0]}" alt="${p.name}"
+                onerror="this.src='https://placehold.co/400x500/0d2247/c9a84c?text=${encodeURIComponent(p.name)}'">
+            </div>
+            <div class="featured-card-body">
+              <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--c-gold-dark);margin-bottom:4px;">${catLabel}</div>
+              <div class="featured-card-name">${p.name}</div>
+              <div class="featured-card-price">
+                Rs. ${Number(p.price).toLocaleString('en-PK')}${origPrice}
+              </div>
+              <p class="featured-card-desc">${p.shortDesc || p.fullDesc || ''}</p>
+              <a href="product.html?id=${p.id}" class="btn btn-primary" style="width:100%;text-align:center;justify-content:center;">
+                View Details &rarr;
+              </a>
+            </div>
+          </div>`;
+      }).join('');
+
+      section.style.display = '';
+
+      // Trigger reveal animations
+      setTimeout(() => {
+        grid.querySelectorAll('.reveal').forEach(el => el.classList.add('revealed'));
+      }, 150);
+    }
+  </script>
 </body>
+
 </html>

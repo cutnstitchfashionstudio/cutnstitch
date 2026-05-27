@@ -7,7 +7,7 @@ module.exports = async (req, res) => {
     const { phone, secret } = req.body;
     
     // In a real app, use an environment variable for ADMIN_SECRET
-    const ADMIN_SECRET = process.env.ADMIN_SECRET || 'naziastudio-admin-key-2026';
+    const ADMIN_SECRET = process.env.ADMIN_SECRET || 'cutnstitch-admin-key-2026';
     
     if (secret !== ADMIN_SECRET) {
       return res.status(401).json({ error: 'Unauthorized' });

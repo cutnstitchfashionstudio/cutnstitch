@@ -78,7 +78,7 @@ module.exports = async (req, res) => {
       });
 
       const mailOptions = {
-        from: `"Nazia Studio" <${process.env.SMTP_USER}>`,
+        from: `"Cut & Stitch Fashion Studio" <${process.env.SMTP_USER}>`,
         to: customer.email,
         subject: `Order Confirmation - ${orderId}`,
         html: `

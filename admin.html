@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel | Cut & Stitch Fashion Studio</title>
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold:       #c9a84c;
+      --gold-light: #e8c96e;
+      --primary:    #0d2247;
+      --bg:         #0a0f1e;
+      --surface:    #111827;
+      --surface2:   #1a2236;
+      --border:     rgba(201,168,76,0.2);
+      --text:       #e2e8f0;
+      --muted:      #94a3b8;
+      --success:    #10b981;
+      --error:      #ef4444;
+      --warning:    #f59e0b;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Top bar ───────────────────────────────────────── */
+    .top-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .top-bar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .top-bar-brand svg { width: 36px; height: 36px; }
+    .brand-name { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--gold); }
+    .brand-sub  { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+    .admin-badge {
+      background: rgba(201,168,76,0.15);
+      border: 1px solid var(--border);
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── Main layout ───────────────────────────────────── */
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+    .panel {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    /* ── Login screen ──────────────────────────────────── */
+    #loginScreen, #adminScreen { display: none; }
+    #loginScreen.active, #adminScreen.active { display: block; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 32px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    }
+    .card-icon {
+      width: 60px; height: 60px;
+      background: rgba(201,168,76,0.12);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 24px;
+    }
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      text-align: center;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+    .card-subtitle {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    /* ── Form elements ─────────────────────────────────── */
+    .form-group { margin-bottom: 18px; }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    input[type="password"], input[type="text"] {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 16px;
+      font-size: 14px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    input:focus { border-color: var(--gold); }
+    input::placeholder { color: var(--muted); }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: var(--primary);
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(201,168,76,0.3); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* ── Alert boxes ───────────────────────────────────── */
+    .alert {
+      border-radius: 10px;
+      padding: 13px 16px;
+      font-size: 13px;
+      margin-bottom: 18px;
+      display: none;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.5;
+    }
+    .alert.show { display: flex; }
+    .alert-success { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
+    .alert-error   { background: rgba(239,68,68,0.12);  border: 1px solid rgba(239,68,68,0.3);  color: #fca5a5; }
+    .alert-info    { background: rgba(201,168,76,0.1);  border: 1px solid var(--border);         color: var(--gold); }
+    .alert-icon { font-size: 16px; flex-shrink: 0; }
+
+    /* ── Admin screen tabs ─────────────────────────────── */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 24px;
+    }
+    .tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      border-radius: 7px;
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .tab-btn.active { background: var(--surface); color: var(--gold); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* ── Step guide ────────────────────────────────────── */
+    .how-it-works {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .how-title { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+    .step { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+    .step:last-child { margin-bottom: 0; }
+    .step-num {
+      width: 26px; height: 26px; flex-shrink: 0;
+      background: rgba(201,168,76,0.15);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: var(--gold);
+    }
+    .step-text { font-size: 13px; color: var(--muted); line-height: 1.5; padding-top: 3px; }
+    .step-text strong { color: var(--text); }
+
+    /* ── Info row ──────────────────────────────────────── */
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 13px;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: var(--muted); }
+    .info-value { color: var(--text); font-weight: 500; }
+
+    .logout-btn {
+      background: transparent;
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #fca5a5;
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover { background: rgba(239,68,68,0.1); }
+
+    /* ── Spinner ───────────────────────────────────────── */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(13,34,71,0.3);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Footer ────────────────────────────────────────── */
+    .admin-footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-brand">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="48" fill="#0d2247"/>
+        <circle cx="50" cy="50" r="42" stroke="#c9a84c" stroke-width="2" stroke-dasharray="6 4"/>
+        <path d="M35 70V30L65 70V30" stroke="#c9a84c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <div class="brand-name">Cut &amp; Stitch</div>
+        <div class="brand-sub">Fashion Studio</div>
+      </div>
+    </div>
+    <span class="admin-badge">🔐 Admin Panel</span>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="panel">
+
+      <!-- ══ LOGIN SCREEN ═══════════════════════════════════ -->
+      <div id="loginScreen" class="active">
+        <div class="card">
+          <div class="card-icon">🔑</div>
+          <h1 class="card-title">Admin Login</h1>
+          <p class="card-subtitle">Enter your Admin Secret Key to access the panel.</p>
+
+          <div id="loginAlert" class="alert alert-error">
+            <span class="alert-icon">⚠️</span>
+            <span id="loginAlertMsg">Incorrect secret key. Please try again.</span>
+          </div>
+
+          <div class="form-group">
+            <label>Admin Secret Key</label>
+            <input type="password" id="secretInput" placeholder="Enter your admin secret key…" autocomplete="off">
+          </div>
+
+          <button class="btn-primary" id="loginBtn" onclick="doLogin()">
+            Unlock Admin Panel
+          </button>
+
+          <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:16px;">
+            🔒 This page is only for the shop owner. Customers cannot use this.
+          </p>
+        </div>
+      </div>
+
+      <!-- ══ ADMIN SCREEN ═══════════════════════════════════ -->
+      <div id="adminScreen">
+
+        <!-- Welcome bar -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <div>
+            <div style="font-size:18px;font-weight:700;color:var(--gold);">Welcome, Admin 👋</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:2px;">Cut &amp; Stitch Fashion Studio</div>
+          </div>
+          <button class="logout-btn" onclick="doLogout()">Logout</button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab-btn active" id="tab1Btn" onclick="switchTab('verify')">✅ Verify Customer</button>
+          <button class="tab-btn" id="tab2Btn" onclick="switchTab('howto')">📖 How It Works</button>
+        </div>
+
+        <!-- TAB: Verify Customer -->
+        <div id="tabVerify" class="tab-content active">
+          <div class="card">
+            <div class="card-icon">👤</div>
+            <h2 class="card-title" style="font-size:1.3rem;">Verify Customer Account</h2>
+            <p class="card-subtitle">Enter the customer's phone number or email address to approve their account.</p>
+
+            <div id="verifyAlert" class="alert">
+              <span class="alert-icon" id="verifyAlertIcon"></span>
+              <span id="verifyAlertMsg"></span>
+            </div>
+
+            <div class="form-group">
+              <label>Customer Phone or Email</label>
+              <input type="text" id="phoneInput"
+                placeholder="e.g. 03001234567 or customer@email.com"
+                onkeydown="if(event.key==='Enter') doVerify()">
+            </div>
+
+            <button class="btn-primary" id="verifyBtn" onclick="doVerify()">
+              ✅ Verify This Account
+            </button>
+
+            <div style="margin-top:16px;padding:14px;background:var(--surface2);border-radius:10px;font-size:12px;color:var(--muted);line-height:1.7;">
+              <strong style="color:var(--text);">What happens when you verify?</strong><br>
+              The customer moves from the <em>pending list</em> to the <em>active users list</em> in your database.
+              They can then log in to your website and place orders.
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: How It Works -->
+        <div id="tabHowto" class="tab-content">
+          <div class="card">
+            <h2 class="card-title" style="font-size:1.3rem;">📖 How Account Verification Works</h2>
+            <p class="card-subtitle" style="margin-bottom:20px;">Understanding the customer signup flow</p>
+
+            <div class="how-it-works">
+              <div class="how-title">Customer Signup Flow</div>
+              <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-text"><strong>Customer signs up</strong> on your website with their phone &amp; email. They get an OTP code by email.</div>
+              </div>
+              <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-text">Their account is saved in the <strong>Pending List</strong> in your MongoDB database — not yet active.</div>
+              </div>
+              <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-text"><strong>You come here</strong> and enter their phone number → click Verify. Their account becomes active.</div>
+              </div>
+              <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-text"><strong>Customer can now log in</strong>, browse your catalog, and place orders on your website.</div>
+              </div>
+            </div>
+
+            <div class="how-it-works" style="margin-bottom:0;">
+              <div class="how-title">Your Admin Details</div>
+              <div class="info-row">
+                <span class="info-label">Website</span>
+                <span class="info-value">cutnstitchfashionstudio.vercel.app</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value">cutnstitchfashionstudio@gmail.com</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Database</span>
+                <span class="info-value">cutnstitchfashionstudio (MongoDB)</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Admin Secret</span>
+                <span class="info-value">Set via Environment Variables</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /adminScreen -->
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="admin-footer">
+    🔐 Secure Admin Panel &nbsp;·&nbsp; Cut &amp; Stitch Fashion Studio &nbsp;·&nbsp; Only accessible by the shop owner
+  </div>
+
+  <script>
+    let adminSecret = '';
+
+    // ── Login ──────────────────────────────────────────────────────────────
+    async function doLogin() {
+      const key = document.getElementById('secretInput').value.trim();
+      if (!key) return showLoginError('Please enter your admin secret key.');
+
+      const btn = document.getElementById('loginBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Verifying…';
+
+      // Verify by attempting a test verify call (with a dummy phone that won't match)
+      // Actually — just store locally and test on first verify. Show panel immediately.
+      adminSecret = key;
+      hideLoginError();
+      document.getElementById('loginScreen').classList.remove('active');
+      document.getElementById('adminScreen').classList.add('active');
+      btn.disabled = false;
+      btn.innerHTML = 'Unlock Admin Panel';
+    }
+
+    function showLoginError(msg) {
+      const a = document.getElementById('loginAlert');
+      document.getElementById('loginAlertMsg').textContent = msg;
+      a.classList.add('show');
+    }
+    function hideLoginError() {
+      document.getElementById('loginAlert').classList.remove('show');
+    }
+
+    // Allow Enter key on login
+    document.getElementById('secretInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+
+    // ── Logout ─────────────────────────────────────────────────────────────
+    function doLogout() {
+      adminSecret = '';
+      document.getElementById('secretInput').value = '';
+      document.getElementById('adminScreen').classList.remove('active');
+      document.getElementById('loginScreen').classList.add('active');
+      document.getElementById('phoneInput').value = '';
+      hideVerifyAlert();
+    }
+
+    // ── Tab switch ─────────────────────────────────────────────────────────
+    function switchTab(tab) {
+      document.getElementById('tabVerify').classList.toggle('active', tab === 'verify');
+      document.getElementById('tabHowto').classList.toggle('active', tab === 'howto');
+      document.getElementById('tab1Btn').classList.toggle('active', tab === 'verify');
+      document.getElementById('tab2Btn').classList.toggle('active', tab === 'howto');
+    }
+
+    // ── Verify customer ────────────────────────────────────────────────────
+    async function doVerify() {
+      const phone = document.getElementById('phoneInput').value.trim();
+      if (!phone) return showVerifyAlert('error', '⚠️', 'Please enter a phone number or email.');
+
+      const btn = document.getElementById('verifyBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Verifying…';
+      hideVerifyAlert();
+
+      try {
+        const res = await fetch('/api/admin-verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, secret: adminSecret })
+        });
+
+        const data = await res.json();
+
+        if (res.status === 401) {
+          // Wrong secret — send back to login
+          showVerifyAlert('error', '🔒', 'Incorrect admin secret key. Please log out and try again.');
+          return;
+        }
+
+        if (res.ok && data.success) {
+          const alreadyMsg = data.message && data.message.includes('already') ? ' (account was already verified)' : '';
+          showVerifyAlert('success', '✅',
+            `Account verified successfully!${alreadyMsg}\n\nCustomer "${phone}" can now log in and place orders.`);
+          document.getElementById('phoneInput').value = '';
+        } else {
+          const msg = data.error || 'Something went wrong.';
+          if (msg.includes('not found')) {
+            showVerifyAlert('error', '🔍',
+              `No pending account found for "${phone}".\n\nMake sure the customer has signed up first, and you are entering the correct phone number or email.`);
+          } else {
+            showVerifyAlert('error', '⚠️', msg);
+          }
+        }
+      } catch (err) {
+        showVerifyAlert('error', '🌐', 'Network error. Please check your internet connection and try again.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '✅ Verify This Account';
+      }
+    }
+
+    function showVerifyAlert(type, icon, msg) {
+      const a   = document.getElementById('verifyAlert');
+      const ico = document.getElementById('verifyAlertIcon');
+      const txt = document.getElementById('verifyAlertMsg');
+      a.className = 'alert show ' + (type === 'success' ? 'alert-success' : 'alert-error');
+      ico.textContent = icon;
+      txt.textContent = msg;
+      a.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function hideVerifyAlert() {
+      document.getElementById('verifyAlert').classList.remove('show');
+    }
+  </script>
+</body>
+</html>

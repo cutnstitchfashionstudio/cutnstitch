@@ -40,8 +40,8 @@ module.exports = async (req, res) => {
       });
 
       const mailOptions = {
-        from: `"Nazia Studio Notifications" <${process.env.SMTP_USER}>`,
-        to: process.env.CONTACT_RECEIVER_EMAIL || 'info@naziastudio.com',
+        from: `"Cut & Stitch Fashion Studio" <${process.env.SMTP_USER}>`,
+        to: process.env.CONTACT_RECEIVER_EMAIL || 'cutnstitchfashionstudio@gmail.com',
         subject: `New Inquiry: ${subject}`,
         html: `
           <h2>New Contact Form Submission</h2>

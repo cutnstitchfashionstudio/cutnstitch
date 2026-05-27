@@ -1,6 +1,7 @@
 {
   "version": 2,
   "rewrites": [
+    { "source": "/api/products", "destination": "/api/products" },
     { "source": "/api/auth/google/callback", "destination": "/api/oauth-handler?provider=google&action=callback" },
     { "source": "/api/auth/facebook/callback", "destination": "/api/oauth-handler?provider=facebook&action=callback" },
     { "source": "/api/auth/google", "destination": "/api/oauth-handler?provider=google" },
