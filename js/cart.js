@@ -144,10 +144,10 @@ const Cart = {
   },
 
   getCart() {
-    return JSON.parse(localStorage.getItem('nss_cart')) || [];
+    return JSON.parse(localStorage.getItem('css_cart')) || [];
   },
   saveCart(cart) {
-    localStorage.setItem('nss_cart', JSON.stringify(cart));
+    localStorage.setItem('css_cart', JSON.stringify(cart));
     this.updateCartCount();
     if(document.getElementById('cartDrawer') && document.getElementById('cartDrawer').classList.contains('active')) {
       this.renderDrawer();
@@ -214,7 +214,7 @@ const Cart = {
     }
   },
   clearCart() {
-    localStorage.removeItem('nss_cart');
+    localStorage.removeItem('css_cart');
     this.updateCartCount();
   },
   updateCartCount() {

@@ -3,543 +3,743 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel | Cut & Stitch Fashion Studio</title>
-  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
-  <!-- Fonts -->
+  <title>Admin Panel | Cut &amp; Stitch Fashion Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --gold:       #c9a84c;
-      --gold-light: #e8c96e;
-      --primary:    #0d2247;
-      --bg:         #0a0f1e;
-      --surface:    #111827;
-      --surface2:   #1a2236;
-      --border:     rgba(201,168,76,0.2);
-      --text:       #e2e8f0;
-      --muted:      #94a3b8;
-      --success:    #10b981;
-      --error:      #ef4444;
-      --warning:    #f59e0b;
+      --gold: #c9a84c; --gold-light: #e8c96e;
+      --primary: #0d2247; --bg: #0a0f1e;
+      --surface: #111827; --surface2: #1a2236; --surface3: #243050;
+      --border: rgba(201,168,76,0.2); --border2: rgba(255,255,255,0.06);
+      --text: #e2e8f0; --muted: #94a3b8;
+      --success: #10b981; --success-bg: rgba(16,185,129,0.12); --success-border: rgba(16,185,129,0.3);
+      --error: #ef4444;   --error-bg: rgba(239,68,68,0.12);   --error-border: rgba(239,68,68,0.3);
+      --warn-bg: rgba(245,158,11,0.12); --warn-border: rgba(245,158,11,0.3); --warn: #f59e0b;
     }
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; }
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+    /* ── Top bar ── */
+    .topbar { background:var(--surface); border-bottom:1px solid var(--border); padding:14px 28px; display:flex; align-items:center; justify-content:space-between; }
+    .topbar-brand { display:flex; align-items:center; gap:12px; }
+    .topbar-brand svg { width:34px; height:34px; }
+    .brand-name { font-family:'Playfair Display',serif; font-size:1rem; color:var(--gold); }
+    .brand-sub  { font-size:10px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; }
+    .admin-badge { background:rgba(201,168,76,.12); border:1px solid var(--border); color:var(--gold); font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; }
+    .topbar-right { display:flex; align-items:center; gap:12px; }
+    #logoutBtn { display:none; background:transparent; border:1px solid rgba(239,68,68,.3); color:#fca5a5; border-radius:8px; padding:7px 16px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:.2s; }
+    #logoutBtn:hover { background:rgba(239,68,68,.1); }
 
-    /* ── Top bar ───────────────────────────────────────── */
-    .top-bar {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 16px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .top-bar-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .top-bar-brand svg { width: 36px; height: 36px; }
-    .brand-name { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--gold); }
-    .brand-sub  { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
-    .admin-badge {
-      background: rgba(201,168,76,0.15);
-      border: 1px solid var(--border);
-      color: var(--gold);
-      font-size: 11px;
-      font-weight: 600;
-      padding: 4px 12px;
-      border-radius: 20px;
-      letter-spacing: 0.08em;
-    }
+    /* ── Main ── */
+    .main { flex:1; padding:32px 20px; max-width:1100px; margin:0 auto; width:100%; }
 
-    /* ── Main layout ───────────────────────────────────── */
-    .main {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 16px;
-    }
-    .panel {
-      width: 100%;
-      max-width: 480px;
-    }
+    /* ── Login card ── */
+    #loginScreen { display:flex; align-items:center; justify-content:center; min-height:60vh; }
+    .login-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:40px 36px; width:100%; max-width:420px; box-shadow:0 25px 50px rgba(0,0,0,.5); }
+    .card-icon { width:58px; height:58px; background:rgba(201,168,76,.1); border:1px solid var(--border); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 18px; font-size:22px; }
+    .card-title { font-family:'Playfair Display',serif; font-size:1.5rem; text-align:center; color:var(--gold); margin-bottom:6px; }
+    .card-sub { text-align:center; color:var(--muted); font-size:13px; margin-bottom:24px; line-height:1.6; }
+    label { display:block; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
+    input[type=password], input[type=text] { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:13px 16px; font-size:14px; color:var(--text); font-family:'Inter',sans-serif; outline:none; transition:border-color .2s; }
+    input:focus { border-color:var(--gold); }
+    input::placeholder { color:var(--muted); }
+    .btn-primary { width:100%; background:linear-gradient(135deg,var(--gold),var(--gold-light)); color:var(--primary); border:none; border-radius:10px; padding:13px; font-size:15px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; transition:.2s; margin-top:8px; }
+    .btn-primary:hover { transform:translateY(-1px); box-shadow:0 8px 20px rgba(201,168,76,.3); }
+    .btn-primary:disabled { opacity:.6; cursor:not-allowed; transform:none !important; }
 
-    /* ── Login screen ──────────────────────────────────── */
-    #loginScreen, #adminScreen { display: none; }
-    #loginScreen.active, #adminScreen.active { display: block; }
+    /* ── Alerts ── */
+    .alert { border-radius:10px; padding:12px 15px; font-size:13px; margin-bottom:16px; display:none; gap:9px; line-height:1.5; align-items:flex-start; }
+    .alert.show { display:flex; }
+    .alert-error   { background:var(--error-bg);   border:1px solid var(--error-border);   color:#fca5a5; }
+    .alert-success { background:var(--success-bg); border:1px solid var(--success-border); color:#6ee7b7; }
+    .alert-warn    { background:var(--warn-bg);    border:1px solid var(--warn-border);    color:#fcd34d; }
 
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 36px 32px;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-    }
-    .card-icon {
-      width: 60px; height: 60px;
-      background: rgba(201,168,76,0.12);
-      border: 1px solid var(--border);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 20px;
-      font-size: 24px;
-    }
-    .card-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.6rem;
-      text-align: center;
-      color: var(--gold);
-      margin-bottom: 6px;
-    }
-    .card-subtitle {
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 28px;
-      line-height: 1.6;
-    }
+    /* ── Admin dashboard ── */
+    #adminScreen { display:none; }
+    .dash-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
+    .dash-title { font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--gold); }
+    .dash-subtitle { font-size:13px; color:var(--muted); margin-top:3px; }
+    .dash-actions { display:flex; gap:10px; }
+    .btn-refresh { background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:8px 18px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:.2s; display:flex; align-items:center; gap:6px; }
+    .btn-refresh:hover { border-color:var(--gold); color:var(--gold); }
+    .btn-refresh.spinning svg { animation:spin .8s linear infinite; }
 
-    /* ── Form elements ─────────────────────────────────── */
-    .form-group { margin-bottom: 18px; }
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-    input[type="password"], input[type="text"] {
-      width: 100%;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 13px 16px;
-      font-size: 14px;
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      transition: border-color 0.2s;
-      outline: none;
-    }
-    input:focus { border-color: var(--gold); }
-    input::placeholder { color: var(--muted); }
+    /* ── Stats row ── */
+    .stats-row { display:flex; gap:14px; margin-bottom:24px; flex-wrap:wrap; }
+    .stat-card { background:var(--surface); border:1px solid var(--border2); border-radius:12px; padding:16px 20px; flex:1; min-width:130px; }
+    .stat-val { font-size:1.8rem; font-weight:700; color:var(--gold); line-height:1; }
+    .stat-label { font-size:12px; color:var(--muted); margin-top:4px; }
 
-    .btn-primary {
-      width: 100%;
-      background: linear-gradient(135deg, var(--gold), var(--gold-light));
-      color: var(--primary);
-      border: none;
-      border-radius: 10px;
-      padding: 14px;
-      font-size: 15px;
-      font-weight: 700;
-      font-family: 'Inter', sans-serif;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-top: 8px;
-    }
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(201,168,76,0.3); }
-    .btn-primary:active { transform: translateY(0); }
-    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    /* ── Table ── */
+    .table-wrap { background:var(--surface); border:1px solid var(--border2); border-radius:14px; overflow:hidden; }
+    .table-top { padding:16px 20px; border-bottom:1px solid var(--border2); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .table-search { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:9px 14px; font-size:13px; color:var(--text); font-family:'Inter',sans-serif; outline:none; width:220px; }
+    .table-search:focus { border-color:var(--gold); }
+    table { width:100%; border-collapse:collapse; }
+    thead th { background:var(--surface2); padding:12px 16px; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); text-align:left; border-bottom:1px solid var(--border2); white-space:nowrap; }
+    tbody tr { border-bottom:1px solid var(--border2); transition:background .15s; }
+    tbody tr:last-child { border-bottom:none; }
+    tbody tr:hover { background:rgba(201,168,76,.04); }
+    tbody td { padding:13px 16px; font-size:13px; vertical-align:middle; }
+    .td-name { font-weight:600; color:var(--text); }
+    .td-muted { color:var(--muted); font-size:12px; }
+    .pw-wrap { display:flex; align-items:center; gap:6px; }
+    .pw-text { font-family:monospace; font-size:12px; color:var(--muted); letter-spacing:.05em; }
+    .pw-toggle { background:none; border:none; cursor:pointer; color:var(--muted); padding:2px; font-size:14px; transition:color .2s; }
+    .pw-toggle:hover { color:var(--gold); }
 
-    /* ── Alert boxes ───────────────────────────────────── */
-    .alert {
-      border-radius: 10px;
-      padding: 13px 16px;
-      font-size: 13px;
-      margin-bottom: 18px;
-      display: none;
-      align-items: flex-start;
-      gap: 10px;
-      line-height: 1.5;
-    }
-    .alert.show { display: flex; }
-    .alert-success { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
-    .alert-error   { background: rgba(239,68,68,0.12);  border: 1px solid rgba(239,68,68,0.3);  color: #fca5a5; }
-    .alert-info    { background: rgba(201,168,76,0.1);  border: 1px solid var(--border);         color: var(--gold); }
-    .alert-icon { font-size: 16px; flex-shrink: 0; }
+    /* ── Status badge ── */
+    .badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:.04em; white-space:nowrap; }
+    .badge-verified { background:var(--success-bg); border:1px solid var(--success-border); color:#6ee7b7; }
+    .badge-pending  { background:var(--warn-bg);    border:1px solid var(--warn-border);    color:#fcd34d; }
 
-    /* ── Admin screen tabs ─────────────────────────────── */
-    .tabs {
-      display: flex;
-      gap: 4px;
-      background: var(--surface2);
-      border-radius: 10px;
-      padding: 4px;
-      margin-bottom: 24px;
-    }
-    .tab-btn {
-      flex: 1;
-      background: transparent;
-      border: none;
-      border-radius: 7px;
-      padding: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.2s;
-      font-family: 'Inter', sans-serif;
-    }
-    .tab-btn.active { background: var(--surface); color: var(--gold); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    /* ── Toggle btn ── */
+    .btn-toggle { border:none; border-radius:7px; padding:6px 14px; font-size:12px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:.2s; white-space:nowrap; }
+    .btn-toggle-verify { background:var(--success-bg); border:1px solid var(--success-border); color:#6ee7b7; }
+    .btn-toggle-verify:hover { background:rgba(16,185,129,.25); }
+    .btn-toggle-unverify { background:var(--warn-bg); border:1px solid var(--warn-border); color:#fcd34d; }
+    .btn-toggle-unverify:hover { background:rgba(245,158,11,.25); }
 
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+    /* ── Empty state ── */
+    .empty-state { text-align:center; padding:48px 20px; color:var(--muted); }
+    .empty-state .icon { font-size:40px; margin-bottom:12px; }
+    .empty-state p { font-size:14px; }
 
-    /* ── Step guide ────────────────────────────────────── */
-    .how-it-works {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 24px;
-    }
-    .how-title { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
-    .step { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
-    .step:last-child { margin-bottom: 0; }
-    .step-num {
-      width: 26px; height: 26px; flex-shrink: 0;
-      background: rgba(201,168,76,0.15);
-      border: 1px solid var(--border);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 700; color: var(--gold);
-    }
-    .step-text { font-size: 13px; color: var(--muted); line-height: 1.5; padding-top: 3px; }
-    .step-text strong { color: var(--text); }
+    /* ── Loading rows ── */
+    .skeleton { background:linear-gradient(90deg,var(--surface2) 25%,var(--surface3) 50%,var(--surface2) 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:6px; height:14px; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
-    /* ── Info row ──────────────────────────────────────── */
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      font-size: 13px;
-    }
-    .info-row:last-child { border-bottom: none; }
-    .info-label { color: var(--muted); }
-    .info-value { color: var(--text); font-weight: 500; }
+    /* ── Modal overlay ── */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; z-index:999; padding:20px; opacity:0; pointer-events:none; transition:opacity .2s; }
+    .modal-overlay.open { opacity:1; pointer-events:auto; }
+    .modal { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:32px 28px; width:100%; max-width:400px; box-shadow:0 30px 60px rgba(0,0,0,.6); transform:translateY(20px); transition:transform .2s; }
+    .modal-overlay.open .modal { transform:translateY(0); }
+    .modal-title { font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--gold); margin-bottom:6px; }
+    .modal-subtitle { font-size:13px; color:var(--muted); margin-bottom:20px; line-height:1.6; }
+    .modal-target { background:var(--surface2); border-radius:8px; padding:10px 14px; margin-bottom:20px; font-size:13px; }
+    .modal-target strong { color:var(--gold); }
+    .modal-actions { display:flex; gap:10px; margin-top:20px; }
+    .btn-cancel { flex:1; background:var(--surface2); border:1px solid var(--border2); color:var(--muted); border-radius:8px; padding:11px; font-size:14px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:.2s; }
+    .btn-cancel:hover { border-color:var(--gold); color:var(--text); }
+    .btn-confirm { flex:1; background:linear-gradient(135deg,var(--gold),var(--gold-light)); color:var(--primary); border:none; border-radius:8px; padding:11px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:.2s; }
+    .btn-confirm:hover { transform:translateY(-1px); }
+    .btn-confirm:disabled { opacity:.6; cursor:not-allowed; transform:none; }
 
-    .logout-btn {
-      background: transparent;
-      border: 1px solid rgba(239,68,68,0.3);
-      color: #fca5a5;
-      border-radius: 8px;
-      padding: 8px 18px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      transition: all 0.2s;
-    }
-    .logout-btn:hover { background: rgba(239,68,68,0.1); }
+    /* ── Global alert bar ── */
+    #globalAlert { position:fixed; top:72px; left:50%; transform:translateX(-50%); z-index:1000; min-width:300px; max-width:500px; display:none; }
+    #globalAlert.show { display:block; }
 
-    /* ── Spinner ───────────────────────────────────────── */
-    .spinner {
-      display: inline-block;
-      width: 14px; height: 14px;
-      border: 2px solid rgba(13,34,71,0.3);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      vertical-align: middle;
-      margin-right: 6px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── Spinner ── */
+    .spinner { display:inline-block; width:13px; height:13px; border:2px solid rgba(13,34,71,.3); border-top-color:var(--primary); border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; margin-right:5px; }
+    @keyframes spin { to{transform:rotate(360deg)} }
 
-    /* ── Footer ────────────────────────────────────────── */
-    .admin-footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 12px;
-      color: var(--muted);
-      border-top: 1px solid var(--border);
+    /* ── Footer ── */
+    .admin-footer { text-align:center; padding:16px; font-size:12px; color:var(--muted); border-top:1px solid var(--border2); margin-top:auto; }
+
+    @media(max-width:700px) {
+      .main { padding:20px 12px; }
+      .topbar { padding:12px 16px; }
+      table { font-size:12px; }
+      thead th, tbody td { padding:10px 10px; }
+      .table-search { width:100%; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Bar -->
-  <div class="top-bar">
-    <div class="top-bar-brand">
-      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="50" cy="50" r="48" fill="#0d2247"/>
-        <circle cx="50" cy="50" r="42" stroke="#c9a84c" stroke-width="2" stroke-dasharray="6 4"/>
-        <path d="M35 70V30L65 70V30" stroke="#c9a84c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <div>
-        <div class="brand-name">Cut &amp; Stitch</div>
-        <div class="brand-sub">Fashion Studio</div>
-      </div>
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="topbar-brand">
+        <svg viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="48" fill="#0d2247"/>
+      <circle cx="50" cy="50" r="42" stroke="#c9a84c" stroke-width="2" stroke-dasharray="6 4"/>
+      <line x1="36" y1="73" x2="50" y2="22" stroke="#c9a84c" stroke-width="5" stroke-linecap="round"/>
+      <line x1="50" y1="22" x2="64" y2="73" stroke="#c9a84c" stroke-width="5" stroke-linecap="round"/>
+      <line x1="26" y1="73" x2="44" y2="73" stroke="#c9a84c" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="56" y1="73" x2="74" y2="73" stroke="#c9a84c" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="47" y1="22" x2="53" y2="22" stroke="#c9a84c" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="41" y1="53" x2="59" y2="53" stroke="#c9a84c" stroke-width="3.5" stroke-linecap="round"/>
+      <!-- Behind-needle thread segments (underlay) -->
+      <path d="M 33 60.5 C 31 58 34 54 38 54" stroke="#c9a84c" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.75"/>
+      <path d="M 43 61 C 46 61 47 51 49 49" stroke="#c9a84c" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.75"/>
+      <path d="M 55 56 C 57 56 59 58 60.4 60" stroke="#c9a84c" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.75"/>
+      <line x1="30" y1="62" x2="69" y2="45" stroke="#f5e6b0" stroke-width="1.3" stroke-linecap="round" opacity="0.9"/>
+      <path d="M 67 45.8 L 74 42.5 L 67.5 47.2 Z" fill="#f5e6b0" opacity="0.9"/>
+      <ellipse cx="33" cy="60.5" rx="2.5" ry="1" fill="#0d2247" stroke="#f0e0b0" stroke-width="0.8" opacity="0.9" transform="rotate(-22 33 60.5)"/>
+      <!-- Front-needle thread segments (overlay) -->
+      <path d="M 38.5 65 C 37 63 35 61 33 60.5" stroke="#c9a84c" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.95"/>
+      <path d="M 38 54 C 41 54 41 61 43 61" stroke="#c9a84c" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.95"/>
+      <path d="M 49 49 C 52 49 53 56 55 56" stroke="#c9a84c" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.95"/>
+    </svg>
+    <div>
+      <div class="brand-name">Cut &amp; Stitch</div>
+      <div class="brand-sub">Fashion Studio</div>
     </div>
+  </div>
+  <div class="topbar-right">
     <span class="admin-badge">🔐 Admin Panel</span>
+    <button id="logoutBtn" onclick="doLogout()">Logout</button>
   </div>
+</div>
 
-  <!-- Main -->
-  <div class="main">
-    <div class="panel">
+<!-- Global alert -->
+<div id="globalAlert">
+  <div id="globalAlertInner" class="alert"></div>
+</div>
 
-      <!-- ══ LOGIN SCREEN ═══════════════════════════════════ -->
-      <div id="loginScreen" class="active">
-        <div class="card">
-          <div class="card-icon">🔑</div>
-          <h1 class="card-title">Admin Login</h1>
-          <p class="card-subtitle">Enter your Admin Secret Key to access the panel.</p>
+<!-- Main content -->
+<div class="main">
 
-          <div id="loginAlert" class="alert alert-error">
-            <span class="alert-icon">⚠️</span>
-            <span id="loginAlertMsg">Incorrect secret key. Please try again.</span>
-          </div>
+  <!-- ══ LOGIN ══════════════════════════════════════════════════ -->
+  <div id="loginScreen">
+    <div class="login-card">
+      <div class="card-icon">🔑</div>
+      <h1 class="card-title">Admin Login</h1>
+      <p class="card-sub">Enter your Admin Secret Key to access the customer management panel.</p>
 
-          <div class="form-group">
-            <label>Admin Secret Key</label>
-            <input type="password" id="secretInput" placeholder="Enter your admin secret key…" autocomplete="off">
-          </div>
-
-          <button class="btn-primary" id="loginBtn" onclick="doLogin()">
-            Unlock Admin Panel
-          </button>
-
-          <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:16px;">
-            🔒 This page is only for the shop owner. Customers cannot use this.
-          </p>
-        </div>
+      <div id="loginAlert" class="alert alert-error">
+        <span>⚠️</span><span id="loginAlertMsg">Incorrect secret key.</span>
       </div>
 
-      <!-- ══ ADMIN SCREEN ═══════════════════════════════════ -->
-      <div id="adminScreen">
+      <div style="margin-bottom:18px;">
+        <label>Admin Secret Key</label>
+        <input type="password" id="secretInput" placeholder="Enter your admin secret key…" autocomplete="off">
+      </div>
 
-        <!-- Welcome bar -->
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-          <div>
-            <div style="font-size:18px;font-weight:700;color:var(--gold);">Welcome, Admin 👋</div>
-            <div style="font-size:13px;color:var(--muted);margin-top:2px;">Cut &amp; Stitch Fashion Studio</div>
-          </div>
-          <button class="logout-btn" onclick="doLogout()">Logout</button>
-        </div>
+      <button class="btn-primary" id="loginBtn" onclick="doLogin()">Unlock Admin Panel</button>
 
-        <!-- Tabs -->
-        <div class="tabs">
-          <button class="tab-btn active" id="tab1Btn" onclick="switchTab('verify')">✅ Verify Customer</button>
-          <button class="tab-btn" id="tab2Btn" onclick="switchTab('howto')">📖 How It Works</button>
-        </div>
-
-        <!-- TAB: Verify Customer -->
-        <div id="tabVerify" class="tab-content active">
-          <div class="card">
-            <div class="card-icon">👤</div>
-            <h2 class="card-title" style="font-size:1.3rem;">Verify Customer Account</h2>
-            <p class="card-subtitle">Enter the customer's phone number or email address to approve their account.</p>
-
-            <div id="verifyAlert" class="alert">
-              <span class="alert-icon" id="verifyAlertIcon"></span>
-              <span id="verifyAlertMsg"></span>
-            </div>
-
-            <div class="form-group">
-              <label>Customer Phone or Email</label>
-              <input type="text" id="phoneInput"
-                placeholder="e.g. 03001234567 or customer@email.com"
-                onkeydown="if(event.key==='Enter') doVerify()">
-            </div>
-
-            <button class="btn-primary" id="verifyBtn" onclick="doVerify()">
-              ✅ Verify This Account
-            </button>
-
-            <div style="margin-top:16px;padding:14px;background:var(--surface2);border-radius:10px;font-size:12px;color:var(--muted);line-height:1.7;">
-              <strong style="color:var(--text);">What happens when you verify?</strong><br>
-              The customer moves from the <em>pending list</em> to the <em>active users list</em> in your database.
-              They can then log in to your website and place orders.
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB: How It Works -->
-        <div id="tabHowto" class="tab-content">
-          <div class="card">
-            <h2 class="card-title" style="font-size:1.3rem;">📖 How Account Verification Works</h2>
-            <p class="card-subtitle" style="margin-bottom:20px;">Understanding the customer signup flow</p>
-
-            <div class="how-it-works">
-              <div class="how-title">Customer Signup Flow</div>
-              <div class="step">
-                <div class="step-num">1</div>
-                <div class="step-text"><strong>Customer signs up</strong> on your website with their phone &amp; email. They get an OTP code by email.</div>
-              </div>
-              <div class="step">
-                <div class="step-num">2</div>
-                <div class="step-text">Their account is saved in the <strong>Pending List</strong> in your MongoDB database — not yet active.</div>
-              </div>
-              <div class="step">
-                <div class="step-num">3</div>
-                <div class="step-text"><strong>You come here</strong> and enter their phone number → click Verify. Their account becomes active.</div>
-              </div>
-              <div class="step">
-                <div class="step-num">4</div>
-                <div class="step-text"><strong>Customer can now log in</strong>, browse your catalog, and place orders on your website.</div>
-              </div>
-            </div>
-
-            <div class="how-it-works" style="margin-bottom:0;">
-              <div class="how-title">Your Admin Details</div>
-              <div class="info-row">
-                <span class="info-label">Website</span>
-                <span class="info-value">cutnstitchfashionstudio.vercel.app</span>
-              </div>
-              <div class="info-row">
-                <span class="info-label">Email</span>
-                <span class="info-value">cutnstitchfashionstudio@gmail.com</span>
-              </div>
-              <div class="info-row">
-                <span class="info-label">Database</span>
-                <span class="info-value">cutnstitchfashionstudio (MongoDB)</span>
-              </div>
-              <div class="info-row">
-                <span class="info-label">Admin Secret</span>
-                <span class="info-value">Set via Environment Variables</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /adminScreen -->
+      <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:16px;">
+        🔒 Only for the shop owner. Customers cannot access this page.
+      </p>
     </div>
   </div>
 
-  <!-- Footer -->
-  <div class="admin-footer">
-    🔐 Secure Admin Panel &nbsp;·&nbsp; Cut &amp; Stitch Fashion Studio &nbsp;·&nbsp; Only accessible by the shop owner
+  <!-- ══ ADMIN DASHBOARD ═══════════════════════════════════════ -->
+  <div id="adminScreen">
+
+    <div class="dash-header">
+      <div>
+        <div class="dash-title">Customer Accounts</div>
+        <div class="dash-subtitle">Manage and verify customer registrations</div>
+      </div>
+      <div class="dash-actions">
+        <button class="btn-refresh" id="refreshBtn" onclick="loadUsers()">
+          <svg id="refreshIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabs System -->
+    <div class="admin-tabs">
+      <button class="tab-btn active" id="tabUsersBtn" onclick="switchTab('users')">
+        👤 Customers <span id="tabUsersCount">0</span>
+      </button>
+      <button class="tab-btn" id="tabMessagesBtn" onclick="switchTab('messages')">
+        ✉️ Client Messages <span id="tabMessagesCount">0</span>
+      </button>
+    </div>
+
+    <!-- ══ CUSTOMERS PANEL ═══════════════════════════════════════ -->
+    <div id="usersPanel" class="tab-content">
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-val" id="statTotal">—</div>
+          <div class="stat-label">Total Customers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statVerified" style="color:#6ee7b7;">—</div>
+          <div class="stat-label">Verified</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statPending" style="color:#fcd34d;">—</div>
+          <div class="stat-label">Pending</div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <div class="table-top">
+          <span style="font-weight:600;font-size:14px;">All Customers</span>
+          <input class="table-search" type="text" id="searchInput" placeholder="🔍  Search name, phone, email…" oninput="filterTable()">
+        </div>
+        <div style="overflow-x:auto;">
+          <table id="usersTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Password</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="usersBody">
+              <tr><td colspan="8"><div class="empty-state"><div class="icon">⏳</div><p>Loading customers…</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CLIENT MESSAGES PANEL ═══════════════════════════════════ -->
+    <div id="messagesPanel" class="tab-content" style="display: none;">
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-val" id="statMsgTotal">—</div>
+          <div class="stat-label">Total Messages</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statMsgInquiries" style="color:var(--gold);">—</div>
+          <div class="stat-label">Stitching Inquiries</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statMsgConsultations" style="color:#6ee7b7;">—</div>
+          <div class="stat-label">Consultations</div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <div class="table-top">
+          <span style="font-weight:600;font-size:14px;">All Client Messages</span>
+          <input class="table-search" type="text" id="msgSearchInput" placeholder="🔍  Search sender, phone, message…" oninput="filterMessagesTable()">
+        </div>
+        <div style="overflow-x:auto;">
+          <table id="messagesTable">
+            <thead>
+              <tr>
+                <th style="width: 50px;">#</th>
+                <th style="width: 150px;">Sender</th>
+                <th style="width: 130px;">Phone</th>
+                <th style="width: 180px;">Email</th>
+                <th style="width: 180px;">Subject</th>
+                <th>Message</th>
+                <th style="width: 150px;">Received</th>
+              </tr>
+            </thead>
+            <tbody id="messagesBody">
+              <tr><td colspan="7"><div class="empty-state"><div class="icon">✉️</div><p>Loading messages…</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /adminScreen -->
+</div><!-- /main -->
+
+<!-- ══ CONFIRMATION MODAL ════════════════════════════════════════ -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Confirm Status Change</div>
+    <div class="modal-subtitle" id="modalSubtitle">Enter your Confirmation Password to proceed. This is a separate security layer to prevent accidental changes.</div>
+    <div class="modal-target" id="modalTarget"></div>
+
+    <div id="modalAlert" class="alert alert-error" style="margin-bottom:12px;">
+      <span>⚠️</span><span id="modalAlertMsg"></span>
+    </div>
+
+    <div>
+      <label>Confirmation Password</label>
+      <input type="password" id="toggleSecretInput" placeholder="Enter confirmation password…" autocomplete="off">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-confirm" id="confirmBtn" onclick="submitToggle()">Confirm Change</button>
+    </div>
   </div>
+</div>
 
-  <script>
-    let adminSecret = '';
+<div class="admin-footer">
+  🔐 Secure Admin Panel &nbsp;·&nbsp; Cut &amp; Stitch Fashion Studio &nbsp;·&nbsp; Only for the shop owner
+</div>
 
-    // ── Login ──────────────────────────────────────────────────────────────
-    async function doLogin() {
-      const key = document.getElementById('secretInput').value.trim();
-      if (!key) return showLoginError('Please enter your admin secret key.');
+<script>
+  let adminSecret = '';
+  let allUsers    = [];
+  let pendingToggle = null; // { userId, currentStatus, name }
 
-      const btn = document.getElementById('loginBtn');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span>Verifying…';
+  // ═══════════════════════════════════════════════════════════════
+  // LOGIN — verifies against server
+  // ═══════════════════════════════════════════════════════════════
+  async function doLogin() {
+    const key = document.getElementById('secretInput').value.trim();
+    if (!key) return showLoginAlert('Please enter your admin secret key.');
 
-      // Verify by attempting a test verify call (with a dummy phone that won't match)
-      // Actually — just store locally and test on first verify. Show panel immediately.
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Verifying…';
+    hideLoginAlert();
+
+    try {
+      const res = await fetch('/api/admin-users', {
+        method: 'GET',
+        headers: { 'x-admin-secret': key }
+      });
+
+      if (res.status === 401) {
+        showLoginAlert('Incorrect admin secret key. Please try again.');
+        return;
+      }
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        showLoginAlert(d.error || 'Server error. Try again later.');
+        return;
+      }
+
+      // Success — store secret and show dashboard
       adminSecret = key;
-      hideLoginError();
-      document.getElementById('loginScreen').classList.remove('active');
-      document.getElementById('adminScreen').classList.add('active');
+      const data = await res.json();
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminScreen').style.display  = 'block';
+      document.getElementById('logoutBtn').style.display    = 'inline-block';
+      renderDashboard(data.users || [], data.messages || []);
+
+    } catch {
+      showLoginAlert('Network error. Please check your internet connection.');
+    } finally {
       btn.disabled = false;
       btn.innerHTML = 'Unlock Admin Panel';
     }
+  }
 
-    function showLoginError(msg) {
-      const a = document.getElementById('loginAlert');
-      document.getElementById('loginAlertMsg').textContent = msg;
-      a.classList.add('show');
+  document.getElementById('secretInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  function showLoginAlert(msg) {
+    const a = document.getElementById('loginAlert');
+    document.getElementById('loginAlertMsg').textContent = msg;
+    a.classList.add('show');
+  }
+  function hideLoginAlert() {
+    document.getElementById('loginAlert').classList.remove('show');
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // LOGOUT
+  // ═══════════════════════════════════════════════════════════════
+  function doLogout() {
+    adminSecret = '';
+    allUsers = [];
+    document.getElementById('secretInput').value = '';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('adminScreen').style.display  = 'none';
+    document.getElementById('logoutBtn').style.display    = 'none';
+    hideLoginAlert();
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // LOAD / REFRESH USERS
+  // ═══════════════════════════════════════════════════════════════
+  async function loadUsers() {
+    const btn = document.getElementById('refreshBtn');
+    btn.classList.add('spinning');
+    btn.disabled = true;
+    showSkeletonRows();
+
+    try {
+      const res = await fetch('/api/admin-users', {
+        headers: { 'x-admin-secret': adminSecret }
+      });
+      if (res.status === 401) { doLogout(); return; }
+      const data = await res.json();
+      if (!res.ok) { showGlobalAlert('error', data.error || 'Failed to load users.'); return; }
+      renderDashboard(data.users || [], data.messages || []);
+    } catch {
+      showGlobalAlert('error', 'Network error. Could not refresh users.');
+    } finally {
+      btn.classList.remove('spinning');
+      btn.disabled = false;
     }
-    function hideLoginError() {
-      document.getElementById('loginAlert').classList.remove('show');
+  }
+
+  let allMessages = [];
+
+  function renderDashboard(users, messages) {
+    // 1. Render Users
+    allUsers = users;
+    document.getElementById('statTotal').textContent    = users.length;
+    document.getElementById('statVerified').textContent = users.filter(u => u.status === 'verified').length;
+    document.getElementById('statPending').textContent  = users.filter(u => u.status === 'pending').length;
+    buildRows(users);
+
+    // 2. Render Messages
+    allMessages = messages;
+    document.getElementById('statMsgTotal').textContent = messages.length;
+    document.getElementById('statMsgInquiries').textContent = messages.filter(m => 
+      m.subject.toLowerCase().includes('stitch')
+    ).length;
+    document.getElementById('statMsgConsultations').textContent = messages.filter(m => 
+      m.subject.toLowerCase().includes('consult') || m.subject.toLowerCase().includes('embroidery')
+    ).length;
+    buildMessageRows(messages);
+
+    // Update Counts on tabs
+    document.getElementById('tabUsersCount').textContent = users.length;
+    document.getElementById('tabMessagesCount').textContent = messages.length;
+  }
+
+  function buildMessageRows(messages) {
+    const tbody = document.getElementById('messagesBody');
+    if (!messages.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">✉️</div><p>No messages found.</p></div></td></tr>`;
+      return;
     }
+    tbody.innerHTML = messages.map((m, i) => `
+      <tr data-id="${m.id}">
+        <td class="td-muted">${i + 1}</td>
+        <td class="td-name">${escHtml(m.name)}</td>
+        <td class="td-muted">${escHtml(m.phone)}</td>
+        <td class="td-muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(m.email)}</td>
+        <td>
+          <span class="badge badge-pending" style="background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.2); color:var(--gold);">
+            ${escHtml(m.subject)}
+          </span>
+        </td>
+        <td style="max-width:350px;word-break:break-word;font-size:12px;line-height:1.5;">${escHtml(m.message)}</td>
+        <td class="td-muted" style="white-space:nowrap;">${escHtml(m.createdAt)}</td>
+      </tr>
+    `).join('');
+  }
 
-    // Allow Enter key on login
-    document.getElementById('secretInput').addEventListener('keydown', e => {
-      if (e.key === 'Enter') doLogin();
-    });
+  function filterMessagesTable() {
+    const q = document.getElementById('msgSearchInput').value.toLowerCase().trim();
+    if (!q) { buildMessageRows(allMessages); return; }
+    buildMessageRows(allMessages.filter(m =>
+      (m.name + m.phone + m.email + m.message + m.subject).toLowerCase().includes(q)
+    ));
+  }
 
-    // ── Logout ─────────────────────────────────────────────────────────────
-    function doLogout() {
-      adminSecret = '';
-      document.getElementById('secretInput').value = '';
-      document.getElementById('adminScreen').classList.remove('active');
-      document.getElementById('loginScreen').classList.add('active');
-      document.getElementById('phoneInput').value = '';
-      hideVerifyAlert();
+  function switchTab(tab) {
+    const usersTabBtn = document.getElementById('tabUsersBtn');
+    const msgsTabBtn  = document.getElementById('tabMessagesBtn');
+    const usersPanel   = document.getElementById('usersPanel');
+    const msgsPanel    = document.getElementById('messagesPanel');
+
+    usersTabBtn.classList.remove('active');
+    msgsTabBtn.classList.remove('active');
+
+    if (tab === 'users') {
+      usersTabBtn.classList.add('active');
+      usersPanel.style.display = 'block';
+      msgsPanel.style.display  = 'none';
+      document.querySelector('.dash-title').textContent = 'Customer Accounts';
+      document.querySelector('.dash-subtitle').textContent = 'Manage and verify customer registrations';
+    } else {
+      msgsTabBtn.classList.add('active');
+      usersPanel.style.display = 'none';
+      msgsPanel.style.display  = 'block';
+      document.querySelector('.dash-title').textContent = 'Client Messages';
+      document.querySelector('.dash-subtitle').textContent = 'Read and manage form submissions from the contact page';
     }
+  }
 
-    // ── Tab switch ─────────────────────────────────────────────────────────
-    function switchTab(tab) {
-      document.getElementById('tabVerify').classList.toggle('active', tab === 'verify');
-      document.getElementById('tabHowto').classList.toggle('active', tab === 'howto');
-      document.getElementById('tab1Btn').classList.toggle('active', tab === 'verify');
-      document.getElementById('tab2Btn').classList.toggle('active', tab === 'howto');
+  // ═══════════════════════════════════════════════════════════════
+  // RENDER TABLE
+  // ═══════════════════════════════════════════════════════════════
+  function renderUsers(users) {
+    allUsers = users;
+    document.getElementById('statTotal').textContent    = users.length;
+    document.getElementById('statVerified').textContent = users.filter(u => u.status === 'verified').length;
+    document.getElementById('statPending').textContent  = users.filter(u => u.status === 'pending').length;
+    buildRows(users);
+  }
+
+  function buildRows(users) {
+    const tbody = document.getElementById('usersBody');
+    if (!users.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">👤</div><p>No customers found.</p></div></td></tr>`;
+      return;
     }
-
-    // ── Verify customer ────────────────────────────────────────────────────
-    async function doVerify() {
-      const phone = document.getElementById('phoneInput').value.trim();
-      if (!phone) return showVerifyAlert('error', '⚠️', 'Please enter a phone number or email.');
-
-      const btn = document.getElementById('verifyBtn');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span>Verifying…';
-      hideVerifyAlert();
-
-      try {
-        const res = await fetch('/api/admin-verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phone, secret: adminSecret })
-        });
-
-        const data = await res.json();
-
-        if (res.status === 401) {
-          // Wrong secret — send back to login
-          showVerifyAlert('error', '🔒', 'Incorrect admin secret key. Please log out and try again.');
-          return;
-        }
-
-        if (res.ok && data.success) {
-          const alreadyMsg = data.message && data.message.includes('already') ? ' (account was already verified)' : '';
-          showVerifyAlert('success', '✅',
-            `Account verified successfully!${alreadyMsg}\n\nCustomer "${phone}" can now log in and place orders.`);
-          document.getElementById('phoneInput').value = '';
-        } else {
-          const msg = data.error || 'Something went wrong.';
-          if (msg.includes('not found')) {
-            showVerifyAlert('error', '🔍',
-              `No pending account found for "${phone}".\n\nMake sure the customer has signed up first, and you are entering the correct phone number or email.`);
-          } else {
-            showVerifyAlert('error', '⚠️', msg);
+    tbody.innerHTML = users.map((u, i) => `
+      <tr data-id="${u.id}" data-status="${u.status}" data-name="${escHtml(u.name)}"
+          data-search="${(u.name + u.phone + u.email).toLowerCase()}">
+        <td class="td-muted">${i + 1}</td>
+        <td class="td-name">${escHtml(u.name)}</td>
+        <td class="td-muted">${escHtml(u.phone)}</td>
+        <td class="td-muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(u.email)}</td>
+        <td>
+          <div class="pw-wrap">
+            <span class="pw-text" id="pw-${u.id}">••••••••</span>
+            <button class="pw-toggle" onclick="togglePw('${u.id}','${escAttr(u.password)}')" title="Show/hide password">👁</button>
+          </div>
+        </td>
+        <td>
+          <span class="badge ${u.status === 'verified' ? 'badge-verified' : 'badge-pending'}">
+            ${u.status === 'verified' ? '✅ Verified' : '⏳ Pending'}
+          </span>
+        </td>
+        <td class="td-muted">${escHtml(u.createdAt)}</td>
+        <td>
+          ${u.status === 'pending'
+            ? `<button class="btn-toggle btn-toggle-verify"   onclick="openModal('${u.id}','pending','${escAttr(u.name)}')">✅ Verify</button>`
+            : `<button class="btn-toggle btn-toggle-unverify" onclick="openModal('${u.id}','verified','${escAttr(u.name)}')">⏸ Suspend</button>`
           }
-        }
-      } catch (err) {
-        showVerifyAlert('error', '🌐', 'Network error. Please check your internet connection and try again.');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '✅ Verify This Account';
-      }
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function filterTable() {
+    const q = document.getElementById('searchInput').value.toLowerCase().trim();
+    if (!q) { buildRows(allUsers); return; }
+    buildRows(allUsers.filter(u =>
+      (u.name + u.phone + u.email).toLowerCase().includes(q)
+    ));
+  }
+
+  function showSkeletonRows() {
+    const tbody = document.getElementById('usersBody');
+    tbody.innerHTML = [1,2,3].map(() => `
+      <tr>${[1,2,3,4,5,6,7,8].map(() =>
+        `<td><div class="skeleton"></div></td>`
+      ).join('')}</tr>
+    `).join('');
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // PASSWORD VISIBILITY TOGGLE
+  // ═══════════════════════════════════════════════════════════════
+  const pwVisible = {};
+  function togglePw(id, pw) {
+    const el = document.getElementById('pw-' + id);
+    if (!el) return;
+    pwVisible[id] = !pwVisible[id];
+    el.textContent = pwVisible[id] ? pw : '••••••••';
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // MODAL — second-password confirmation
+  // ═══════════════════════════════════════════════════════════════
+  function openModal(userId, currentStatus, name) {
+    pendingToggle = { userId, currentStatus, name };
+    const action = currentStatus === 'pending' ? 'VERIFY' : 'SUSPEND';
+    const color  = currentStatus === 'pending' ? '#6ee7b7' : '#fcd34d';
+
+    document.getElementById('modalTitle').textContent = `${action} Customer Account`;
+    document.getElementById('modalSubtitle').textContent =
+      'Enter your Confirmation Password to proceed. This prevents accidental status changes.';
+    document.getElementById('modalTarget').innerHTML =
+      `Customer: <strong style="color:${color};">${escHtml(name)}</strong><br>
+       Action: <strong style="color:${color};">${action} this account</strong>`;
+
+    document.getElementById('toggleSecretInput').value = '';
+    document.getElementById('modalAlert').classList.remove('show');
+
+    document.getElementById('confirmModal').classList.add('open');
+    setTimeout(() => document.getElementById('toggleSecretInput').focus(), 200);
+  }
+
+  function closeModal() {
+    document.getElementById('confirmModal').classList.remove('open');
+    pendingToggle = null;
+  }
+
+  // Close on overlay click
+  document.getElementById('confirmModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('confirmModal')) closeModal();
+  });
+
+  document.getElementById('toggleSecretInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitToggle();
+    if (e.key === 'Escape') closeModal();
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // SUBMIT TOGGLE (with second password)
+  // ═══════════════════════════════════════════════════════════════
+  async function submitToggle() {
+    if (!pendingToggle) return;
+
+    const toggleSecret = document.getElementById('toggleSecretInput').value.trim();
+    if (!toggleSecret) {
+      showModalAlert('Please enter your confirmation password.');
+      return;
     }
 
-    function showVerifyAlert(type, icon, msg) {
-      const a   = document.getElementById('verifyAlert');
-      const ico = document.getElementById('verifyAlertIcon');
-      const txt = document.getElementById('verifyAlertMsg');
-      a.className = 'alert show ' + (type === 'success' ? 'alert-success' : 'alert-error');
-      ico.textContent = icon;
-      txt.textContent = msg;
-      a.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    const btn = document.getElementById('confirmBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Processing…';
+
+    try {
+      const res = await fetch('/api/admin-users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-secret': adminSecret
+        },
+        body: JSON.stringify({
+          userId:       pendingToggle.userId,
+          action:       'toggle',
+          toggleSecret
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.status === 403) {
+        showModalAlert('Wrong confirmation password. No changes were made.');
+        return;
+      }
+      if (!res.ok) {
+        showModalAlert(data.error || 'Something went wrong. Please try again.');
+        return;
+      }
+
+      // Success
+      closeModal();
+      showGlobalAlert('success', `✅ ${data.message}`);
+      await loadUsers();
+
+    } catch {
+      showModalAlert('Network error. Please check your connection.');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Confirm Change';
     }
-    function hideVerifyAlert() {
-      document.getElementById('verifyAlert').classList.remove('show');
-    }
-  </script>
+  }
+
+  function showModalAlert(msg) {
+    const a = document.getElementById('modalAlert');
+    document.getElementById('modalAlertMsg').textContent = msg;
+    a.classList.add('show');
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // GLOBAL ALERT BAR
+  // ═══════════════════════════════════════════════════════════════
+  let gaTimer;
+  function showGlobalAlert(type, msg) {
+    const wrap  = document.getElementById('globalAlert');
+    const inner = document.getElementById('globalAlertInner');
+    inner.className = `alert show alert-${type === 'success' ? 'success' : 'error'}`;
+    inner.innerHTML = `<span>${type === 'success' ? '✅' : '⚠️'}</span><span>${msg}</span>`;
+    wrap.classList.add('show');
+    clearTimeout(gaTimer);
+    gaTimer = setTimeout(() => wrap.classList.remove('show'), 5000);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // UTILITIES
+  // ═══════════════════════════════════════════════════════════════
+  function escHtml(s) {
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escAttr(s) {
+    return String(s ?? '').replace(/'/g, "\\'");
+  }
+</script>
 </body>
 </html>

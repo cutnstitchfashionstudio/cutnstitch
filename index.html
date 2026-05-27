@@ -362,22 +362,109 @@
     <div class="preloader-bg"></div>
     <div class="preloader-content" id="preloader-content">
       <div class="preloader-crest" id="preloader-crest">
-        <svg class="preloader-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg class="preloader-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <mask id="draw-mask">
-              <circle cx="50" cy="50" r="42" stroke="white" stroke-width="6" fill="none" stroke-dasharray="264" stroke-dashoffset="264" class="crest-border-mask" transform="rotate(-90 50 50)"/>
+              <circle cx="50" cy="50" r="42" stroke="white" stroke-width="6" fill="none"
+                      stroke-dasharray="264" stroke-dashoffset="264"
+                      class="crest-border-mask" transform="rotate(-90 50 50)"/>
             </mask>
+            <linearGradient id="aGold" x1="0%" y1="0%" x2="20%" y2="100%">
+              <stop offset="0%"   stop-color="#f5e49a"/>
+              <stop offset="45%"  stop-color="#c9a84c"/>
+              <stop offset="100%" stop-color="#8a6520"/>
+            </linearGradient>
+            <linearGradient id="aGoldH" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stop-color="#8a6520"/>
+              <stop offset="40%"  stop-color="#e8c96e"/>
+              <stop offset="60%"  stop-color="#e8c96e"/>
+              <stop offset="100%" stop-color="#8a6520"/>
+            </linearGradient>
+            <linearGradient id="needleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stop-color="#f0e0b0"/>
+              <stop offset="50%"  stop-color="#ffffff"/>
+              <stop offset="100%" stop-color="#c9a84c"/>
+            </linearGradient>
+            <filter id="aGlow" x="-25%" y="-25%" width="150%" height="150%">
+              <feGaussianBlur stdDeviation="1.6" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="nGlow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="0.9" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
           </defs>
+          <!-- Background -->
           <circle cx="50" cy="50" r="48" fill="var(--c-primary-dark)" class="crest-bg"/>
+          <!-- Luxury double-border ring -->
+          <circle cx="50" cy="50" r="45" stroke="#c9a84c" stroke-width="0.3" fill="none" opacity="0.3"/>
           <g class="crest-golden-group">
-            <circle cx="50" cy="50" r="42" stroke="var(--c-gold)" stroke-width="2" stroke-dasharray="6 4" mask="url(#draw-mask)" class="crest-border"/>
-            <path d="M35 70V30L65 70V30" stroke="var(--c-gold)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="crest-n"/>
+            <!-- Animated dashed border -->
+            <circle cx="50" cy="50" r="42" stroke="var(--c-gold)" stroke-width="2"
+                    stroke-dasharray="6 4" mask="url(#draw-mask)" class="crest-border"/>
+            <!-- Cardinal diamond ornaments -->
+            <polygon points="50,9  52.5,14 50,19 47.5,14" fill="#c9a84c" opacity="0.9"/>
+            <polygon points="50,81 52.5,86 50,91 47.5,86" fill="#c9a84c" opacity="0.9"/>
+            <polygon points="9,50  14,52.5 19,50 14,47.5" fill="#c9a84c" opacity="0.5"/>
+            <polygon points="81,50 86,52.5 91,50 86,47.5" fill="#c9a84c" opacity="0.5"/>
+            <!-- ALL animated elements bounce-in as one unit -->
+                        <g class="crest-n">
+              <!-- LEFT LEG of A -->
+              <line x1="36" y1="73" x2="50" y2="22"
+                    stroke="url(#aGold)" stroke-width="5.5" stroke-linecap="round"/>
+              <!-- RIGHT LEG of A -->
+              <line x1="50" y1="22" x2="64" y2="73"
+                    stroke="url(#aGold)" stroke-width="5.5" stroke-linecap="round"/>
+              <!-- LEFT BASE SERIF -->
+              <line x1="26" y1="73" x2="44" y2="73"
+                    stroke="url(#aGoldH)" stroke-width="4" stroke-linecap="round"/>
+              <!-- RIGHT BASE SERIF -->
+              <line x1="56" y1="73" x2="74" y2="73"
+                    stroke="url(#aGoldH)" stroke-width="4" stroke-linecap="round"/>
+              <!-- APEX CAP -->
+              <line x1="47" y1="22" x2="53" y2="22"
+                    stroke="url(#aGoldH)" stroke-width="3" stroke-linecap="round"/>
+              <!-- CROSSBAR -->
+              <line x1="41" y1="53" x2="59" y2="53"
+                    stroke="url(#aGoldH)" stroke-width="4" stroke-linecap="round"/>
+              <!-- RUNNING STITCH along left leg -->
+              <line x1="40" y1="66" x2="44" y2="61" stroke="#f0dc8a" stroke-width="1.1" stroke-linecap="round" opacity="0.55"/>
+              <line x1="43" y1="58" x2="47" y2="53" stroke="#f0dc8a" stroke-width="1.1" stroke-linecap="round" opacity="0.45"/>
+              <line x1="46" y1="50" x2="50" y2="45" stroke="#f0dc8a" stroke-width="1.1" stroke-linecap="round" opacity="0.35"/>
+              <!-- RUNNING STITCH along right leg -->
+              <line x1="56" y1="66" x2="60" y2="61" stroke="#f0dc8a" stroke-width="1.1" stroke-linecap="round" opacity="0.55"/>
+              <line x1="53" y1="58" x2="57" y2="53" stroke="#f0dc8a" stroke-width="1.1" stroke-linecap="round" opacity="0.45"/>
+              <line x1="50" y1="50" x2="54" y2="45" stroke="#f0dc8a" stroke-width="1.1" stroke-linecap="round" opacity="0.35"/>
+              <!-- Behind-needle thread segments (underlay) -->
+              <path d="M 33 60.5 C 31 58 34 54 38 54" stroke="#e8c96e" stroke-width="1.4" fill="none" stroke-linecap="round" opacity="0.75"/>
+              <path d="M 43 61 C 46 61 47 51 49 49" stroke="#e8c96e" stroke-width="1.4" fill="none" stroke-linecap="round" opacity="0.75"/>
+              <path d="M 55 56 C 57 56 59 58 60.4 60" stroke="#e8c96e" stroke-width="1.4" fill="none" stroke-linecap="round" opacity="0.75"/>
+              <!-- NEEDLE shaft crossing the crossbar diagonally (without blur filter for sharpness) -->
+              <line x1="30" y1="62" x2="69" y2="45"
+                    stroke="url(#needleGrad)" stroke-width="1.3"
+                    stroke-linecap="round" opacity="0.95"/>
+              <!-- Needle pointed TIP (tapered triangle) -->
+              <path d="M 67 45.8 L 74 42.5 L 67.5 47.2 Z" fill="#f5e6b0" opacity="0.95"/>
+              <!-- Needle EYE (oval hole near left end) -->
+              <ellipse cx="33" cy="60.5" rx="2.8" ry="1.1"
+                       fill="var(--c-primary-dark)"
+                       stroke="#f0e0b0" stroke-width="0.9"
+                       opacity="0.95"
+                       transform="rotate(-22 33 60.5)"/>
+              <!-- Front-needle thread segments (overlay) -->
+              <path d="M 38.5 65 C 37 63 35 61 33 60.5" stroke="#e8c96e" stroke-width="1.4" fill="none" stroke-linecap="round" opacity="0.95"/>
+              <path d="M 38 54 C 41 54 41 61 43 61" stroke="#e8c96e" stroke-width="1.4" fill="none" stroke-linecap="round" opacity="0.95"/>
+              <path d="M 49 49 C 52 49 53 56 55 56" stroke="#e8c96e" stroke-width="1.4" fill="none" stroke-linecap="round" opacity="0.95"/>
+              <!-- Apex stitch dot -->
+              <circle cx="50" cy="20" r="2.2" fill="#e8c96e" opacity="0.8"/>
+              <circle cx="50" cy="20" r="1"   fill="#fff"    opacity="0.5"/>
+            </g>
           </g>
         </svg>
       </div>
       <div class="preloader-text">
         <div class="preloader-title" id="preloader-title">
-          <span>N</span><span>a</span><span>z</span><span>i</span><span>a</span>
+          <span>C</span><span>u</span><span>t</span><span class="amp-space">&nbsp;&amp;&nbsp;</span><span>S</span><span>t</span><span>i</span><span>t</span><span>c</span><span>h</span>
         </div>
         <div class="preloader-subtitle" id="preloader-subtitle">
           <!-- Populated by JS -->
@@ -403,7 +490,7 @@
         const preloader = document.getElementById('preloader');
         const content = document.getElementById('preloader-content');
         const subtitle = document.getElementById('preloader-subtitle');
-        const textToSplit = "STITCHING STUDIO";
+        const textToSplit = "FASHION STUDIO";
         
         // Split subtitle text into spans
         for (let i = 0; i < textToSplit.length; i++) {
@@ -419,7 +506,7 @@
           const isLeft = Math.random() > 0.5;
           // Delay: text box starts opening at 3.2s, fully open ~4.2s
           // Letters start appearing from 5.0s onward
-          const delay = 5.0 + (i * 0.1);
+          const delay = 6.0 + (i * 0.1);
           span.style.animation = `danceIn${isLeft ? 'Left' : 'Right'} 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards ${delay}s`;
           subtitle.appendChild(span);
         }
@@ -428,6 +515,7 @@
         setTimeout(() => {
           content.classList.add('run-dance');
         }, 100);
+
 
         // Phase 2b: Smoothly slide crest left & open text box
         // The CSS transition on max-width + opacity does the smooth glide
@@ -440,12 +528,12 @@
           content.classList.add('run-flip');
         }, 3700);
 
-        // Phase 3: Lock and Shine (after all subtitle letters land ~6.6s + buffer)
+        // Phase 3: Lock and Shine — title (10 letters done by ~5.7s) + subtitle (14 chars done ~7.2s) + buffer
         setTimeout(() => {
           content.classList.add('run-shine');
           // Clear inline animations to allow shine CSS to apply
           subtitle.querySelectorAll('span').forEach(s => s.style.animation = '');
-        }, 7800);
+        }, 10200);
 
         let preloaderEnded = false;
         const endPreloader = () => {
@@ -507,10 +595,26 @@
   <!-- NAVBAR -->
   <nav class="navbar">
     <a href="index.html" class="nav-brand brand-logo" id="main-nav-brand" style="opacity: 1; transition: opacity 0.3s;">
-            <svg class="brand-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg class="brand-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="50" cy="50" r="48" fill="var(--c-primary-dark)"/>
         <circle cx="50" cy="50" r="42" stroke="var(--c-gold)" stroke-width="2" stroke-dasharray="6 4"/>
-        <path d="M35 70V30L65 70V30" stroke="var(--c-gold)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="36" y1="73" x2="50" y2="22" stroke="var(--c-gold)" stroke-width="5" stroke-linecap="round"/>
+        <line x1="50" y1="22" x2="64" y2="73" stroke="var(--c-gold)" stroke-width="5" stroke-linecap="round"/>
+        <line x1="26" y1="73" x2="44" y2="73" stroke="var(--c-gold)" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="56" y1="73" x2="74" y2="73" stroke="var(--c-gold)" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="47" y1="22" x2="53" y2="22" stroke="var(--c-gold)" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="41" y1="53" x2="59" y2="53" stroke="var(--c-gold)" stroke-width="3.5" stroke-linecap="round"/>
+        <!-- Behind-needle thread segments (underlay) -->
+        <path d="M 33 60.5 C 31 58 34 54 38 54" stroke="#e8c96e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.75"/>
+        <path d="M 43 61 C 46 61 47 51 49 49" stroke="#e8c96e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.75"/>
+        <path d="M 55 56 C 57 56 59 58 60.4 60" stroke="#e8c96e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.75"/>
+        <line x1="30" y1="62" x2="69" y2="45" stroke="#f5e6b0" stroke-width="1.3" stroke-linecap="round" opacity="0.9"/>
+        <path d="M 67 45.8 L 74 42.5 L 67.5 47.2 Z" fill="#f5e6b0" opacity="0.9"/>
+        <ellipse cx="33" cy="60.5" rx="2.5" ry="1" fill="var(--c-primary-dark)" stroke="#f0e0b0" stroke-width="0.8" opacity="0.9" transform="rotate(-22 33 60.5)"/>
+        <!-- Front-needle thread segments (overlay) -->
+        <path d="M 38.5 65 C 37 63 35 61 33 60.5" stroke="#e8c96e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.95"/>
+        <path d="M 38 54 C 41 54 41 61 43 61" stroke="#e8c96e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.95"/>
+        <path d="M 49 49 C 52 49 53 56 55 56" stroke="#e8c96e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.95"/>
       </svg>
       <div class="brand-text">
         <span class="brand-title">Cut &amp; Stitch</span>
@@ -751,10 +855,26 @@
     <div class="container grid-4">
       <div>
         <a href="index.html" class="footer-logo brand-logo" style="margin-bottom: var(--sp-4);">
-                <svg class="brand-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg class="brand-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="50" cy="50" r="48" fill="var(--c-primary-dark)"/>
         <circle cx="50" cy="50" r="42" stroke="var(--c-gold)" stroke-width="2" stroke-dasharray="6 4"/>
-        <path d="M35 70V30L65 70V30" stroke="var(--c-gold)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="36" y1="73" x2="50" y2="22" stroke="var(--c-gold)" stroke-width="5" stroke-linecap="round"/>
+        <line x1="50" y1="22" x2="64" y2="73" stroke="var(--c-gold)" stroke-width="5" stroke-linecap="round"/>
+        <line x1="26" y1="73" x2="44" y2="73" stroke="var(--c-gold)" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="56" y1="73" x2="74" y2="73" stroke="var(--c-gold)" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="47" y1="22" x2="53" y2="22" stroke="var(--c-gold)" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="41" y1="53" x2="59" y2="53" stroke="var(--c-gold)" stroke-width="3.5" stroke-linecap="round"/>
+        <!-- Behind-needle thread segments (underlay) -->
+        <path d="M 33 60.5 C 31 58 34 54 38 54" stroke="#e8c96e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.75"/>
+        <path d="M 43 61 C 46 61 47 51 49 49" stroke="#e8c96e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.75"/>
+        <path d="M 55 56 C 57 56 59 58 60.4 60" stroke="#e8c96e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.75"/>
+        <line x1="30" y1="62" x2="69" y2="45" stroke="#f5e6b0" stroke-width="1.3" stroke-linecap="round" opacity="0.9"/>
+        <path d="M 67 45.8 L 74 42.5 L 67.5 47.2 Z" fill="#f5e6b0" opacity="0.9"/>
+        <ellipse cx="33" cy="60.5" rx="2.5" ry="1" fill="var(--c-primary-dark)" stroke="#f0e0b0" stroke-width="0.8" opacity="0.9" transform="rotate(-22 33 60.5)"/>
+        <!-- Front-needle thread segments (overlay) -->
+        <path d="M 38.5 65 C 37 63 35 61 33 60.5" stroke="#e8c96e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.95"/>
+        <path d="M 38 54 C 41 54 41 61 43 61" stroke="#e8c96e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.95"/>
+        <path d="M 49 49 C 52 49 53 56 55 56" stroke="#e8c96e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.95"/>
       </svg>
           <div class="brand-text">
             <span class="brand-title">Cut &amp; Stitch</span>

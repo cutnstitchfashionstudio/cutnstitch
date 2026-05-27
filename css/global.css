@@ -222,12 +222,26 @@ main { padding-top: var(--nav-h); }
 
 .preloader-title {
   font-family: var(--ff-heading);
-  font-size: 5rem;
+  font-size: 3.8rem;
   color: var(--c-primary-dark);
   font-weight: 700;
   letter-spacing: -1px;
   display: flex;
+  align-items: baseline;
   margin-bottom: -10px;
+}
+
+/* Ampersand spacer span — not individually animated, just structural */
+.preloader-title .amp-space {
+  opacity: 0;
+  display: inline-block;
+  font-size: 2.8rem;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, var(--c-primary-dark), var(--c-gold), var(--c-primary-dark));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .preloader-title span {
@@ -240,12 +254,18 @@ main { padding-top: var(--nav-h); }
   background-clip: text;
 }
 
-/* Staggered animation triggers for JS to add — delayed to start AFTER text box expands */
-.run-dance .preloader-title span:nth-child(1) { animation: danceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 4.0s, shimmer 3s linear infinite 4.8s; }
-.run-dance .preloader-title span:nth-child(2) { animation: danceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 4.1s, shimmer 3s linear infinite 4.9s; }
-.run-dance .preloader-title span:nth-child(3) { animation: danceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 4.2s, shimmer 3s linear infinite 5.0s; }
-.run-dance .preloader-title span:nth-child(4) { animation: danceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 4.3s, shimmer 3s linear infinite 5.1s; }
-.run-dance .preloader-title span:nth-child(5) { animation: danceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 4.4s, shimmer 3s linear infinite 5.2s; }
+/* Staggered animation triggers — delayed to start AFTER text box expands */
+/* Title: "Cut & Stitch" — 10 animated spans */
+.run-dance .preloader-title span:nth-child(1)  { animation: danceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 4.0s, shimmer 3s linear infinite 4.8s; }
+.run-dance .preloader-title span:nth-child(2)  { animation: danceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 4.1s, shimmer 3s linear infinite 4.9s; }
+.run-dance .preloader-title span:nth-child(3)  { animation: danceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 4.2s, shimmer 3s linear infinite 5.0s; }
+.run-dance .preloader-title span:nth-child(4)  { animation: danceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 4.3s, shimmer 3s linear infinite 5.1s; } /* & */
+.run-dance .preloader-title span:nth-child(5)  { animation: danceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 4.4s, shimmer 3s linear infinite 5.2s; }
+.run-dance .preloader-title span:nth-child(6)  { animation: danceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 4.5s, shimmer 3s linear infinite 5.3s; }
+.run-dance .preloader-title span:nth-child(7)  { animation: danceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 4.6s, shimmer 3s linear infinite 5.4s; }
+.run-dance .preloader-title span:nth-child(8)  { animation: danceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 4.7s, shimmer 3s linear infinite 5.5s; }
+.run-dance .preloader-title span:nth-child(9)  { animation: danceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 4.8s, shimmer 3s linear infinite 5.6s; }
+.run-dance .preloader-title span:nth-child(10) { animation: danceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 4.9s, shimmer 3s linear infinite 5.7s; }
 
 .preloader-subtitle {
   font-family: var(--ff-body);
@@ -271,7 +291,7 @@ main { padding-top: var(--nav-h); }
   animation: danceInRight 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 2.8s;
 }
 
-/* Flip animation triggered after Nazia forms */
+/* Flip animation triggered after Cut & Stitch title forms */
 .run-flip .preloader-icon {
   animation: coinFlip 4s infinite linear;
   transform-style: preserve-3d;
@@ -279,25 +299,30 @@ main { padding-top: var(--nav-h); }
 
 /* Flicker Shine */
 .run-shine .preloader-title span {
-  animation: waveShineTitle 3s ease-in-out infinite !important;
+  animation: waveShineTitle 5s ease-in-out infinite !important;
   opacity: 1 !important;
 }
 .run-shine .preloader-subtitle span {
-  animation: waveShineSubtitle 3s ease-in-out infinite !important;
+  animation: waveShineSubtitle 5s ease-in-out infinite !important;
   opacity: 1 !important;
 }
 .run-shine .crest-golden-group {
   animation: flickerShine 6s ease-in-out forwards !important;
 }
 
-/* Staggered wave delays for Title spans (Nazia) */
-.run-shine .preloader-title span:nth-child(1) { animation-delay: 0.0s !important; }
-.run-shine .preloader-title span:nth-child(2) { animation-delay: 0.15s !important; }
-.run-shine .preloader-title span:nth-child(3) { animation-delay: 0.3s !important; }
-.run-shine .preloader-title span:nth-child(4) { animation-delay: 0.45s !important; }
-.run-shine .preloader-title span:nth-child(5) { animation-delay: 0.6s !important; }
+/* Staggered wave delays for Title spans (Cut & Stitch — 10 spans) */
+.run-shine .preloader-title span:nth-child(1)  { animation-delay: 0.00s !important; }
+.run-shine .preloader-title span:nth-child(2)  { animation-delay: 0.12s !important; }
+.run-shine .preloader-title span:nth-child(3)  { animation-delay: 0.24s !important; }
+.run-shine .preloader-title span:nth-child(4)  { animation-delay: 0.36s !important; } /* & */
+.run-shine .preloader-title span:nth-child(5)  { animation-delay: 0.48s !important; }
+.run-shine .preloader-title span:nth-child(6)  { animation-delay: 0.60s !important; }
+.run-shine .preloader-title span:nth-child(7)  { animation-delay: 0.72s !important; }
+.run-shine .preloader-title span:nth-child(8)  { animation-delay: 0.84s !important; }
+.run-shine .preloader-title span:nth-child(9)  { animation-delay: 0.96s !important; }
+.run-shine .preloader-title span:nth-child(10) { animation-delay: 1.08s !important; }
 
-/* Staggered wave delays for Subtitle spans (STITCHING STUDIO) */
+/* Staggered wave delays for Subtitle spans (FASHION STUDIO — 14 chars incl. space) */
 .run-shine .preloader-subtitle span:nth-child(1) { animation-delay: 0.3s !important; }
 .run-shine .preloader-subtitle span:nth-child(2) { animation-delay: 0.4s !important; }
 .run-shine .preloader-subtitle span:nth-child(3) { animation-delay: 0.5s !important; }
@@ -359,9 +384,13 @@ main { padding-top: var(--nav-h); }
     max-width: 90vw;
   }
   .preloader-title {
-    font-size: 3.5rem;
+    font-size: 2.6rem;
     margin-bottom: 0;
     justify-content: center;
+    flex-wrap: wrap;
+  }
+  .preloader-title .amp-space {
+    font-size: 2rem;
   }
   .preloader-subtitle {
     font-size: 0.75rem;

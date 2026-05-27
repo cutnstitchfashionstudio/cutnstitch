@@ -100,11 +100,11 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
     <div class="chatbot-widget" id="chatbot">
       <div class="chat-header">
-        <div class="chat-title">✨ Nazia AI</div>
+        <div class="chat-title">✨ Cut &amp; Stitch AI</div>
         <button class="chat-close" id="chat-close">&times;</button>
       </div>
       <div class="chat-body" id="chat-body">
-        <div class="msg msg-bot">Hello! I'm Nazia AI. How can I help you today? You can ask me about stitching costs, fabric choices, or booking an appointment.</div>
+        <div class="msg msg-bot">Hello! I'm Cut &amp; Stitch AI. How can I help you today? You can ask me about stitching costs, fabric choices, or booking an appointment.</div>
       </div>
       <div class="chat-input">
         <input type="text" id="chat-input-field" placeholder="Type your message...">

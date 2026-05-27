@@ -2,6 +2,7 @@
   "version": 2,
   "rewrites": [
     { "source": "/api/products", "destination": "/api/products" },
+    { "source": "/api/admin-users", "destination": "/api/admin-users" },
     { "source": "/api/auth/google/callback", "destination": "/api/oauth-handler?provider=google&action=callback" },
     { "source": "/api/auth/facebook/callback", "destination": "/api/oauth-handler?provider=facebook&action=callback" },
     { "source": "/api/auth/google", "destination": "/api/oauth-handler?provider=google" },
@@ -26,7 +27,7 @@
         },
         {
           "key": "Access-Control-Allow-Headers",
-          "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+          "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, x-admin-secret"
         }
       ]
     }

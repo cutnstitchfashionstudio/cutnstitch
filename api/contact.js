@@ -29,8 +29,11 @@ module.exports = async (req, res) => {
     }
 
     // 2. Send Professional Email
+    let transporter = null;
+    let mailOptions = null;
+
     if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-      const transporter = nodemailer.createTransport({
+      transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
         port: process.env.SMTP_PORT || 587,
         auth: {
@@ -38,8 +41,7 @@ module.exports = async (req, res) => {
           pass: process.env.SMTP_PASS
         }
       });
-
-      const mailOptions = {
+      mailOptions = {
         from: `"Cut & Stitch Fashion Studio" <${process.env.SMTP_USER}>`,
         to: process.env.CONTACT_RECEIVER_EMAIL || 'cutnstitchfashionstudio@gmail.com',
         subject: `New Inquiry: ${subject}`,
@@ -55,10 +57,36 @@ module.exports = async (req, res) => {
           </blockquote>
         `
       };
+    } else if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+      transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.GMAIL_USER,
+          pass: process.env.GMAIL_APP_PASSWORD
+        }
+      });
+      mailOptions = {
+        from: `"Cut & Stitch Fashion Studio" <${process.env.GMAIL_USER}>`,
+        to: process.env.CONTACT_RECEIVER_EMAIL || 'cutnstitchfashionstudio@gmail.com',
+        subject: `New Inquiry: ${subject}`,
+        html: `
+          <h2>New Contact Form Submission</h2>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Phone:</strong> ${phone}</p>
+          <p><strong>Email:</strong> ${email || 'Not provided'}</p>
+          <p><strong>Subject:</strong> ${subject}</p>
+          <p><strong>Message:</strong></p>
+          <blockquote style="border-left: 4px solid #C9A84C; padding-left: 10px;">
+            ${message ? message.replace(/\n/g, '<br>') : 'No message provided.'}
+          </blockquote>
+        `
+      };
+    }
 
+    if (transporter && mailOptions) {
       await transporter.sendMail(mailOptions);
     } else {
-      console.warn("SMTP credentials not configured. Email notification skipped.");
+      console.warn("SMTP credentials or Gmail app credentials not configured. Email notification skipped.");
     }
 
     res.status(200).json({ success: true, message: 'Your message has been received successfully.' });
