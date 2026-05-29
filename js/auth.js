@@ -1355,24 +1355,22 @@ const Auth = {
     this.currentUser = null;
     ['currentUser', 'rememberedEmail'].forEach(k => localStorage.removeItem(k));
 
-    // 3. Belt-and-suspenders: try to delete cookie client-side too
-    //    (works for non-httpOnly cookies; httpOnly ones are handled server-side)
+    // 3. Update the UI state instantly (triggers header change and portal dashboard close)
+    this.checkAuth();
+
+    // 4. Belt-and-suspenders: try to delete cookie client-side too
     document.cookie = 'auth_token=; Max-Age=0; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     document.cookie = 'auth_token=; Max-Age=0; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure';
 
-    // 4. Tell server to expire the httpOnly cookie
+    // 5. Show confirmation alert (non-blocking, keeps them on the current page/portal screen)
+    window.ShowAlert('You have successfully logged out.');
+
+    // 6. Tell server to expire the httpOnly cookie in the background
     try {
       await fetch('/api/auth-handler?action=logout', { credentials: 'same-origin' });
     } catch (e) {
       console.error('Failed to log out from server:', e);
     }
-
-    // 5. Show confirmation then hard-navigate (forces full browser reload with cleared cookies)
-    window.ShowAlert('You have successfully logged out.');
-    const isProtectedPage = window.location.pathname.includes('portal.html') || window.location.pathname.includes('checkout.html');
-    setTimeout(() => {
-      window.location.href = isProtectedPage ? '/index.html' : window.location.pathname + '?logged_out=1';
-    }, 1200);
   },
 
   checkAuth() {
