@@ -46,7 +46,7 @@ module.exports = async (req, res) => {
 
       const users = [
         ...verified.map(u => mapUser(u, 'verified')),
-        ...pending.map(u  => mapUser(u, 'pending')),
+        ...pending.map(u  => mapUser(u, 'suspended')),
       ];
 
       // Fetch contact messages from MongoDB, sorted newest first
@@ -107,8 +107,8 @@ module.exports = async (req, res) => {
         await pendingCol.insertOne({ ...rest, isVerified: false });
         return res.status(200).json({
           success:   true,
-          message:   `${verifiedUser.Name || verifiedUser.name || 'User'} moved to Pending.`,
-          newStatus: 'pending',
+          message:   `${verifiedUser.Name || verifiedUser.name || 'User'} has been suspended.`,
+          newStatus: 'suspended',
         });
       }
 

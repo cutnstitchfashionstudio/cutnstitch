@@ -138,6 +138,8 @@ const Auth = {
         })
         .then(data => {
           if (data.authenticated && data.user) {
+            // Clear the explicit-logout guard — user has actively logged in via OAuth
+            localStorage.removeItem('nss_explicit_logout');
             this.currentUser = data.user;
             localStorage.setItem('currentUser', JSON.stringify(data.user));
             this.checkAuth();
@@ -152,19 +154,23 @@ const Auth = {
           window.ShowAlert('Network error checking session');
         });
 
-    } else if (urlParams.get('logged_out') === '1' || sessionStorage.getItem('nss_logged_out')) {
-      // ── Post-logout load: skip /me entirely, ensure clean state ──────────
-      sessionStorage.removeItem('nss_logged_out');
+    } else if (urlParams.get('logged_out') === '1') {
+      // ── Post-logout URL redirect: clean URL, state already cleared by logout() ──
+      window.history.replaceState({}, document.title, window.location.pathname);
       this.currentUser = null;
       localStorage.removeItem('currentUser');
-      // Clean the URL so F5 won't re-trigger this branch forever
-      if (urlParams.get('logged_out') === '1') {
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
+      this.checkAuth();
+
+    } else if (localStorage.getItem('nss_explicit_logout') === '1') {
+      // ── Explicit logout guard (survives all refreshes and new tabs) ────────
+      // Do NOT call /me — the user intentionally signed out.
+      // This flag is cleared only when a new successful login occurs.
+      this.currentUser = null;
+      localStorage.removeItem('currentUser');
       this.checkAuth();
 
     } else {
-      // ── Normal page load: proactively sync session from server ───────────
+      // ── Normal page load: proactively sync session from server ────────────
       fetch('/api/auth-handler?action=me')
         .then(res => res.json())
         .then(data => {
@@ -173,11 +179,10 @@ const Auth = {
             localStorage.setItem('currentUser', JSON.stringify(data.user));
             this.checkAuth();
           } else {
-            if (this.currentUser) {
-              this.currentUser = null;
-              localStorage.removeItem('currentUser');
-              this.checkAuth();
-            }
+            // Server says not authenticated — clear any stale local state
+            this.currentUser = null;
+            localStorage.removeItem('currentUser');
+            this.checkAuth();
           }
         })
         .catch(err => console.error('Error refreshing session:', err));
@@ -262,7 +267,7 @@ const Auth = {
               
               <div class="auth-or">Or, login with</div>
               <div class="auth-social" style="padding-bottom: 24px;">
-                <button type="button" class="auth-social-btn" onclick="window.location.href='/api/auth/google'">
+                <button type="button" class="auth-social-btn" onclick="localStorage.removeItem('nss_explicit_logout'); window.location.href='/api/auth/google'">
                   <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/><path d="M1 1h22v22H1z" fill="none"/></svg> Google
                 </button>
                 <button type="button" class="auth-social-btn" onclick="window.location.href='/api/auth/facebook'">
@@ -311,7 +316,7 @@ const Auth = {
               
               <div class="auth-or">Or, sign up with</div>
               <div class="auth-social" style="padding-bottom: 24px;">
-                <button type="button" class="auth-social-btn" onclick="window.location.href='/api/auth/google'">
+                <button type="button" class="auth-social-btn" onclick="localStorage.removeItem('nss_explicit_logout'); window.location.href='/api/auth/google'">
                   <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/><path d="M1 1h22v22H1z" fill="none"/></svg> Google
                 </button>
                 <button type="button" class="auth-social-btn" onclick="window.location.href='/api/auth/facebook'">
@@ -974,6 +979,8 @@ const Auth = {
           const data = await res.json();
           
           if (res.ok && data.success) {
+            // Clear the explicit-logout guard — user authenticated via phone OTP
+            localStorage.removeItem('nss_explicit_logout');
             this.currentUser = data.user;
             localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
             window.ShowAlert('Verification Successful! Welcome ' + (this.currentUser.name || 'User'));
@@ -1036,6 +1043,8 @@ const Auth = {
       const data = await res.json();
       
       if (res.ok && data.success) {
+        // Clear the explicit-logout guard — user authenticated via password reset
+        localStorage.removeItem('nss_explicit_logout');
         this.currentUser = data.user;
         localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
         this.showForgotSuccess();
@@ -1113,6 +1122,8 @@ const Auth = {
       }
       
       if (res.ok && data.success) {
+        // Clear the explicit-logout guard so /me syncing resumes on future page loads
+        localStorage.removeItem('nss_explicit_logout');
         this.currentUser = data.user;
         localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
         
@@ -1218,6 +1229,8 @@ const Auth = {
         const data = await res.json();
         
         if (res.ok && data.success) {
+          // Clear the explicit-logout guard — user registered and authenticated via phone
+          localStorage.removeItem('nss_explicit_logout');
           this.currentUser = data.user;
           localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
           this.closeModal();
@@ -1271,6 +1284,8 @@ const Auth = {
       const data = await res.json();
       
       if (res.ok && data.success) {
+        // Clear the explicit-logout guard — user registered and authenticated via email OTP
+        localStorage.removeItem('nss_explicit_logout');
         this.currentUser = data.user;
         localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
         document.dispatchEvent(new CustomEvent('authStateChanged', { detail: this.currentUser }));
@@ -1348,29 +1363,32 @@ const Auth = {
   },
 
   async logout() {
-    // 1. Mark the session as logged-out so the proactive /me sync is skipped on next page load
-    sessionStorage.setItem('nss_logged_out', '1');
-
-    // 2. Wipe every auth key from localStorage
-    this.currentUser = null;
-    ['currentUser', 'rememberedEmail'].forEach(k => localStorage.removeItem(k));
-
-    // 3. Update the UI state instantly (triggers header change and portal dashboard close)
-    this.checkAuth();
-
-    // 4. Belt-and-suspenders: try to delete cookie client-side too
-    document.cookie = 'auth_token=; Max-Age=0; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    document.cookie = 'auth_token=; Max-Age=0; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure';
-
-    // 5. Show confirmation alert (non-blocking, keeps them on the current page/portal screen)
-    window.ShowAlert('You have successfully logged out.');
-
-    // 6. Tell server to expire the httpOnly cookie in the background
+    // 1. Tell the server to delete the httpOnly auth_token cookie FIRST.
+    //    We must await this before anything else — the httpOnly cookie cannot
+    //    be deleted from JavaScript (document.cookie ignores httpOnly cookies).
+    //    If we clear local state first and the server call races with a refresh,
+    //    the cookie survives and /me would re-authenticate on the next load.
     try {
       await fetch('/api/auth-handler?action=logout', { credentials: 'same-origin' });
     } catch (e) {
-      console.error('Failed to log out from server:', e);
+      console.error('Server logout failed:', e);
+      // Continue anyway — at minimum we clear the client state
     }
+
+    // 2. Set a durable, cross-tab localStorage guard.
+    //    sessionStorage only survives within a single tab's session; this logout
+    //    guard must survive multiple refreshes and new tabs until a new login occurs.
+    localStorage.setItem('nss_explicit_logout', '1');
+
+    // 3. Wipe every auth key from localStorage
+    this.currentUser = null;
+    ['currentUser', 'rememberedEmail'].forEach(k => localStorage.removeItem(k));
+
+    // 4. Update UI state instantly (hides portal dashboard, resets nav to Login)
+    this.checkAuth();
+
+    // 5. Show confirmation (non-blocking, keeps user on current page)
+    window.ShowAlert('You have successfully logged out.');
   },
 
   checkAuth() {

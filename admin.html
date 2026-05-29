@@ -517,7 +517,7 @@
     allUsers = users;
     document.getElementById('statTotal').textContent    = users.length;
     document.getElementById('statVerified').textContent = users.filter(u => u.status === 'verified').length;
-    document.getElementById('statPending').textContent  = users.filter(u => u.status === 'pending').length;
+    document.getElementById('statPending').textContent  = users.filter(u => u.status !== 'verified').length;
     buildRows(users);
 
     // 2. Render Messages
@@ -598,7 +598,7 @@
     allUsers = users;
     document.getElementById('statTotal').textContent    = users.length;
     document.getElementById('statVerified').textContent = users.filter(u => u.status === 'verified').length;
-    document.getElementById('statPending').textContent  = users.filter(u => u.status === 'pending').length;
+    document.getElementById('statPending').textContent  = users.filter(u => u.status !== 'verified').length;
     buildRows(users);
   }
 
@@ -663,8 +663,8 @@
   // ═══════════════════════════════════════════════════════════════
   function openModal(userId, currentStatus, name) {
     pendingToggle = { userId, currentStatus, name };
-    const action = currentStatus === 'pending' ? 'VERIFY' : 'SUSPEND';
-    const color  = currentStatus === 'pending' ? '#6ee7b7' : '#fca5a5';
+    const action = currentStatus !== 'verified' ? 'VERIFY' : 'SUSPEND';
+    const color  = currentStatus !== 'verified' ? '#6ee7b7' : '#fca5a5';
 
     document.getElementById('modalTitle').textContent = `${action} Customer Account`;
     document.getElementById('modalSubtitle').textContent =
