@@ -427,7 +427,7 @@
         document.documentElement.classList.add('is-auth');
         document.getElementById('portal-guest').style.display = 'none';
         
-        if (!user.isVerified) {
+        if (!user.isVerified && !window.__adminView) {
           // Unverified dashboard
           document.getElementById('portal-dashboard').style.display = 'none';
           

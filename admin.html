@@ -101,6 +101,43 @@
     .btn-toggle-unverify { background:var(--warn-bg); border:1px solid var(--warn-border); color:#fcd34d; }
     .btn-toggle-unverify:hover { background:rgba(245,158,11,.25); }
 
+    /* ── Hover name-cell with Profile/Delete buttons ── */
+    .td-name-cell { position:relative; }
+    .name-container { display:flex; align-items:center; gap:8px; }
+    .name-text { font-weight:600; color:var(--text); }
+    .name-actions {
+      display:inline-flex; gap:5px; opacity:0; pointer-events:none;
+      transition:opacity .18s ease;
+    }
+    tr:hover .name-actions { opacity:1; pointer-events:auto; }
+    .btn-name-action {
+      border:none; border-radius:6px; padding:4px 10px; font-size:11px; font-weight:700;
+      cursor:pointer; font-family:'Inter',sans-serif; transition:.18s; white-space:nowrap; line-height:1.4;
+    }
+    .btn-name-profile {
+      background:rgba(201,168,76,.12); border:1px solid rgba(201,168,76,.35);
+      color:var(--gold);
+    }
+    .btn-name-profile:hover { background:rgba(201,168,76,.25); }
+    .btn-name-profile:disabled {
+      opacity:.35; cursor:not-allowed;
+      background:var(--surface2); border-color:var(--border2); color:var(--muted);
+    }
+    .btn-name-delete {
+      background:var(--error-bg); border:1px solid var(--error-border);
+      color:#fca5a5;
+    }
+    .btn-name-delete:hover { background:rgba(239,68,68,.25); }
+
+    /* ── Danger confirm button (for delete actions) ── */
+    .btn-confirm-danger {
+      flex:1; background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff;
+      border:none; border-radius:8px; padding:11px; font-size:14px; font-weight:700;
+      cursor:pointer; font-family:'Inter',sans-serif; transition:.2s;
+    }
+    .btn-confirm-danger:hover { transform:translateY(-1px); box-shadow:0 6px 16px rgba(239,68,68,.35); }
+    .btn-confirm-danger:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+
     /* ── Empty state ── */
     .empty-state { text-align:center; padding:48px 20px; color:var(--muted); }
     .empty-state .icon { font-size:40px; margin-bottom:12px; }
@@ -550,10 +587,40 @@
       tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">✉️</div><p>No messages found.</p></div></td></tr>`;
       return;
     }
-    tbody.innerHTML = messages.map((m, i) => `
+    // Build a quick lookup of registered emails+phones for Profile button enabling
+    const registeredEmails = new Set(allUsers.map(u => (u.email || '').toLowerCase()).filter(Boolean));
+    const registeredPhones = new Set(allUsers.map(u => (u.phone || '').replace(/\s/g, '')).filter(Boolean));
+
+    const findMatchingUserId = (m) => {
+      const email = (m.email || '').toLowerCase();
+      const phone = (m.phone || '').replace(/\s/g, '');
+      const byEmail = email ? allUsers.find(u => (u.email || '').toLowerCase() === email) : null;
+      const byPhone = phone && phone !== '—' ? allUsers.find(u => (u.phone || '').replace(/\s/g, '') === phone) : null;
+      return (byEmail || byPhone) || null;
+    };
+
+    tbody.innerHTML = messages.map((m, i) => {
+      const matchedUser = findMatchingUserId(m);
+      const profileDisabled = !matchedUser ? 'disabled title="No registered account found for this sender"' : `title="View portal as admin"`;
+      const profileUserId = matchedUser ? matchedUser.id : '';
+      return `
       <tr data-id="${m.id}">
         <td class="td-muted">${i + 1}</td>
-        <td class="td-name">${escHtml(m.name)}</td>
+        <td class="td-name-cell">
+          <div class="name-container">
+            <span class="name-text">${escHtml(m.name)}</span>
+            <span class="name-actions">
+              <button class="btn-name-action btn-name-profile" ${profileDisabled}
+                onclick="${matchedUser ? `openProfileView('${profileUserId}')` : 'void 0'}">
+                👤 Profile
+              </button>
+              <button class="btn-name-action btn-name-delete" title="Delete this message permanently"
+                onclick="openDeleteMessageModal('${m.id}', '${escAttr(m.name)}')">
+                🗑️ Delete
+              </button>
+            </span>
+          </div>
+        </td>
         <td class="td-muted">${escHtml(m.phone)}</td>
         <td class="td-muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(m.email)}</td>
         <td>
@@ -564,7 +631,7 @@
         <td style="max-width:350px;word-break:break-word;font-size:12px;line-height:1.5;">${escHtml(m.message)}</td>
         <td class="td-muted" style="white-space:nowrap;">${escHtml(m.createdAt)}</td>
       </tr>
-    `).join('');
+    `}).join('');
   }
 
   function filterMessagesTable() {
@@ -620,7 +687,21 @@
       <tr data-id="${u.id}" data-status="${u.status}" data-name="${escHtml(u.name)}"
           data-search="${(u.name + u.phone + u.email).toLowerCase()}">
         <td class="td-muted">${i + 1}</td>
-        <td class="td-name">${escHtml(u.name)}</td>
+        <td class="td-name-cell">
+          <div class="name-container">
+            <span class="name-text">${escHtml(u.name)}</span>
+            <span class="name-actions">
+              <button class="btn-name-action btn-name-profile" title="View profile as admin"
+                onclick="openProfileView('${u.id}')">
+                👤 Profile
+              </button>
+              <button class="btn-name-action btn-name-delete" title="Delete this customer permanently"
+                onclick="openDeleteUserModal('${u.id}', '${escAttr(u.name)}')">
+                🗑️ Delete
+              </button>
+            </span>
+          </div>
+        </td>
         <td class="td-muted">${escHtml(u.phone)}</td>
         <td class="td-muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(u.email)}</td>
         <td>
@@ -686,30 +767,82 @@
   }
 
   // ═══════════════════════════════════════════════════════════════
-  // MODAL — second-password confirmation
+  // MODAL — second-password confirmation (toggle, delete user, delete message)
   // ═══════════════════════════════════════════════════════════════
   function openModal(userId, currentStatus, name) {
-    pendingToggle = { userId, currentStatus, name };
-    const action = currentStatus !== 'verified' ? 'VERIFY' : 'SUSPEND';
-    const color  = currentStatus !== 'verified' ? '#6ee7b7' : '#fca5a5';
+    pendingToggle = { action: 'toggle', userId, currentStatus, name };
+    const act   = currentStatus !== 'verified' ? 'VERIFY' : 'SUSPEND';
+    const color = currentStatus !== 'verified' ? '#6ee7b7' : '#fca5a5';
 
-    document.getElementById('modalTitle').textContent = `${action} Customer Account`;
+    document.getElementById('modalTitle').textContent = `${act} Customer Account`;
     document.getElementById('modalSubtitle').textContent =
       'Enter your Confirmation Password to proceed. This prevents accidental status changes.';
     document.getElementById('modalTarget').innerHTML =
       `Customer: <strong style="color:${color};">${escHtml(name)}</strong><br>
-       Action: <strong style="color:${color};">${action} this account</strong>`;
+       Action: <strong style="color:${color};">${act} this account</strong>`;
+
+    const confirmBtn = document.getElementById('confirmBtn');
+    confirmBtn.className = 'btn-confirm';
+    confirmBtn.textContent = 'Confirm Change';
 
     document.getElementById('toggleSecretInput').value = '';
     document.getElementById('modalAlert').classList.remove('show');
-
     document.getElementById('confirmModal').classList.add('open');
     setTimeout(() => document.getElementById('toggleSecretInput').focus(), 200);
+  }
+
+  function openDeleteUserModal(userId, name) {
+    pendingToggle = { action: 'delete', userId, name };
+
+    document.getElementById('modalTitle').textContent = '⚠️ Delete Customer Account';
+    document.getElementById('modalSubtitle').textContent =
+      'This will permanently remove all data for this customer from the database. This action cannot be undone.';
+    document.getElementById('modalTarget').innerHTML =
+      `Customer: <strong style="color:#fca5a5;">${escHtml(name)}</strong><br>
+       Action: <strong style="color:#fca5a5;">Permanently delete account &amp; all data</strong>`;
+
+    const confirmBtn = document.getElementById('confirmBtn');
+    confirmBtn.className = 'btn-confirm-danger';
+    confirmBtn.textContent = '🗑️ Permanently Delete';
+
+    document.getElementById('toggleSecretInput').value = '';
+    document.getElementById('modalAlert').classList.remove('show');
+    document.getElementById('confirmModal').classList.add('open');
+    setTimeout(() => document.getElementById('toggleSecretInput').focus(), 200);
+  }
+
+  function openDeleteMessageModal(messageId, name) {
+    pendingToggle = { action: 'deleteMessage', messageId, name };
+
+    document.getElementById('modalTitle').textContent = '⚠️ Delete Client Message';
+    document.getElementById('modalSubtitle').textContent =
+      'This will permanently remove this message from the database. This action cannot be undone.';
+    document.getElementById('modalTarget').innerHTML =
+      `Sender: <strong style="color:#fca5a5;">${escHtml(name)}</strong><br>
+       Action: <strong style="color:#fca5a5;">Permanently delete this message</strong>`;
+
+    const confirmBtn = document.getElementById('confirmBtn');
+    confirmBtn.className = 'btn-confirm-danger';
+    confirmBtn.textContent = '🗑️ Delete Message';
+
+    document.getElementById('toggleSecretInput').value = '';
+    document.getElementById('modalAlert').classList.remove('show');
+    document.getElementById('confirmModal').classList.add('open');
+    setTimeout(() => document.getElementById('toggleSecretInput').focus(), 200);
+  }
+
+  function openProfileView(userId) {
+    const ADMIN_SECRET = adminSecret;
+    window.open(`/portal?userId=${encodeURIComponent(userId)}&adminSecret=${encodeURIComponent(ADMIN_SECRET)}`, '_blank');
   }
 
   function closeModal() {
     document.getElementById('confirmModal').classList.remove('open');
     pendingToggle = null;
+    // Reset confirm button style
+    const confirmBtn = document.getElementById('confirmBtn');
+    confirmBtn.className = 'btn-confirm';
+    confirmBtn.textContent = 'Confirm Change';
   }
 
   // Close on overlay click
@@ -723,7 +856,7 @@
   });
 
   // ═══════════════════════════════════════════════════════════════
-  // SUBMIT TOGGLE (with second password)
+  // SUBMIT TOGGLE / DELETE (with second password)
   // ═══════════════════════════════════════════════════════════════
   async function submitToggle() {
     if (!pendingToggle) return;
@@ -735,21 +868,27 @@
     }
 
     const btn = document.getElementById('confirmBtn');
+    const originalHtml = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>Processing…';
 
     try {
+      const action = pendingToggle.action || 'toggle';
+      let body = { action, toggleSecret };
+
+      if (action === 'toggle' || action === 'delete') {
+        body.userId = pendingToggle.userId;
+      } else if (action === 'deleteMessage') {
+        body.messageId = pendingToggle.messageId;
+      }
+
       const res = await fetch('/api/admin-users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-admin-secret': adminSecret
         },
-        body: JSON.stringify({
-          userId:       pendingToggle.userId,
-          action:       'toggle',
-          toggleSecret
-        })
+        body: JSON.stringify(body)
       });
 
       const data = await res.json();
@@ -765,14 +904,15 @@
 
       // Success
       closeModal();
-      showGlobalAlert('success', `✅ ${data.message}`);
+      const icon = action === 'toggle' ? '✅' : '🗑️';
+      showGlobalAlert('success', `${icon} ${data.message}`);
       await loadUsers();
 
     } catch {
       showModalAlert('Network error. Please check your connection.');
     } finally {
       btn.disabled = false;
-      btn.innerHTML = 'Confirm Change';
+      btn.innerHTML = originalHtml;
     }
   }
 

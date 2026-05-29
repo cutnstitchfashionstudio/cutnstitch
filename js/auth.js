@@ -128,6 +128,59 @@ const Auth = {
   },
 
   init() {
+    // ── Admin portal-view interceptor ─────────────────────────────────────
+    // When admin opens /portal?userId=X&adminSecret=Y from the admin panel,
+    // we bypass all verification guards and inject a top admin banner.
+    const _params = new URLSearchParams(window.location.search);
+    const _adminUserId     = _params.get('userId');
+    const _adminSecretParam = _params.get('adminSecret');
+
+    if (_adminUserId && _adminSecretParam) {
+      window.__adminView = true;
+      // Clean URL immediately so it's not accidentally bookmarked/shared
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      // Fetch the user list and find matching user
+      fetch('/api/admin-users', { headers: { 'x-admin-secret': _adminSecretParam } })
+        .then(res => res.ok ? res.json() : Promise.reject(res.status))
+        .then(data => {
+          const user = (data.users || []).find(u => u.id === _adminUserId);
+          if (!user) {
+            console.warn('[AdminView] User not found:', _adminUserId);
+            this.injectModal();
+            this.injectDropdown();
+            this.checkAuth();
+            this.bindEvents();
+            return;
+          }
+          // Mock the session as this user (admin read-only view)
+          this.currentUser = {
+            id:         user.id,
+            name:       user.name,
+            email:      user.email,
+            phone:      user.phone,
+            provider:   user.provider,
+            isVerified: user.status === 'verified',
+            status:     user.status,
+          };
+          localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+          this.injectModal();
+          this.injectDropdown();
+          this.checkAuth();
+          this.bindEvents();
+          this._injectAdminViewBanner(user, _adminSecretParam);
+        })
+        .catch(err => {
+          console.error('[AdminView] Failed to load admin users:', err);
+          this.injectModal();
+          this.injectDropdown();
+          this.checkAuth();
+          this.bindEvents();
+        });
+      return; // Skip normal init flow
+    }
+    // ── End admin-view interceptor ─────────────────────────────────────────
+
     this.injectModal();
     this.injectDropdown();
     this.checkAuth();
@@ -1380,8 +1433,102 @@ const Auth = {
     }
   },
   checkVerification() {
+    // Skip verification popup when admin is previewing a portal
+    if (window.__adminView) return;
     if (this.currentUser && !this.currentUser.isVerified) {
       this.showVerificationModal();
+    }
+  },
+
+  _injectAdminViewBanner(user, adminSecret) {
+    // Remove existing banner if any
+    const existing = document.getElementById('adminViewBanner');
+    if (existing) existing.remove();
+
+    const statusLabel = user.status === 'verified' ? '✅ Verified' : '⏸️ Suspended';
+    const statusColor = user.status === 'verified' ? '#6ee7b7' : '#fcd34d';
+    const toggleLabel = user.status === 'verified' ? 'Suspend Account' : 'Verify Account';
+    const toggleColor = user.status === 'verified' ? '#ef4444' : '#10b981';
+
+    const banner = document.createElement('div');
+    banner.id = 'adminViewBanner';
+    banner.style.cssText = `
+      position: fixed; top: 0; left: 0; right: 0; z-index: 99999;
+      background: linear-gradient(135deg, #0d2247 0%, #1a3060 100%);
+      border-bottom: 2px solid #c9a84c;
+      padding: 10px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap;
+      font-family: 'Inter', sans-serif; font-size: 13px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    `;
+    banner.innerHTML = `
+      <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+        <span style="background:rgba(201,168,76,.15); border:1px solid rgba(201,168,76,.4); color:#c9a84c;
+          padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:.06em;">
+          🔐 ADMIN VIEW
+        </span>
+        <span style="color:#e2e8f0; font-weight:600;">${this._escBannerHtml(user.name)}</span>
+        <span style="color:#94a3b8; font-size:12px;">${this._escBannerHtml(user.email || user.phone || '')}</span>
+        <span style="background:rgba(0,0,0,.2); border:1px solid ${statusColor}33; color:${statusColor};
+          padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700;">
+          ${statusLabel}
+        </span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button id="adminBannerToggle" onclick="Auth._adminBannerToggle('${user.id}','${user.status}','${this._escBannerHtml(user.name)}','${adminSecret}')" style="
+          background: ${toggleColor}22; border: 1px solid ${toggleColor}55; color: ${toggleColor};
+          border-radius: 7px; padding: 6px 14px; font-size: 12px; font-weight: 700;
+          cursor: pointer; font-family: inherit; transition: .2s; white-space: nowrap;
+        ">${toggleLabel}</button>
+        <a href="/admin" style="
+          background: rgba(201,168,76,.12); border: 1px solid rgba(201,168,76,.35); color: #c9a84c;
+          border-radius: 7px; padding: 6px 14px; font-size: 12px; font-weight: 700;
+          text-decoration: none; white-space: nowrap; transition: .2s;
+        ">← Back to Admin</a>
+        <button onclick="document.getElementById('adminViewBanner').remove(); document.body.style.paddingTop='';" style="
+          background: transparent; border: 1px solid rgba(255,255,255,.15); color: #94a3b8;
+          border-radius: 7px; padding: 6px 10px; font-size: 12px; cursor: pointer;
+          font-family: inherit; transition: .2s;
+        " title="Hide banner">×</button>
+      </div>
+    `;
+    document.body.insertAdjacentElement('afterbegin', banner);
+    // Push page content down so banner doesn't overlap navbar
+    const bannerH = banner.offsetHeight || 48;
+    document.body.style.paddingTop = bannerH + 'px';
+  },
+
+  _escBannerHtml(s) {
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  },
+
+  async _adminBannerToggle(userId, currentStatus, name, adminSecret) {
+    const TOGGLE_SECRET = prompt(
+      `Enter your Admin Confirmation Password to ${currentStatus === 'verified' ? 'SUSPEND' : 'VERIFY'} "${name}":`
+    );
+    if (!TOGGLE_SECRET) return;
+
+    const btn = document.getElementById('adminBannerToggle');
+    if (btn) { btn.disabled = true; btn.textContent = 'Processing…'; }
+
+    try {
+      const res = await fetch('/api/admin-users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+        body: JSON.stringify({ action: 'toggle', userId, toggleSecret: TOGGLE_SECRET })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Action failed.');
+      } else {
+        alert('\u2705 ' + data.message + '\n\nPage will now reload to reflect the new status.');
+        window.location.reload();
+      }
+    } catch (e) {
+      alert('Network error: ' + e.message);
+    } finally {
+      if (btn) { btn.disabled = false; }
     }
   },
 

@@ -73,18 +73,13 @@ module.exports = async (req, res) => {
     }
   }
 
-  // ── 3. POST — toggle user status ──────────────────────────────────────
   if (req.method === 'POST') {
-    const { userId, action, toggleSecret } = req.body || {};
+    const { userId, messageId, action, toggleSecret } = req.body || {};
 
     // Second-layer confirmation password
     const TOGGLE_SECRET = process.env.ADMIN_TOGGLE_SECRET || 'cutnstitch-toggle-2026';
     if (!toggleSecret || toggleSecret !== TOGGLE_SECRET) {
-      return res.status(403).json({ error: 'Wrong confirmation password. Status was NOT changed.' });
-    }
-
-    if (action !== 'toggle' || !userId) {
-      return res.status(400).json({ error: 'Invalid request. Required: userId + action=toggle.' });
+      return res.status(403).json({ error: 'Wrong confirmation password. Action was NOT performed.' });
     }
 
     try {
@@ -96,37 +91,79 @@ module.exports = async (req, res) => {
         return res.status(500).json({ error: 'Database not configured.' });
       }
 
-      let objId;
-      try { objId = new ObjectId(userId); }
-      catch { return res.status(400).json({ error: 'Invalid user ID format.' }); }
+      if (action === 'toggle') {
+        if (!userId) return res.status(400).json({ error: 'Missing userId.' });
+        let objId;
+        try { objId = new ObjectId(userId); }
+        catch { return res.status(400).json({ error: 'Invalid user ID format.' }); }
 
-      // Check verified users first
-      const verifiedUser = await usersCol.findOne({ _id: objId });
-      if (verifiedUser) {
-        await usersCol.deleteOne({ _id: objId });
-        const { _id, ...rest } = verifiedUser;
-        await pendingCol.insertOne({ ...rest, isVerified: false });
-        return res.status(200).json({
-          success:   true,
-          message:   `${verifiedUser.Name || verifiedUser.name || 'User'} has been suspended.`,
-          newStatus: 'suspended',
-        });
+        // Check verified users first
+        const verifiedUser = await usersCol.findOne({ _id: objId });
+        if (verifiedUser) {
+          await usersCol.deleteOne({ _id: objId });
+          const { _id, ...rest } = verifiedUser;
+          await pendingCol.insertOne({ ...rest, isVerified: false });
+          return res.status(200).json({
+            success:   true,
+            message:   `${verifiedUser.Name || verifiedUser.name || 'User'} has been suspended.`,
+            newStatus: 'suspended',
+          });
+        }
+
+        // Check pending users
+        const pendingUser = await pendingCol.findOne({ _id: objId });
+        if (pendingUser) {
+          await pendingCol.deleteOne({ _id: objId });
+          const { _id, ...rest } = pendingUser;
+          await usersCol.insertOne({ ...rest, isVerified: true });
+          return res.status(200).json({
+            success:   true,
+            message:   `${pendingUser.Name || pendingUser.name || 'User'} verified successfully!`,
+            newStatus: 'verified',
+          });
+        }
+
+        return res.status(404).json({ error: 'User not found in any collection.' });
       }
 
-      // Check pending users
-      const pendingUser = await pendingCol.findOne({ _id: objId });
-      if (pendingUser) {
-        await pendingCol.deleteOne({ _id: objId });
-        const { _id, ...rest } = pendingUser;
-        await usersCol.insertOne({ ...rest, isVerified: true });
-        return res.status(200).json({
-          success:   true,
-          message:   `${pendingUser.Name || pendingUser.name || 'User'} verified successfully!`,
-          newStatus: 'verified',
-        });
+      if (action === 'delete') {
+        if (!userId) return res.status(400).json({ error: 'Missing userId.' });
+        let objId;
+        try { objId = new ObjectId(userId); }
+        catch { return res.status(400).json({ error: 'Invalid user ID format.' }); }
+
+        const delUsers = await usersCol.deleteOne({ _id: objId });
+        const delPending = await pendingCol.deleteOne({ _id: objId });
+        
+        if (delUsers.deletedCount > 0 || delPending.deletedCount > 0) {
+          return res.status(200).json({
+            success: true,
+            message: 'Customer account has been permanently deleted from database.'
+          });
+        }
+        return res.status(404).json({ error: 'User not found.' });
       }
 
-      return res.status(404).json({ error: 'User not found in any collection.' });
+      if (action === 'deleteMessage') {
+        if (!messageId) return res.status(400).json({ error: 'Missing messageId.' });
+        let objId;
+        try { objId = new ObjectId(messageId); }
+        catch { return res.status(400).json({ error: 'Invalid message ID format.' }); }
+
+        const msgCol = await getCollection('contact_messages');
+        if (!msgCol) return res.status(500).json({ error: 'Database not configured.' });
+
+        const delMsg = await msgCol.deleteOne({ _id: objId });
+        if (delMsg.deletedCount > 0) {
+          return res.status(200).json({
+            success: true,
+            message: 'Client message has been permanently deleted from database.'
+          });
+        }
+        return res.status(404).json({ error: 'Message not found.' });
+      }
+
+      return res.status(400).json({ error: 'Invalid action.' });
     } catch (err) {
       console.error('admin-users POST error:', err);
       return res.status(500).json({ error: 'Database error: ' + err.message });
