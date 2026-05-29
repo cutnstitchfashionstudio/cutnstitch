@@ -35,13 +35,14 @@ module.exports = async (req, res) => {
       const pending  = await pendingCol.find({}).toArray();
 
       const mapUser = (u, status) => ({
-        id:         (u._id || '').toString(),
-        name:       u.Name  || u.name  || '—',
-        phone:      u.Phone || u.phone || '—',
-        email:      u.Email || u.email || '—',
-        password:   u.Password || u.password || '—',
+        id:           (u._id || '').toString(),
+        name:         u.Name  || u.name  || '—',
+        phone:        u.Phone || u.phone || '—',
+        email:        u.Email || u.email || '—',
+        passwordHash: u.PasswordHash || u.Password || u.password || '—',
+        provider:     u.Provider || u.provider || 'local',
         status,
-        createdAt:  (u.CreatedAt || u.createdAt) ? new Date(u.CreatedAt || u.createdAt).toLocaleDateString('en-PK') : '—',
+        createdAt:    (u.CreatedAt || u.createdAt) ? new Date(u.CreatedAt || u.createdAt).toLocaleDateString('en-PK') : '—',
       });
 
       const users = [

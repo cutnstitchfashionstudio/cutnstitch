@@ -85,7 +85,7 @@
     .td-name { font-weight:600; color:var(--text); }
     .td-muted { color:var(--muted); font-size:12px; }
     .pw-wrap { display:flex; align-items:center; gap:6px; }
-    .pw-text { font-family:monospace; font-size:12px; color:var(--muted); letter-spacing:.05em; }
+    .pw-text { font-family:monospace; font-size:11px; color:var(--muted); letter-spacing:.02em; word-break:break-all; max-width:180px; display:inline-block; white-space:normal; }
     .pw-toggle { background:none; border:none; cursor:pointer; color:var(--muted); padding:2px; font-size:14px; transition:color .2s; }
     .pw-toggle:hover { color:var(--gold); }
 
@@ -330,12 +330,13 @@
                 <th>Name</th>
                 <th>Phone</th>
                 <th>Email</th>
+                <th style="width: 220px;">Password Hash</th>
                 <th style="width: 130px;">Joined</th>
                 <th style="width: 140px; text-align: center;">Status</th>
               </tr>
             </thead>
             <tbody id="usersBody">
-              <tr><td colspan="6"><div class="empty-state"><div class="icon">⏳</div><p>Loading customers…</p></div></td></tr>
+              <tr><td colspan="7"><div class="empty-state"><div class="icon">⏳</div><p>Loading customers…</p></div></td></tr>
             </tbody>
           </table>
         </div>
@@ -612,7 +613,7 @@
   function buildRows(users) {
     const tbody = document.getElementById('usersBody');
     if (!users.length) {
-      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">👤</div><p>No customers found.</p></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">👤</div><p>No customers found.</p></div></td></tr>`;
       return;
     }
     tbody.innerHTML = users.map((u, i) => `
@@ -622,6 +623,16 @@
         <td class="td-name">${escHtml(u.name)}</td>
         <td class="td-muted">${escHtml(u.phone)}</td>
         <td class="td-muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(u.email)}</td>
+        <td>
+          ${u.passwordHash && u.passwordHash !== '—' ? `
+            <div class="pw-wrap">
+              <span class="pw-text" id="pw-${u.id}">••••••••</span>
+              <button class="pw-toggle" id="btn-pw-${u.id}" onclick="togglePw('${u.id}', '${escAttr(u.passwordHash)}')" title="Show password hash">👁️</button>
+            </div>
+          ` : `
+            <span class="td-muted">${u.provider === 'google' ? '— (Google)' : u.provider === 'facebook' ? '— (Facebook)' : '—'}</span>
+          `}
+        </td>
         <td class="td-muted">${escHtml(u.createdAt)}</td>
         <td style="text-align: center;">
           <button class="badge ${u.status === 'verified' ? 'badge-verified' : 'badge-pending'}" 
@@ -648,7 +659,7 @@
   function showSkeletonRows() {
     const tbody = document.getElementById('usersBody');
     tbody.innerHTML = [1,2,3].map(() => `
-      <tr>${[1,2,3,4,5,6].map(() =>
+      <tr>${[1,2,3,4,5,6,7].map(() =>
         `<td><div class="skeleton"></div></td>`
       ).join('')}</tr>
     `).join('');
@@ -659,10 +670,19 @@
   // ═══════════════════════════════════════════════════════════════
   const pwVisible = {};
   function togglePw(id, pw) {
-    const el = document.getElementById('pw-' + id);
-    if (!el) return;
+    const textEl = document.getElementById('pw-' + id);
+    const btnEl = document.getElementById('btn-pw-' + id);
+    if (!textEl || !btnEl) return;
     pwVisible[id] = !pwVisible[id];
-    el.textContent = pwVisible[id] ? pw : '••••••••';
+    if (pwVisible[id]) {
+      textEl.textContent = pw;
+      btnEl.innerHTML = '🙈';
+      btnEl.title = 'Hide password hash';
+    } else {
+      textEl.textContent = '••••••••';
+      btnEl.innerHTML = '👁️';
+      btnEl.title = 'Show password hash';
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════
