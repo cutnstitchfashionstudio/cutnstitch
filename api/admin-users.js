@@ -41,7 +41,7 @@ module.exports = async (req, res) => {
         email:      u.Email || u.email || '—',
         password:   u.Password || u.password || '—',
         status,
-        createdAt:  u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-PK') : '—',
+        createdAt:  (u.CreatedAt || u.createdAt) ? new Date(u.CreatedAt || u.createdAt).toLocaleDateString('en-PK') : '—',
       });
 
       const users = [

@@ -137,6 +137,53 @@
     /* ── Footer ── */
     .admin-footer { text-align:center; padding:16px; font-size:12px; color:var(--muted); border-top:1px solid var(--border2); margin-top:auto; }
 
+    /* ── Tabs System ── */
+    .admin-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border2);
+    }
+    .tab-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      outline: none;
+    }
+    .tab-btn:hover {
+      border-color: var(--gold);
+      color: var(--text);
+      background: rgba(201, 168, 76, 0.05);
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: var(--primary);
+      border-color: transparent;
+      box-shadow: 0 4px 15px rgba(201, 168, 76, 0.2);
+    }
+    .tab-btn span {
+      background: rgba(255, 255, 255, 0.1);
+      color: inherit;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .tab-btn.active span {
+      background: rgba(13, 34, 71, 0.12);
+    }
+
     @media(max-width:700px) {
       .main { padding:20px 12px; }
       .topbar { padding:12px 16px; }
@@ -258,7 +305,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-val" id="statPending" style="color:#fcd34d;">—</div>
-          <div class="stat-label">Pending</div>
+          <div class="stat-label">Suspended</div>
         </div>
       </div>
 
@@ -272,18 +319,16 @@
           <table id="usersTable">
             <thead>
               <tr>
-                <th>#</th>
+                <th style="width: 50px;">#</th>
                 <th>Name</th>
                 <th>Phone</th>
                 <th>Email</th>
-                <th>Password</th>
-                <th>Status</th>
-                <th>Joined</th>
-                <th>Action</th>
+                <th style="width: 140px; text-align: center;">Status</th>
+                <th style="width: 130px;">Joined</th>
               </tr>
             </thead>
             <tbody id="usersBody">
-              <tr><td colspan="8"><div class="empty-state"><div class="icon">⏳</div><p>Loading customers…</p></div></td></tr>
+              <tr><td colspan="6"><div class="empty-state"><div class="icon">⏳</div><p>Loading customers…</p></div></td></tr>
             </tbody>
           </table>
         </div>
@@ -560,7 +605,7 @@
   function buildRows(users) {
     const tbody = document.getElementById('usersBody');
     if (!users.length) {
-      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">👤</div><p>No customers found.</p></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">👤</div><p>No customers found.</p></div></td></tr>`;
       return;
     }
     tbody.innerHTML = users.map((u, i) => `
@@ -570,24 +615,17 @@
         <td class="td-name">${escHtml(u.name)}</td>
         <td class="td-muted">${escHtml(u.phone)}</td>
         <td class="td-muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(u.email)}</td>
-        <td>
-          <div class="pw-wrap">
-            <span class="pw-text" id="pw-${u.id}">••••••••</span>
-            <button class="pw-toggle" onclick="togglePw('${u.id}','${escAttr(u.password)}')" title="Show/hide password">👁</button>
-          </div>
-        </td>
-        <td>
-          <span class="badge ${u.status === 'verified' ? 'badge-verified' : 'badge-pending'}">
-            ${u.status === 'verified' ? '✅ Verified' : '⏳ Pending'}
-          </span>
+        <td style="text-align: center;">
+          <button class="badge ${u.status === 'verified' ? 'badge-verified' : 'badge-pending'}" 
+                  onclick="openModal('${u.id}', '${u.status}', '${escAttr(u.name)}')" 
+                  style="cursor: pointer; border: 1px solid ${u.status === 'verified' ? 'var(--success-border)' : 'var(--warn-border)'}; font-family: inherit; transition: transform 0.2s, background 0.2s; outline: none;"
+                  onmouseover="this.style.transform='scale(1.05)';"
+                  onmouseout="this.style.transform='scale(1)';"
+                  title="Click to toggle status">
+            ${u.status === 'verified' ? '✅ Verified' : '⏸️ Suspended'}
+          </button>
         </td>
         <td class="td-muted">${escHtml(u.createdAt)}</td>
-        <td>
-          ${u.status === 'pending'
-            ? `<button class="btn-toggle btn-toggle-verify"   onclick="openModal('${u.id}','pending','${escAttr(u.name)}')">✅ Verify</button>`
-            : `<button class="btn-toggle btn-toggle-unverify" onclick="openModal('${u.id}','verified','${escAttr(u.name)}')">⏸ Suspend</button>`
-          }
-        </td>
       </tr>
     `).join('');
   }
@@ -603,7 +641,7 @@
   function showSkeletonRows() {
     const tbody = document.getElementById('usersBody');
     tbody.innerHTML = [1,2,3].map(() => `
-      <tr>${[1,2,3,4,5,6,7,8].map(() =>
+      <tr>${[1,2,3,4,5,6].map(() =>
         `<td><div class="skeleton"></div></td>`
       ).join('')}</tr>
     `).join('');
@@ -626,7 +664,7 @@
   function openModal(userId, currentStatus, name) {
     pendingToggle = { userId, currentStatus, name };
     const action = currentStatus === 'pending' ? 'VERIFY' : 'SUSPEND';
-    const color  = currentStatus === 'pending' ? '#6ee7b7' : '#fcd34d';
+    const color  = currentStatus === 'pending' ? '#6ee7b7' : '#fca5a5';
 
     document.getElementById('modalTitle').textContent = `${action} Customer Account`;
     document.getElementById('modalSubtitle').textContent =
