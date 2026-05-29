@@ -1,4 +1,4 @@
-const { getCollection } = require('../utils/db');
+const { getCollection } = require('../lib/db');
 const nodemailer = require('nodemailer');
 
 module.exports = async (req, res) => {
