@@ -6,22 +6,22 @@
   <title>Catalog | Cut &amp; Stitch Fashion Studio</title>
   <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
   <link rel="apple-touch-icon" href="images/favicon.svg">
-  <meta name="description" content="Shop luxury Pakistani fashion, bespoke prêt, and elegant bridal wear at Cut &amp; Stitch Fashion Studio. Hand-crafted outfits shipped globally.">
-  <meta name="keywords" content="Buy Pakistani Dresses, Luxury Prêt Online, Bespoke Tailoring Shop, Cut &amp; Stitch Fashion Studio Catalog, Bridal Wear, Custom Stitching, Ahmedpur Lamma Fashion, Rahimyar Khan Boutiques, International Shipping">
-  <link rel="canonical" href="https://cutnstitchfashionstudio.vercel.app/catalog.html">
+  <meta name="description" content="Shop luxury Pakistani fashion, bespoke prÃƒÂªt, and elegant bridal wear at Cut &amp; Stitch Fashion Studio. Hand-crafted outfits shipped globally.">
+  <meta name="keywords" content="Buy Pakistani Dresses, Luxury PrÃƒÂªt Online, Bespoke Tailoring Shop, Cut &amp; Stitch Fashion Studio Catalog, Bridal Wear, Custom Stitching, Ahmedpur Lamma Fashion, Rahimyar Khan Boutiques, International Shipping">
+  <link rel="canonical" href="https://cutnstitchfashionstudio.vercel.app/catalog">
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://cutnstitchfashionstudio.vercel.app/catalog.html">
+  <meta property="og:url" content="https://cutnstitchfashionstudio.vercel.app/catalog">
   <meta property="og:title" content="Catalog | Cut &amp; Stitch Fashion Studio">
-  <meta property="og:description" content="Shop luxury Pakistani fashion, bespoke prêt, and elegant bridal wear. Hand-crafted outfits shipped globally.">
+  <meta property="og:description" content="Shop luxury Pakistani fashion, bespoke prÃƒÂªt, and elegant bridal wear. Hand-crafted outfits shipped globally.">
   <meta property="og:image" content="https://cutnstitchfashionstudio.vercel.app/images/women-emerald-silk-gharara.jpg">
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:url" content="https://cutnstitchfashionstudio.vercel.app/catalog.html">
+  <meta property="twitter:url" content="https://cutnstitchfashionstudio.vercel.app/catalog">
   <meta property="twitter:title" content="Catalog | Cut &amp; Stitch Fashion Studio">
-  <meta property="twitter:description" content="Shop luxury Pakistani fashion, bespoke prêt, and elegant bridal wear. Hand-crafted outfits shipped globally.">
+  <meta property="twitter:description" content="Shop luxury Pakistani fashion, bespoke prÃƒÂªt, and elegant bridal wear. Hand-crafted outfits shipped globally.">
   <meta property="twitter:image" content="https://cutnstitchfashionstudio.vercel.app/images/women-emerald-silk-gharara.jpg">
 
   <link rel="stylesheet" href="css/variables.css">
@@ -105,7 +105,7 @@
 <body>
 
   <nav class="navbar scrolled">
-    <a href="index.html" class="nav-brand brand-logo">
+    <a href="/home" class="nav-brand brand-logo">
                   <svg class="brand-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="50" cy="50" r="48" fill="var(--c-primary-dark)"/>
         <circle cx="50" cy="50" r="42" stroke="var(--c-gold)" stroke-width="2" stroke-dasharray="6 4"/>
@@ -133,17 +133,17 @@
       </div>
     </a>
     <div class="nav-links">
-      <a href="index.html" class="nav-link">Home</a>
-      <a href="services.html" class="nav-link">Services</a>
-      <a href="catalog.html" class="nav-link active">Catalog</a>
-      <a href="portal.html" class="nav-link">Portal</a>
-      <a href="contact.html" class="nav-link">Contact</a>
+      <a href="/home" class="nav-link">Home</a>
+      <a href="/services" class="nav-link">Services</a>
+      <a href="/catalog" class="nav-link active">Catalog</a>
+      <a href="/portal" class="nav-link">Portal</a>
+      <a href="/contact" class="nav-link">Contact</a>
       <button class="btn btn-orange hide-desktop nav-login-btn" style="margin-top: 1rem; width: 100%;" onclick="Auth.openModal()">Login</button>
-      <a href="cart.html" class="btn btn-outline-gold hide-desktop nav-cart-btn" style="margin-top: 1rem;">Cart (0)</a>
+      <a href="/cart" class="btn btn-outline-gold hide-desktop nav-cart-btn" style="margin-top: 1rem;">Cart (0)</a>
     </div>
     <div class="flex items-center gap-4">
       <button class="btn btn-orange hide-mobile nav-login-btn" onclick="Auth.openModal()">Login</button>
-      <a href="cart.html" class="btn btn-outline-gold hide-mobile nav-cart-btn" >Cart (0)</a>
+      <a href="/cart" class="btn btn-outline-gold hide-mobile nav-cart-btn" >Cart (0)</a>
       <button class="menu-toggle"><span></span><span></span><span></span></button>
     </div>
   </nav>
@@ -183,15 +183,15 @@
 
         <!-- Empty state -->
         <div id="catalogEmpty" style="display:none; text-align:center; padding: var(--sp-20) 0;">
-          <div style="font-size: 3rem; margin-bottom: var(--sp-4);">🧵</div>
+          <div style="font-size: 3rem; margin-bottom: var(--sp-4);">Ã°Å¸Â§Âµ</div>
           <h3 style="color: var(--c-primary); margin-bottom: var(--sp-3);">No Products Available</h3>
           <p style="color: var(--c-text-muted); margin-bottom: var(--sp-6);">This category is currently empty. Check back soon or contact us.</p>
-          <a href="contact.html" class="btn btn-primary">Contact Us</a>
+          <a href="/contact" class="btn btn-primary">Contact Us</a>
         </div>
 
         <!-- Error state -->
         <div id="catalogError" style="display:none; text-align:center; padding: var(--sp-20) 0;">
-          <div style="font-size: 3rem; margin-bottom: var(--sp-4);">⚠️</div>
+          <div style="font-size: 3rem; margin-bottom: var(--sp-4);">Ã¢Å¡Â Ã¯Â¸Â</div>
           <h3 style="color: var(--c-primary); margin-bottom: var(--sp-3);">Could Not Load Products</h3>
           <p style="color: var(--c-text-muted); margin-bottom: var(--sp-6);">Please check your connection and try again.</p>
           <button class="btn btn-primary" onclick="loadProducts()">Retry</button>
@@ -203,7 +203,7 @@
 
   <footer class="footer">
     <div class="container text-center">
-      <a href="index.html" class="footer-logo brand-logo" style="justify-content: center; margin-bottom: var(--sp-4);">
+      <a href="/home" class="footer-logo brand-logo" style="justify-content: center; margin-bottom: var(--sp-4);">
               <svg class="brand-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="50" cy="50" r="48" fill="var(--c-primary-dark)"/>
         <circle cx="50" cy="50" r="42" stroke="var(--c-gold)" stroke-width="2" stroke-dasharray="6 4"/>

@@ -107,11 +107,55 @@ window.ShowToast = function(message, type = 'error') {
 const Auth = {
   currentUser: null,
 
+  openOAuthPopup(provider) {
+    localStorage.removeItem('nss_explicit_logout');
+    const width = 500;
+    const height = 650;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+    
+    const popup = window.open(
+      `/api/auth/${provider}`,
+      'oauthPopup',
+      `width=${width},height=${height},left=${left},top=${top},status=no,resizable=yes,scrollbars=yes`
+    );
+    
+    if (popup) {
+      popup.focus();
+    } else {
+      window.location.href = `/api/auth/${provider}`;
+    }
+  },
+
   init() {
     this.injectModal();
     this.injectDropdown();
     this.checkAuth();
     this.bindEvents();
+
+    // Listen for OAuth success messages from popup
+    window.addEventListener('message', (event) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data && event.data.type === 'oauth-success') {
+        fetch('/api/auth-handler?action=me')
+          .then(res => res.json())
+          .then(data => {
+            if (data.authenticated && data.user) {
+              localStorage.removeItem('nss_explicit_logout');
+              this.currentUser = data.user;
+              localStorage.setItem('currentUser', JSON.stringify(data.user));
+              this.checkAuth();
+              window.location.href = '/portal';
+            } else {
+              window.ShowAlert('Session check failed after OAuth: ' + JSON.stringify(data));
+            }
+          })
+          .catch(err => {
+            console.error('Error checking session after OAuth:', err);
+            window.ShowAlert('Network error checking session');
+          });
+      }
+    });
     
     // Remember me check
     const remembered = localStorage.getItem('rememberedEmail');
@@ -144,7 +188,7 @@ const Auth = {
             localStorage.setItem('currentUser', JSON.stringify(data.user));
             this.checkAuth();
             window.history.replaceState({}, document.title, window.location.pathname);
-            window.location.href = '/portal.html';
+            window.location.href = '/portal';
           } else {
             window.ShowAlert('Session check failed: ' + JSON.stringify(data));
           }
@@ -267,10 +311,10 @@ const Auth = {
               
               <div class="auth-or">Or, login with</div>
               <div class="auth-social" style="padding-bottom: 24px;">
-                <button type="button" class="auth-social-btn" onclick="localStorage.removeItem('nss_explicit_logout'); window.location.href='/api/auth/google'">
+                <button type="button" class="auth-social-btn" onclick="Auth.openOAuthPopup('google')">
                   <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/><path d="M1 1h22v22H1z" fill="none"/></svg> Google
                 </button>
-                <button type="button" class="auth-social-btn" onclick="window.location.href='/api/auth/facebook'">
+                <button type="button" class="auth-social-btn" onclick="Auth.openOAuthPopup('facebook')">
                   <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z" fill="#1877f2"/></svg> Facebook
                 </button>
               </div>
@@ -316,10 +360,10 @@ const Auth = {
               
               <div class="auth-or">Or, sign up with</div>
               <div class="auth-social" style="padding-bottom: 24px;">
-                <button type="button" class="auth-social-btn" onclick="localStorage.removeItem('nss_explicit_logout'); window.location.href='/api/auth/google'">
+                <button type="button" class="auth-social-btn" onclick="Auth.openOAuthPopup('google')">
                   <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/><path d="M1 1h22v22H1z" fill="none"/></svg> Google
                 </button>
-                <button type="button" class="auth-social-btn" onclick="window.location.href='/api/auth/facebook'">
+                <button type="button" class="auth-social-btn" onclick="Auth.openOAuthPopup('facebook')">
                   <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z" fill="#1877f2"/></svg> Facebook
                 </button>
               </div>
@@ -489,15 +533,15 @@ const Auth = {
     div.id = 'studioAccountDropdown';
     div.className = 'studio-account-dropdown';
     div.innerHTML = `
-      <a href="portal.html" class="studio-dropdown-item">
+      <a href="/portal" class="studio-dropdown-item">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="9" r="1"/></svg>
         Manage My Account
       </a>
-      <a href="portal.html" class="studio-dropdown-item">
+      <a href="/portal" class="studio-dropdown-item">
         <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M3 13h18"/><path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
         My Orders
       </a>
-      <a href="catalog.html" class="studio-dropdown-item">
+      <a href="/catalog" class="studio-dropdown-item">
         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         My Wishlist
       </a>
@@ -1136,7 +1180,7 @@ const Auth = {
         window.ShowAlert('Login Successful! Welcome ' + this.currentUser.name);
         this.closeModal();
         this.checkAuth();
-        window.location.href = '/portal.html';
+        window.location.href = '/portal';
       } else {
         if (data.error === 'NOT_FOUND') {
           window.ShowAlert(`The email or phone number you entered is not yet registered. Please sign up to register yourself.<br><br><button onclick="Auth.showSignup(event); if(window.CloseAlert) window.CloseAlert();" style="background: var(--c-gold); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 15px;">Go to Sign Up</button>`);
@@ -1154,7 +1198,7 @@ const Auth = {
             `<strong>This account uses ${providerLabel} Sign-In</strong><br><br>` +
             `The email <em>${email}</em> was registered using <strong>${providerLabel}</strong>. ` +
             `It does not have a password — please sign in with ${providerLabel} instead.<br><br>` +
-            `<button onclick="localStorage.removeItem('nss_explicit_logout'); if(window.CloseAlert) window.CloseAlert(); window.location.href='/api/auth/${provider}';" ` +
+            `<button onclick="localStorage.removeItem('nss_explicit_logout'); if(window.CloseAlert) window.CloseAlert(); Auth.openOAuthPopup('${provider}');" ` +
             `style="background:${btnBg};color:white;border:none;border-radius:8px;padding:11px 20px;font-size:14px;font-weight:600;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:4px;font-family:'Inter',sans-serif;">` +
             `${providerIcon} Continue with ${providerLabel}</button>`
           );
@@ -1259,7 +1303,7 @@ const Auth = {
              this.checkVerification();
           } else {
              window.ShowAlert('Registration Successful! Welcome ' + this.currentUser.name);
-             window.location.href = '/portal.html';
+             window.location.href = '/portal';
           }
         } else if (data.error === 'ALREADY_EXISTS') {
           window.ShowAlert(`This phone number is already registered.<br><br><button onclick="Auth.showLogin(event); if(window.CloseAlert) window.CloseAlert();" style="background: var(--c-gold); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 15px;">Go to Sign in</button>`);
@@ -1313,10 +1357,10 @@ const Auth = {
         
         if (!this.currentUser.isVerified) {
            this.checkVerification();
-        } else {
-           window.ShowAlert('Registration Successful! Welcome ' + this.currentUser.name);
-           window.location.href = '/portal.html';
-        }
+         } else {
+            window.ShowAlert('Registration Successful! Welcome ' + this.currentUser.name);
+            window.location.href = '/portal';
+         }
       } else {
         window.ShowToast(data.error || "Incorrect OTP. Please enter a valid OTP.", "error");
         const view = document.getElementById('view-signup-verify');

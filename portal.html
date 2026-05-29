@@ -78,7 +78,7 @@
       grid-template-columns: 280px 1fr;
       gap: 40px;
       align-items: start;
-      padding: 60px 20px;
+      padding: calc(var(--nav-h) + 40px) 20px 60px;
       width: 100%;
     }
 
@@ -117,7 +117,7 @@
     .studio-logout-btn:hover { background: var(--c-gold); color: var(--c-white); box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); }
 
     @media (max-width: 768px) {
-      .studio-dashboard-inner { grid-template-columns: 1fr; padding: 30px 15px; }
+      .studio-dashboard-inner { grid-template-columns: 1fr; padding: calc(var(--nav-h) + 24px) 15px 30px; }
       .studio-sidebar { padding: 20px 15px; }
     }
   </style>
@@ -126,7 +126,7 @@
 
   <!-- Global Navigation -->
   <nav class="navbar">
-    <a href="index.html" class="nav-brand brand-logo">
+    <a href="/home" class="nav-brand brand-logo">
                   <svg class="brand-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="50" cy="50" r="48" fill="var(--c-primary-dark)"/>
         <circle cx="50" cy="50" r="42" stroke="var(--c-gold)" stroke-width="2" stroke-dasharray="6 4"/>
@@ -154,24 +154,24 @@
       </div>
     </a>
     <div class="nav-links">
-      <a href="index.html" class="nav-link">Home</a>
-      <a href="services.html" class="nav-link">Services</a>
-      <a href="catalog.html" class="nav-link">Catalog</a>
-      <a href="portal.html" class="nav-link active">Portal</a>
-      <a href="contact.html" class="nav-link">Contact</a>
+      <a href="/home" class="nav-link">Home</a>
+      <a href="/services" class="nav-link">Services</a>
+      <a href="/catalog" class="nav-link">Catalog</a>
+      <a href="/portal" class="nav-link active">Portal</a>
+      <a href="/contact" class="nav-link">Contact</a>
       <button class="btn btn-orange hide-desktop nav-login-btn" style="margin-top: 1rem; width: 100%;" onclick="Auth.openModal()">Login</button>
-      <a href="cart.html" class="btn btn-outline-gold hide-desktop nav-cart-btn" style="margin-top: 1rem;">Cart (0)</a>
+      <a href="/cart" class="btn btn-outline-gold hide-desktop nav-cart-btn" style="margin-top: 1rem;">Cart (0)</a>
     </div>
     <div class="flex items-center gap-4">
       <button class="btn btn-orange hide-mobile nav-login-btn" onclick="Auth.openModal()">Login</button>
-      <a href="cart.html" class="btn btn-outline-gold hide-mobile nav-cart-btn" >Cart (0)</a>
+      <a href="/cart" class="btn btn-outline-gold hide-mobile nav-cart-btn" >Cart (0)</a>
       <button class="menu-toggle"><span></span><span></span><span></span></button>
     </div>
   </nav>
 
   <div class="portal-wrapper" id="portal-wrapper">
     <div class="auth-card" id="portal-guest">
-      <a href="index.html" class="back-link">&larr; Home</a>
+      <a href="/home" class="back-link">&larr; Home</a>
       
       <div class="auth-header mt-8">
         <h2 class="mb-2" style="color: var(--c-primary);">Welcome Back</h2>
@@ -438,14 +438,14 @@
             unverifiedBox.style.cssText = 'width: 100%; display: flex; justify-content: center; padding: 4rem 1rem;';
             unverifiedBox.innerHTML = `
               <div style="background: white; padding: 40px 48px; border-radius: 20px; box-shadow: var(--sh-lg); width: 100%; max-width: 500px; text-align: center; border: 1px solid rgba(201,168,76,0.3); animation: scaleIn 0.4s ease-out; box-sizing: border-box;">
-                <div style="font-size: 56px; margin-bottom: 20px;">🔒</div>
+                <div style="font-size: 56px; margin-bottom: 20px;">Ã°Å¸â€â€™</div>
                 <h2 style="font-family: var(--ff-heading); color: var(--c-primary); font-size: 26px; margin-bottom: 12px;">Account Verification Required</h2>
                 <p style="color: var(--c-text-sub); line-height: 1.6; font-size: 14px; margin-bottom: 30px; font-family: 'Inter', sans-serif;">
                   Your account is currently unverified. To protect your personal information and secure your luxury orders, the client dashboard features are temporarily locked. Please verify your account via WhatsApp.
                 </p>
                 <a href="https://wa.me/923106845085?text=\${encodeURIComponent('Hi, I would like to verify my account.\\n\\nEmail/Phone: ' + (user.email || user.phone || 'N/A') + '\\n\\nPlease verify my account so I can access the portal. Thank you!')}" target="_blank" style="background: #25D366; color: white; border: none; border-radius: 8px; padding: 14px 28px; font-size: 15px; font-weight: bold; cursor: pointer; display: inline-block; text-decoration: none; width: 100%; box-sizing: border-box; margin-bottom: 16px; transition: background 0.3s; font-family: 'Inter', sans-serif;">Verify via WhatsApp</a>
                 <p style="font-size: 12px; color: var(--c-text-sub); margin-bottom: 24px; line-height: 1.5; font-family: 'Inter', sans-serif; background: #fffdf6; border-left: 3px solid var(--c-gold); padding: 10px 14px; border-radius: 6px; text-align: left; box-shadow: var(--sh-xs);">
-                  ℹ️ <strong>Already contacted us?</strong> If you have already sent a message on WhatsApp, please ignore this screen. Verification is manual and can take up to one business day. Alternatively, <strong>register with your email address to get instantly verified!</strong> Use the quick attachment/email link section below.
+                  Ã¢â€žÂ¹Ã¯Â¸Â <strong>Already contacted us?</strong> If you have already sent a message on WhatsApp, please ignore this screen. Verification is manual and can take up to one business day. Alternatively, <strong>register with your email address to get instantly verified!</strong> Use the quick attachment/email link section below.
                 </p>
 
                 <div style="margin: 24px 0; display: flex; align-items: center; justify-content: center; gap: 10px;">
@@ -456,7 +456,7 @@
 
                 <div id="email-verification-subpanel" style="text-align: left; background: var(--c-pearl); padding: 20px; border-radius: 12px; border: 1px dashed rgba(201,168,76,0.5); margin-bottom: 24px;">
                   <h4 style="font-family: var(--ff-heading); color: var(--c-primary-dark); font-size: 15px; margin-top: 0; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                    ⚡ Verify Instantly via Email
+                    Ã¢Å¡Â¡ Verify Instantly via Email
                   </h4>
                   <p style="color: var(--c-text-sub); font-size: 12px; line-height: 1.5; margin-bottom: 12px; font-family: 'Inter', sans-serif;">
                     Link an email address to your profile to receive an instant OTP code and unlock your account immediately.

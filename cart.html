@@ -109,7 +109,7 @@
 <body>
 
   <header class="cart-header">
-    <a href="index.html" class="nav-brand brand-logo">
+    <a href="/home" class="nav-brand brand-logo">
                   <svg class="brand-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="50" cy="50" r="48" fill="var(--c-primary-dark)"/>
         <circle cx="50" cy="50" r="42" stroke="var(--c-gold)" stroke-width="2" stroke-dasharray="6 4"/>
@@ -136,7 +136,7 @@
         <span class="brand-subtitle">Fashion Studio</span>
       </div>
     </a>
-    <a href="catalog.html" class="btn btn-link">Continue Shopping</a>
+    <a href="/catalog" class="btn btn-link">Continue Shopping</a>
   </header>
   
   <div class="page-header" style="padding: 4rem 2rem; text-align: center; background-image: linear-gradient(rgba(13,34,71,0.6), rgba(13,34,71,0.8)), url('https://images.unsplash.com/photo-1558769132-cb1fac084092?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80'); background-size: cover; background-position: center; background-repeat: no-repeat; color: white;">
@@ -222,10 +222,10 @@
       if (cart.length === 0) {
         contentWrap.innerHTML = `
           <div class="empty-cart" style="grid-column: 1 / -1; background: var(--c-white); border-radius: var(--r-xl); box-shadow: var(--sh-md);">
-            <div style="font-size: 64px; margin-bottom: var(--sp-4);">🛍️</div>
+            <div style="font-size: 64px; margin-bottom: var(--sp-4);">Ã°Å¸â€ºÂÃ¯Â¸Â</div>
             <h2 class="mb-4" style="color: var(--c-primary);">Your cart is empty</h2>
             <p class="mb-8" style="color: var(--c-text-sub);">Discover our luxury bespoke and ready-to-wear collections.</p>
-            <a href="catalog.html" class="btn btn-gold" style="box-shadow: var(--sh-md);">Continue Shopping</a>
+            <a href="/catalog" class="btn btn-gold" style="box-shadow: var(--sh-md);">Continue Shopping</a>
           </div>
         `;
         return;
@@ -298,7 +298,7 @@
       if (waLink) {
         if (cart.length === 0) {
           // Default message if cart is empty
-          const defaultMsg = `Hi! I have some questions about sizing and measurements before placing my order.\n\nCould you please help me with:\n• The correct size for my measurements\n• Custom sizing options if available?\n\nThank you!`;
+          const defaultMsg = `Hi! I have some questions about sizing and measurements before placing my order.\n\nCould you please help me with:\nÃ¢â‚¬Â¢ The correct size for my measurements\nÃ¢â‚¬Â¢ Custom sizing options if available?\n\nThank you!`;
           waLink.href = `https://wa.me/923106845085?text=${encodeURIComponent(defaultMsg)}`;
         } else {
           let itemsDetails = '';
@@ -309,16 +309,16 @@
             const itemNo = `NSS-${cleanCategory}-${cleanTitle}`;
             
             // Build a dynamic catalog anchor link to that product
-            const prodLink = `https://cutnstitchfashionstudio.vercel.app/catalog.html#${encodeURIComponent(item.title)}`;
+            const prodLink = `https://cutnstitchfashionstudio.vercel.app/catalog#${encodeURIComponent(item.title)}`;
             
             itemsDetails += `${index + 1}. ${item.title}\n`;
-            itemsDetails += `   • Item No/SKU: ${itemNo}\n`;
-            itemsDetails += `   • Size: ${item.size}\n`;
-            itemsDetails += `   • Type: ${item.serviceType || 'Ready-to-Wear'}\n`;
-            itemsDetails += `   • Link: ${prodLink}\n\n`;
+            itemsDetails += `   Ã¢â‚¬Â¢ Item No/SKU: ${itemNo}\n`;
+            itemsDetails += `   Ã¢â‚¬Â¢ Size: ${item.size}\n`;
+            itemsDetails += `   Ã¢â‚¬Â¢ Type: ${item.serviceType || 'Ready-to-Wear'}\n`;
+            itemsDetails += `   Ã¢â‚¬Â¢ Link: ${prodLink}\n\n`;
           });
           
-          const dynamicMsg = `Hi! I have some questions about sizing and measurements before placing my order.\n\nCould you please help me with:\n• The correct size for my measurements\n• Custom sizing options if available?\n\nInterested in these items from my cart:\n\n${itemsDetails}Thank you!`;
+          const dynamicMsg = `Hi! I have some questions about sizing and measurements before placing my order.\n\nCould you please help me with:\nÃ¢â‚¬Â¢ The correct size for my measurements\nÃ¢â‚¬Â¢ Custom sizing options if available?\n\nInterested in these items from my cart:\n\n${itemsDetails}Thank you!`;
           waLink.href = `https://wa.me/923106845085?text=${encodeURIComponent(dynamicMsg)}`;
         }
       }
@@ -343,7 +343,7 @@
         Auth.openModal();
         return;
       }
-      window.location.href = 'checkout.html';
+      window.location.href = '/checkout';
     }
 
     document.addEventListener('DOMContentLoaded', () => {

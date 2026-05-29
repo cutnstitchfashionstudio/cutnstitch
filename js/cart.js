@@ -18,7 +18,7 @@ const Cart = {
           <span id="drawerSubtotal">Rs. 0</span>
         </div>
         <p style="font-size: var(--fs-xs); color: var(--c-text-muted); margin-bottom: var(--sp-6); text-align: center;">Shipping & taxes calculated at checkout.</p>
-        <a href="cart.html" class="btn btn-gold" style="width: 100%; margin-bottom: var(--sp-3); display: flex; align-items: center; justify-content: center;">View Full Cart</a>
+        <a href="/cart" class="btn btn-gold" style="width: 100%; margin-bottom: var(--sp-3); display: flex; align-items: center; justify-content: center;">View Full Cart</a>
         <button onclick="Cart.handleDrawerCheckout()" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; border: none; cursor: pointer;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
           Secure Checkout
@@ -113,7 +113,7 @@ const Cart = {
           <div style="font-size: 48px; margin-bottom: var(--sp-4);">🛍️</div>
           <h4 style="color: var(--c-primary); margin-bottom: var(--sp-2);">Your cart is empty</h4>
           <p style="color: var(--c-text-sub); font-size: var(--fs-sm); margin-bottom: var(--sp-6);">Looks like you haven't added any items yet.</p>
-          <a href="catalog.html" class="btn btn-outline-gold" onclick="Cart.toggleDrawer()">Continue Shopping</a>
+          <a href="/catalog" class="btn btn-outline-gold" onclick="Cart.toggleDrawer()">Continue Shopping</a>
         </div>
       `;
     } else {
@@ -195,8 +195,8 @@ const Cart = {
     cart.splice(index, 1);
     this.saveCart(cart);
     
-    // If we are on cart.html, we need to trigger re-render of page cart
-    if(typeof renderCart === 'function' && window.location.pathname.includes('cart.html')) {
+    // If we are on cart, we need to trigger re-render of page cart
+    if(typeof renderCart === 'function' && (window.location.pathname.includes('cart.html') || window.location.pathname.endsWith('/cart'))) {
       renderCart();
     }
   },
@@ -208,7 +208,7 @@ const Cart = {
       cart[index].quantity = newQty;
       this.saveCart(cart);
       
-      if(typeof renderCart === 'function' && window.location.pathname.includes('cart.html')) {
+      if(typeof renderCart === 'function' && (window.location.pathname.includes('cart.html') || window.location.pathname.endsWith('/cart'))) {
         renderCart();
       }
     }
@@ -271,7 +271,7 @@ const Cart = {
       Auth.openModal();
       return;
     }
-    window.location.href = 'checkout.html';
+    window.location.href = '/checkout';
   }
 };
 
