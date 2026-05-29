@@ -137,13 +137,21 @@
     /* ── Footer ── */
     .admin-footer { text-align:center; padding:16px; font-size:12px; color:var(--muted); border-top:1px solid var(--border2); margin-top:auto; }
 
+    /* ── Crest flip animation (matches main website brand-icon) ── */
+    @keyframes coinFlip {
+      0%   { transform: perspective(600px) rotateY(0deg); }
+      100% { transform: perspective(600px) rotateY(360deg); }
+    }
+    .brand-icon-spin {
+      animation: coinFlip 6s infinite linear;
+      transform-style: preserve-3d;
+      display: block;
+    }
+
     /* ── Tabs System ── */
     .admin-tabs {
       display: flex;
       gap: 12px;
-      margin-bottom: 24px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border2);
     }
     .tab-btn {
       background: var(--surface2);
@@ -198,7 +206,7 @@
 <!-- Top Bar -->
 <div class="topbar">
   <div class="topbar-brand">
-        <svg viewBox="0 0 100 100" fill="none">
+        <svg class="brand-icon-spin" viewBox="0 0 100 100" fill="none">
       <circle cx="50" cy="50" r="48" fill="#0d2247"/>
       <circle cx="50" cy="50" r="42" stroke="#c9a84c" stroke-width="2" stroke-dasharray="6 4"/>
       <line x1="36" y1="73" x2="50" y2="22" stroke="#c9a84c" stroke-width="5" stroke-linecap="round"/>
@@ -267,10 +275,10 @@
 
     <div class="dash-header">
       <div>
-        <div class="dash-title">Customer Accounts</div>
-        <div class="dash-subtitle">Manage and verify customer registrations</div>
+        <div class="dash-title" id="dashTitle">Customer Accounts</div>
+        <div class="dash-subtitle" id="dashSubtitle">Manage and verify customer registrations</div>
       </div>
-      <div class="dash-actions">
+      <div class="dash-actions" style="flex-direction:column; align-items:flex-end; gap:10px;">
         <button class="btn-refresh" id="refreshBtn" onclick="loadUsers()">
           <svg id="refreshIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
@@ -278,17 +286,16 @@
           </svg>
           Refresh
         </button>
+        <!-- Tabs moved here — right side, under Refresh -->
+        <div class="admin-tabs">
+          <button class="tab-btn active" id="tabUsersBtn" onclick="switchTab('users')">
+            👤 Customers <span id="tabUsersCount">0</span>
+          </button>
+          <button class="tab-btn" id="tabMessagesBtn" onclick="switchTab('messages')">
+            ✉️ Client Messages <span id="tabMessagesCount">0</span>
+          </button>
+        </div>
       </div>
-    </div>
-
-    <!-- Tabs System -->
-    <div class="admin-tabs">
-      <button class="tab-btn active" id="tabUsersBtn" onclick="switchTab('users')">
-        👤 Customers <span id="tabUsersCount">0</span>
-      </button>
-      <button class="tab-btn" id="tabMessagesBtn" onclick="switchTab('messages')">
-        ✉️ Client Messages <span id="tabMessagesCount">0</span>
-      </button>
     </div>
 
     <!-- ══ CUSTOMERS PANEL ═══════════════════════════════════════ -->
@@ -323,8 +330,8 @@
                 <th>Name</th>
                 <th>Phone</th>
                 <th>Email</th>
-                <th style="width: 140px; text-align: center;">Status</th>
                 <th style="width: 130px;">Joined</th>
+                <th style="width: 140px; text-align: center;">Status</th>
               </tr>
             </thead>
             <tbody id="usersBody">
@@ -580,14 +587,14 @@
       usersTabBtn.classList.add('active');
       usersPanel.style.display = 'block';
       msgsPanel.style.display  = 'none';
-      document.querySelector('.dash-title').textContent = 'Customer Accounts';
-      document.querySelector('.dash-subtitle').textContent = 'Manage and verify customer registrations';
+      document.getElementById('dashTitle').textContent = 'Customer Accounts';
+      document.getElementById('dashSubtitle').textContent = 'Manage and verify customer registrations';
     } else {
       msgsTabBtn.classList.add('active');
       usersPanel.style.display = 'none';
       msgsPanel.style.display  = 'block';
-      document.querySelector('.dash-title').textContent = 'Client Messages';
-      document.querySelector('.dash-subtitle').textContent = 'Read and manage form submissions from the contact page';
+      document.getElementById('dashTitle').textContent = 'Client Messages';
+      document.getElementById('dashSubtitle').textContent = 'Read and manage form submissions from the contact page';
     }
   }
 
@@ -615,6 +622,7 @@
         <td class="td-name">${escHtml(u.name)}</td>
         <td class="td-muted">${escHtml(u.phone)}</td>
         <td class="td-muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(u.email)}</td>
+        <td class="td-muted">${escHtml(u.createdAt)}</td>
         <td style="text-align: center;">
           <button class="badge ${u.status === 'verified' ? 'badge-verified' : 'badge-pending'}" 
                   onclick="openModal('${u.id}', '${u.status}', '${escAttr(u.name)}')" 
@@ -625,7 +633,6 @@
             ${u.status === 'verified' ? '✅ Verified' : '⏸️ Suspended'}
           </button>
         </td>
-        <td class="td-muted">${escHtml(u.createdAt)}</td>
       </tr>
     `).join('');
   }
