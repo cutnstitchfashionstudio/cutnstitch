@@ -7,7 +7,6 @@
     { "source": "/index.html", "destination": "/home", "permanent": false }
   ],
   "rewrites": [
-    { "source": "/home", "destination": "/index.html" },
     { "source": "/api/products", "destination": "/api/products" },
     { "source": "/api/admin-users", "destination": "/api/admin-users" },
     { "source": "/api/auth/google/callback", "destination": "/api/oauth-handler?provider=google&action=callback" },
