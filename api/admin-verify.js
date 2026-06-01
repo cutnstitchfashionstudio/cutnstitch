@@ -1,4 +1,4 @@
-const { getCollection } = require('../lib/db');
+const { findRowOr, appendRow, deleteRowBy } = require('../lib/sheets');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -17,10 +17,6 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Phone number is required' });
     }
 
-    const usersCollection = await getCollection('users');
-    const pendingCollection = await getCollection('pending');
-    if (!usersCollection || !pendingCollection) return res.status(500).json({ error: 'Database configuration missing' });
-
     // Try finding by exact match or formatted phone
     let searchVal = phone.trim();
     let formattedPhone = searchVal;
@@ -28,32 +24,27 @@ module.exports = async (req, res) => {
       formattedPhone = '+' + searchVal;
     }
 
-    const userRow = await pendingCollection.findOne({
-      $or: [
-        { Phone: searchVal },
-        { Phone: formattedPhone },
-        { Email: searchVal }
-      ]
-    });
+    const conditions = [
+      { field: 'Phone', value: searchVal },
+      { field: 'Phone', value: formattedPhone },
+      { field: 'Email', value: searchVal }
+    ];
 
-    if (!userRow) {
-      const alreadyVerified = await usersCollection.findOne({
-        $or: [
-          { Phone: searchVal },
-          { Phone: formattedPhone },
-          { Email: searchVal }
-        ]
-      });
-      if (alreadyVerified) {
+    const pendingRes = await findRowOr('Pending', conditions);
+
+    if (!pendingRes) {
+      const verifiedRes = await findRowOr('Users', conditions);
+      if (verifiedRes) {
         return res.status(200).json({ success: true, message: `User is already verified.` });
       }
       return res.status(404).json({ error: 'User not found in pending verifications.' });
     }
 
-    // Move to users collection and set isVerified: true
-    await pendingCollection.deleteOne({ _id: userRow._id });
-    const verifiedUser = { ...userRow, isVerified: true };
-    await usersCollection.insertOne(verifiedUser);
+    const userRow = pendingRes.data;
+
+    // Move to users sheet
+    await deleteRowBy('Pending', 'ID', userRow.ID);
+    await appendRow('Users', userRow);
 
     res.status(200).json({ success: true, message: `User ${searchVal} successfully verified.` });
   } catch (err) {
