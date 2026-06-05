@@ -78,8 +78,9 @@
       grid-template-columns: 280px 1fr;
       gap: 40px;
       align-items: start;
-      padding: calc(var(--nav-h) + 40px) 20px 60px;
+      padding: calc(var(--nav-h) + 40px) 24px 60px;
       width: 100%;
+      box-sizing: border-box;
     }
 
     .studio-sidebar { 
@@ -259,9 +260,12 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--c-gold-dark);"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                 <span id="dashEmail"></span>
               </p>
-              <p class="muted" style="display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 12px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--c-gold-dark);"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                <span id="dashPhone"></span>
+              <p class="muted" id="dashPhoneRow" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 14px; margin-bottom: 12px;">
+                <span style="display: flex; align-items: center; gap: 8px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--c-gold-dark);"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                  <span id="dashPhone"></span>
+                </span>
+                <a id="phoneVerifyBadge" href="#" target="_blank" style="display: none; background: #FF6B35; color: white; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; text-decoration: none; letter-spacing: 0.3px; white-space: nowrap; transition: background 0.2s; font-family: 'Inter', sans-serif;">Not Verified</a>
               </p>
               <div class="studio-checkbox-group">
                 <input type="checkbox" checked id="marketingCheck">
@@ -451,6 +455,17 @@
           document.getElementById('dashUsername').textContent = user.name || '';
           document.getElementById('dashEmail').textContent = user.email || 'No email linked';
           document.getElementById('dashPhone').textContent = user.phone || 'No phone number';
+          // Phone verification badge
+          const _badge = document.getElementById('phoneVerifyBadge');
+          if (_badge) {
+            if (user.phone && !user.phoneVerified) {
+              const _waMsg = encodeURIComponent('Hi, I am ' + (user.name || '') + '. I would like to verify my phone number: ' + user.phone + '.\n\nPlease verify my account so I can access the portal. Thank you!');
+              _badge.href = 'https://wa.me/923008771713?text=' + _waMsg;
+              _badge.style.display = 'inline-block';
+            } else {
+              _badge.style.display = 'none';
+            }
+          }
 
         if (!user.isVerified && !window.__adminView) {
           // Unverified dashboard — hide the main dashboard, show the verification gate
@@ -460,7 +475,7 @@
           if (!unverifiedBox) {
             unverifiedBox = document.createElement('div');
             unverifiedBox.id = 'portal-unverified';
-            unverifiedBox.style.cssText = 'width: 100%; display: flex; justify-content: center; padding: 2rem 1.5rem;';
+            unverifiedBox.style.cssText = 'width: 100%; display: flex; justify-content: center; padding: calc(var(--nav-h) + 2rem) 1.5rem 3rem;';
             unverifiedBox.innerHTML = `
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 900px; width: 100%;">
 
