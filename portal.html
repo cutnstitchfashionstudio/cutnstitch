@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -24,7 +24,6 @@
   <style>
     /* Immediate UI override to prevent login form flash */
     html.is-auth #portal-guest { display: none !important; }
-    html.is-auth #portal-dashboard { display: block !important; }
     html.is-auth #portal-wrapper { 
       background-image: none !important; 
       background-color: var(--c-pearl) !important; 
@@ -428,9 +427,15 @@
         document.documentElement.classList.add('is-auth');
         document.getElementById('portal-guest').style.display = 'none';
         
+        // Always populate profile fields so data is ready regardless of verification state
+          document.getElementById('dashName').textContent = user.name || '';
+          document.getElementById('dashUsername').textContent = user.name || '';
+          document.getElementById('dashEmail').textContent = user.email || 'No email linked';
+          document.getElementById('dashPhone').textContent = user.phone || 'No phone number';
+
         if (!user.isVerified && !window.__adminView) {
-          // Unverified dashboard
-          document.getElementById('portal-dashboard').style.display = 'none';
+          // Unverified dashboard — hide the main dashboard, show the verification gate
+          document.getElementById('portal-dashboard').style.setProperty('display', 'none', 'important');
           
           let unverifiedBox = document.getElementById('portal-unverified');
           if (!unverifiedBox) {
@@ -489,8 +494,8 @@
           if (unverifiedBox) unverifiedBox.style.display = 'none';
           
           document.getElementById('portal-dashboard').style.display = 'block';
-          document.getElementById('dashName').textContent = user.name;
-          document.getElementById('dashUsername').textContent = user.name;
+          document.getElementById('dashName').textContent = user.name || '';
+          document.getElementById('dashUsername').textContent = user.name || '';
           document.getElementById('dashEmail').textContent = user.email || 'No email linked';
           document.getElementById('dashPhone').textContent = user.phone || 'No phone number';
           
