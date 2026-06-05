@@ -197,7 +197,7 @@
 
           <button onclick="processCheckout(this)" class="btn btn-primary mt-8" style="width: 100%; height: 60px; font-size: var(--fs-lg);">Complete Order</button>
           <div class="text-center mt-4" style="font-size: var(--fs-xs); color: var(--c-text-muted);">
-            Ã°Å¸â€â€™ Secure 256-bit SSL encryption
+            🔒 Secure 256-bit SSL encryption
           </div>
         </div>
       </div>
@@ -227,7 +227,7 @@
           layout.style.gridTemplateColumns = '1fr';
           layout.innerHTML = `
             <div style="background: white; padding: 48px; border-radius: 20px; box-shadow: var(--sh-lg); width: 100%; max-width: 500px; margin: 40px auto; text-align: center; border: 1px solid rgba(201,168,76,0.3); animation: scaleIn 0.4s ease-out;">
-              <div style="font-size: 56px; margin-bottom: 20px;">Ã°Å¸â€â€™</div>
+              <div style="font-size: 56px; margin-bottom: 20px;">🔒</div>
               <h2 style="font-family: var(--ff-heading); color: var(--c-primary); font-size: 26px; margin-bottom: 12px;">Verification Required to Checkout</h2>
               <p style="color: var(--c-text-sub); line-height: 1.6; font-size: 14px; margin-bottom: 30px; font-family: 'Inter', sans-serif;">
                 Your account is unverified. To protect your orders and prevent fraudulent activity, unverified accounts cannot place orders. Please click below to verify your account via WhatsApp.
@@ -331,7 +331,7 @@
             window.location.href = '/home';
           }, 2000);
         } else if (data.error === 'ACCOUNT_UNVERIFIED') {
-          // Server-side unverified rejection Ã¢â‚¬â€ show verification prompt
+          // Server-side unverified rejection — show verification prompt
           if (typeof Auth !== 'undefined') Auth.showVerificationModal();
           btn.disabled = false;
           btn.textContent = origText;

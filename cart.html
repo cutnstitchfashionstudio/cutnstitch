@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -222,7 +222,7 @@
       if (cart.length === 0) {
         contentWrap.innerHTML = `
           <div class="empty-cart" style="grid-column: 1 / -1; background: var(--c-white); border-radius: var(--r-xl); box-shadow: var(--sh-md);">
-            <div style="font-size: 64px; margin-bottom: var(--sp-4);">Ã°Å¸â€ºÂÃ¯Â¸Â</div>
+            <div style="font-size: 64px; margin-bottom: var(--sp-4);">🛒</div>
             <h2 class="mb-4" style="color: var(--c-primary);">Your cart is empty</h2>
             <p class="mb-8" style="color: var(--c-text-sub);">Discover our luxury bespoke and ready-to-wear collections.</p>
             <a href="/catalog" class="btn btn-gold" style="box-shadow: var(--sh-md);">Continue Shopping</a>
@@ -298,7 +298,7 @@
       if (waLink) {
         if (cart.length === 0) {
           // Default message if cart is empty
-          const defaultMsg = `Hi! I have some questions about sizing and measurements before placing my order.\n\nCould you please help me with:\nÃ¢â‚¬Â¢ The correct size for my measurements\nÃ¢â‚¬Â¢ Custom sizing options if available?\n\nThank you!`;
+          const defaultMsg = `Hi! I have some questions about sizing and measurements before placing my order.\n\nCould you please help me with:\n• The correct size for my measurements\n• Custom sizing options if available?\n\nThank you!`;
           waLink.href = `https://wa.me/923106845085?text=${encodeURIComponent(defaultMsg)}`;
         } else {
           let itemsDetails = '';
@@ -312,13 +312,13 @@
             const prodLink = `https://cutnstitchfashionstudio.vercel.app/catalog#${encodeURIComponent(item.title)}`;
             
             itemsDetails += `${index + 1}. ${item.title}\n`;
-            itemsDetails += `   Ã¢â‚¬Â¢ Item No/SKU: ${itemNo}\n`;
-            itemsDetails += `   Ã¢â‚¬Â¢ Size: ${item.size}\n`;
-            itemsDetails += `   Ã¢â‚¬Â¢ Type: ${item.serviceType || 'Ready-to-Wear'}\n`;
-            itemsDetails += `   Ã¢â‚¬Â¢ Link: ${prodLink}\n\n`;
+            itemsDetails += `   • Item No/SKU: ${itemNo}\n`;
+            itemsDetails += `   • Size: ${item.size}\n`;
+            itemsDetails += `   • Type: ${item.serviceType || 'Ready-to-Wear'}\n`;
+            itemsDetails += `   • Link: ${prodLink}\n\n`;
           });
           
-          const dynamicMsg = `Hi! I have some questions about sizing and measurements before placing my order.\n\nCould you please help me with:\nÃ¢â‚¬Â¢ The correct size for my measurements\nÃ¢â‚¬Â¢ Custom sizing options if available?\n\nInterested in these items from my cart:\n\n${itemsDetails}Thank you!`;
+          const dynamicMsg = `Hi! I have some questions about sizing and measurements before placing my order.\n\nCould you please help me with:\n• The correct size for my measurements\n• Custom sizing options if available?\n\nInterested in these items from my cart:\n\n${itemsDetails}Thank you!`;
           waLink.href = `https://wa.me/923106845085?text=${encodeURIComponent(dynamicMsg)}`;
         }
       }

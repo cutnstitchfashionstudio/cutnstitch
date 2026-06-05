@@ -75,7 +75,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
   
   <style>
-    /* Ã¢â€â‚¬Ã¢â€â‚¬ Marquee ticker Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+    /* ──── Marquee ticker ────────────────────────────────────────────────────────────────────────────────────────────────────── */
     .marquee-strip {
       background: linear-gradient(90deg, var(--c-primary-dark) 0%, #1a3a6e 50%, var(--c-primary-dark) 100%);
       color: white;
@@ -153,7 +153,7 @@
       flex-shrink: 0;
     }
 
-    /* Ã¢â€â‚¬Ã¢â€â‚¬ Featured product cards Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+    /* ──── Featured product cards ──────────────────────────────────────────────────────────────────────────────── */
     .featured-card {
       background: var(--c-white);
       border-radius: var(--r-xl);
@@ -511,7 +511,7 @@
           subtitle.appendChild(span);
         }
         
-        // Trigger Phase 2a (Text Reveal) Ã¢â‚¬â€ letters begin dancing in
+        // Trigger Phase 2a (Text Reveal) — letters begin dancing in
         setTimeout(() => {
           content.classList.add('run-dance');
         }, 100);
@@ -528,7 +528,7 @@
           content.classList.add('run-flip');
         }, 3700);
 
-        // Phase 3: Lock and Shine Ã¢â‚¬â€ title (10 letters done by ~5.7s) + subtitle (14 chars done ~7.2s) + buffer
+        // Phase 3: Lock and Shine — title (10 letters done by ~5.7s) + subtitle (14 chars done ~7.2s) + buffer
         setTimeout(() => {
           content.classList.add('run-shine');
           // Clear inline animations to allow shine CSS to apply
@@ -986,8 +986,8 @@
         const badge = p.discountPct > 0
           ? `<span class="featured-card-badge">-${p.discountPct}% OFF</span>`
           : p.hot
-            ? `<span class="featured-card-badge">Ã°Å¸â€Â¥ Hot Pick</span>`
-            : `<span class="featured-card-badge">Ã¢Å“Â¨ Featured</span>`;
+            ? `<span class="featured-card-badge">🔥 Hot Pick</span>`
+            : `<span class="featured-card-badge">✨ Featured</span>`;
         const origPrice = p.origPrice > p.price
           ? `<s style="font-size:12px;color:var(--c-text-muted);margin-left:6px;">Rs. ${Number(p.origPrice).toLocaleString('en-PK')}</s>`
           : '';
