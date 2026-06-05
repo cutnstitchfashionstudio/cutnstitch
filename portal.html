@@ -353,9 +353,9 @@
             </p>
             <div style="display: flex; gap: 8px;">
               <input type="text" id="linkEmailOtpInput" placeholder="6-digit code" maxlength="6" style="flex: 1; padding: 10px 14px; border: 1px solid rgba(201,168,76,0.4); border-radius: 6px; font-size: 13px; font-family: 'Inter', sans-serif; letter-spacing: 3px; font-weight: bold; text-align: center; outline: none; background: white;" required>
-              <button onclick="verifyLinkEmailOtp(event, '${userId}', '${email}')" id="verifyLinkEmailBtn" style="background: var(--c-gold); color: var(--c-primary-dark); border: none; border-radius: 6px; padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.3s; white-space: nowrap;">Verify</button>
+              <button onclick="verifyLinkEmailOtp(event, null, '${email}')" id="verifyLinkEmailBtn" style="background: var(--c-gold); color: var(--c-primary-dark); border: none; border-radius: 6px; padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.3s; white-space: nowrap;">Verify</button>
             </div>
-            <a href="#" onclick="resetLinkEmailFlow(event, '${userId}')" style="font-size: 11px; color: var(--c-text-muted); text-decoration: underline; margin-top: 2px;">Back to change email</a>
+            <a href="#" onclick="resetLinkEmailFlow(event)" style="font-size: 11px; color: var(--c-text-muted); text-decoration: underline; margin-top: 2px;">Back to change email</a>
           </div>
         `;
 
@@ -431,8 +431,8 @@
       const flowContainer = document.getElementById('email-link-flow');
       flowContainer.innerHTML = `
         <div style="display: flex; gap: 8px;">
-          <input type="email" id="linkEmailInput" placeholder="Enter email address" style="flex: 1; padding: 10px 14px; border: 1px solid rgba(201,168,76,0.4); border-radius: 6px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; background: white;" required>
-          <button onclick="sendLinkEmailCode(event, '${userId}')" id="sendLinkEmailBtn" style="background: var(--c-primary-dark); color: white; border: none; border-radius: 6px; padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.3s; white-space: nowrap;">Send Code</button>
+          <input type="email" id="linkEmailInput" placeholder="Enter your email address" style="flex: 1; padding: 11px 14px; border: 1px solid rgba(201,168,76,0.4); border-radius: 8px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; background: #fafafa;" required>
+          <button onclick="sendLinkEmailCode(event)" id="sendLinkEmailBtn" style="background: var(--c-primary-dark); color: white; border: none; border-radius: 8px; padding: 11px 18px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.3s; white-space: nowrap;">Send Code</button>
         </div>
       `;
     }
@@ -460,47 +460,44 @@
           if (!unverifiedBox) {
             unverifiedBox = document.createElement('div');
             unverifiedBox.id = 'portal-unverified';
-            unverifiedBox.style.cssText = 'width: 100%; display: flex; justify-content: center; padding: 4rem 1rem;';
+            unverifiedBox.style.cssText = 'width: 100%; display: flex; justify-content: center; padding: 2rem 1.5rem;';
             unverifiedBox.innerHTML = `
-              <div style="background: white; padding: 40px 48px; border-radius: 20px; box-shadow: var(--sh-lg); width: 100%; max-width: 500px; text-align: center; border: 1px solid rgba(201,168,76,0.3); animation: scaleIn 0.4s ease-out; box-sizing: border-box;">
-                <div style="font-size: 56px; margin-bottom: 20px;">🔒</div>
-                <h2 style="font-family: var(--ff-heading); color: var(--c-primary); font-size: 26px; margin-bottom: 12px;">Account Verification Required</h2>
-                <p style="color: var(--c-text-sub); line-height: 1.6; font-size: 14px; margin-bottom: 30px; font-family: 'Inter', sans-serif;">
-                  Your account is currently unverified. To protect your personal information and secure your luxury orders, the client dashboard features are temporarily locked. Please verify your account via WhatsApp.
-                </p>
-                <div style="background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3); border-radius: 8px; padding: 10px 14px; margin-bottom: 20px; font-size: 13px; text-align: left; font-family: 'Inter', sans-serif;">
-                  <span style="color: var(--c-text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Registered As</span>
-                  ${user.phone ? '<span style="color: var(--c-primary-dark); font-weight: 600;">📱 ' + user.phone + '</span>' : ''}${user.email ? '<span style="color: var(--c-primary-dark); font-weight: 600; margin-left: 8px;">📧 ' + user.email + '</span>' : ''}
-                </div>
-                <a href="https://wa.me/923008771713?text=${encodeURIComponent('Hi, I am ' + (user.name || '') + '. I would like to verify my account.\n\nPhone: ' + (user.phone || user.email || 'N/A') + '\n\nPlease verify my account so I can access the portal. Thank you!')}" target="_blank" style="background: #25D366; color: white; border: none; border-radius: 8px; padding: 14px 28px; font-size: 15px; font-weight: bold; cursor: pointer; display: inline-block; text-decoration: none; width: 100%; box-sizing: border-box; margin-bottom: 16px; transition: background 0.3s; font-family: 'Inter', sans-serif;">Verify via WhatsApp</a>
-                <p style="font-size: 12px; color: var(--c-text-sub); margin-bottom: 24px; line-height: 1.5; font-family: 'Inter', sans-serif; background: #fffdf6; border-left: 3px solid var(--c-gold); padding: 10px 14px; border-radius: 6px; text-align: left; box-shadow: var(--sh-xs);">
-                  ℹ️ <strong>Already contacted us?</strong> If you have already sent a message on WhatsApp, please ignore this screen. Verification is manual and can take up to one business day. Alternatively, <strong>register with your email address to get instantly verified!</strong> Use the quick attachment/email link section below.
-                </p>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 900px; width: 100%;">
 
-                <div style="margin: 24px 0; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                  <span style="height: 1px; background: #eaeaea; flex: 1;"></span>
-                  <span style="font-size: 11px; color: var(--c-text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">OR</span>
-                  <span style="height: 1px; background: #eaeaea; flex: 1;"></span>
-                </div>
-
-                <div id="email-verification-subpanel" style="text-align: left; background: var(--c-pearl); padding: 20px; border-radius: 12px; border: 1px dashed rgba(201,168,76,0.5); margin-bottom: 24px;">
-                  <h4 style="font-family: var(--ff-heading); color: var(--c-primary-dark); font-size: 15px; margin-top: 0; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                    ⚡ Verify Instantly via Email
-                  </h4>
-                  <p style="color: var(--c-text-sub); font-size: 12px; line-height: 1.5; margin-bottom: 12px; font-family: 'Inter', sans-serif;">
-                    Link an email address to your profile to receive an instant OTP code and unlock your account immediately.
+                <!-- Card 1: WhatsApp Verification -->
+                <div style="background: white; padding: 32px; border-radius: 20px; box-shadow: var(--sh-lg); text-align: center; border: 1px solid rgba(201,168,76,0.3); animation: scaleIn 0.4s ease-out; display: flex; flex-direction: column; box-sizing: border-box;">
+                  <div style="font-size: 44px; margin-bottom: 14px;">🔒</div>
+                  <h2 style="font-family: var(--ff-heading); color: var(--c-primary); font-size: 21px; margin-bottom: 10px;">Account Verification Required</h2>
+                  <p style="color: var(--c-text-sub); line-height: 1.6; font-size: 13px; margin-bottom: 18px; font-family: 'Inter', sans-serif;">Your account is currently unverified. Dashboard features are temporarily locked. Please verify to gain full access.</p>
+                  <div style="background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3); border-radius: 8px; padding: 10px 14px; margin-bottom: 18px; font-size: 13px; text-align: left; font-family: 'Inter', sans-serif;">
+                    <span style="color: var(--c-text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Registered As</span>
+                    ${user.phone ? '<span style="color: var(--c-primary-dark); font-weight: 600;">📱 ' + user.phone + '</span>' : ''}${user.email ? '<span style="color: var(--c-primary-dark); font-weight: 600; margin-left: 8px;">📧 ' + user.email + '</span>' : ''}
+                  </div>
+                  <a href="https://wa.me/923008771713?text=${encodeURIComponent('Hi, I am ' + (user.name || '') + '. I would like to verify my account.\n\nPhone: ' + (user.phone || user.email || 'N/A') + '\n\nPlease verify my account so I can access the portal. Thank you!')}" target="_blank" style="background: #25D366; color: white; border: none; border-radius: 8px; padding: 13px 20px; font-size: 14px; font-weight: bold; cursor: pointer; display: block; text-decoration: none; box-sizing: border-box; margin-bottom: 14px; transition: background 0.3s; font-family: 'Inter', sans-serif; text-align: center;">✅ Verify via WhatsApp</a>
+                  <p style="font-size: 12px; color: var(--c-text-sub); line-height: 1.5; font-family: 'Inter', sans-serif; background: #fffdf6; border-left: 3px solid var(--c-gold); padding: 10px 14px; border-radius: 6px; text-align: left; margin-bottom: 0; flex-grow: 1;">
+                    ℹ️ <strong>Already contacted us?</strong> Verification is manual and may take up to one business day. You may ignore this screen while you wait.
                   </p>
-                  
-                  <div id="email-link-flow">
-                    <div style="display: flex; gap: 8px;">
-                      <input type="email" id="linkEmailInput" placeholder="Enter email address" style="flex: 1; padding: 10px 14px; border: 1px solid rgba(201,168,76,0.4); border-radius: 6px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; background: white;" required>
-                      <button onclick="sendLinkEmailCode(event, '\${user.id}')" id="sendLinkEmailBtn" style="background: var(--c-primary-dark); color: white; border: none; border-radius: 6px; padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.3s; white-space: nowrap;">Send Code</button>
-                    </div>
+                  <div style="border-top: 1px solid #eaeaea; padding-top: 14px; margin-top: 18px;">
+                    <button onclick="Auth.logout();" style="background: transparent; color: #999; border: none; cursor: pointer; text-decoration: underline; font-size: 13px; font-family: 'Inter', sans-serif;">Logout</button>
                   </div>
                 </div>
 
-                <div style="border-top: 1px solid #eaeaea; padding-top: 20px;">
-                  <button onclick="Auth.logout();" style="background: transparent; color: #666; border: none; cursor: pointer; text-decoration: underline; font-size: 14px; font-weight: 500; font-family: 'Inter', sans-serif;">Logout</button>
+                <!-- Card 2: Instant Email Verification -->
+                <div id="email-verification-subpanel" style="background: white; padding: 32px; border-radius: 20px; box-shadow: var(--sh-lg); text-align: center; border: 1px solid rgba(201,168,76,0.3); animation: scaleIn 0.5s ease-out; display: flex; flex-direction: column; box-sizing: border-box;">
+                  <div style="font-size: 44px; margin-bottom: 14px;">⚡</div>
+                  <h2 style="font-family: var(--ff-heading); color: var(--c-primary); font-size: 21px; margin-bottom: 10px;">Verify Instantly via Email</h2>
+                  <p style="color: var(--c-text-sub); line-height: 1.6; font-size: 13px; margin-bottom: 24px; font-family: 'Inter', sans-serif;">Link your email address to receive an instant 6-digit OTP and unlock all portal features immediately — no waiting required.</p>
+                  <div id="email-link-flow" style="flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; gap: 12px;">
+                    <div style="display: flex; gap: 8px;">
+                      <input type="email" id="linkEmailInput" placeholder="Enter your email address" style="flex: 1; padding: 11px 14px; border: 1px solid rgba(201,168,76,0.4); border-radius: 8px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; background: #fafafa;" required>
+                      <button onclick="sendLinkEmailCode(event)" id="sendLinkEmailBtn" style="background: var(--c-primary-dark); color: white; border: none; border-radius: 8px; padding: 11px 18px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.3s; white-space: nowrap;">Send Code</button>
+                    </div>
+                  </div>
+                  <div style="margin-top: 24px; padding: 14px; background: linear-gradient(135deg, rgba(201,168,76,0.06), rgba(201,168,76,0.12)); border-radius: 10px; border: 1px dashed rgba(201,168,76,0.4); text-align: left;">
+                    <p style="font-size: 12px; color: var(--c-text-sub); line-height: 1.6; margin: 0; font-family: 'Inter', sans-serif;">
+                      🔐 <strong>Instant access</strong> — Enter your email, receive a 6-digit code, and gain immediate access to all portal features.
+                    </p>
+                  </div>
                 </div>
               </div>
             `;
