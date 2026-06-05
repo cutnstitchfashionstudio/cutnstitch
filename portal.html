@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Portal | Cut &amp; Stitch Fashion Studio</title>
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="apple-touch-icon" href="images/favicon.svg">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Client portal for Cut &amp; Stitch Fashion Studio.">
+  
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/auth.css">
+
+  <script>
+    // Prevent Flash of Unauthenticated Content (FOUC)
+    if (localStorage.getItem('currentUser')) {
+      document.documentElement.classList.add('is-auth');
+    }
+  </script>
+  <style>
+    /* Immediate UI override to prevent login form flash */
+    html.is-auth #portal-guest { display: none !important; }
+    html.is-auth #portal-wrapper { 
+      background-image: none !important; 
+      background-color: var(--c-pearl) !important; 
+      align-items: flex-start !important; 
+      padding: 0 !important; 
+    }
+    
+    .portal-wrapper {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background-image: linear-gradient(rgba(13,34,71,0.5), rgba(13,34,71,0.7)), url('https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      padding: var(--sp-12) var(--sp-4);
+    }
+    .auth-card {
+      background: var(--c-white);
+      border-radius: var(--r-xl);
+      box-shadow: var(--sh-xl);
+      width: 100%; max-width: 480px;
+      padding: var(--sp-8);
+      position: relative; overflow: hidden;
+    }
+    .auth-header { text-align: center; margin-bottom: var(--sp-8); }
+    .auth-toggle {
+      display: flex; background: var(--c-pearl);
+      border-radius: var(--r-full); padding: 4px;
+      margin-bottom: var(--sp-8);
+    }
+    .auth-toggle button {
+      flex: 1; padding: var(--sp-2); border-radius: var(--r-full);
+      font-weight: var(--fw-semibold); color: var(--c-text-sub);
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .auth-toggle button.active {
+      background: var(--c-white); color: var(--c-primary);
+      box-shadow: var(--sh-xs);
+    }
+    .auth-form { display: none; animation: fadeUp var(--dur-fast) var(--ease); }
+    .auth-form.active { display: block; }
+    
+    .back-link {
+      display: none;
+    }
+
+    /* studio Dashboard Redesign - Luxury Theme */
+    .studio-dashboard-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 40px;
+      align-items: start;
+      padding: calc(var(--nav-h) + 40px) 24px 60px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .studio-sidebar { 
+      background: var(--c-primary-dark); 
+      border-radius: var(--r-lg);
+      padding: 30px 20px;
+      text-align: left; 
+      box-shadow: var(--sh-md);
+    }
+    .studio-greeting { font-size: 15px; color: var(--c-pearl); margin-bottom: 30px; opacity: 0.9; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .studio-greeting strong { color: var(--c-gold); font-weight: 600; font-size: 18px; display: block; margin-top: 4px; }
+    .studio-menu { list-style: none; padding: 0; margin: 0; }
+    .studio-menu > li { font-size: 15px; color: #fff; margin-bottom: 20px; font-weight: 500; cursor: pointer; letter-spacing: 0.5px;}
+    .studio-menu > li.active { color: var(--c-gold); }
+    .studio-submenu { list-style: none; padding: 0 0 0 16px; margin: 12px 0 0 0; border-left: 1px solid rgba(255,255,255,0.1); }
+    .studio-submenu li { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 14px; font-weight: 400; cursor: pointer; transition: color 0.2s;}
+    .studio-submenu li:hover { color: var(--c-gold); }
+
+    .studio-content { text-align: left; padding-top: 30px; }
+    .studio-content .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--c-gold-dark); margin-bottom: 16px; display: block; }
+    .studio-content h2 { font-size: 24px; color: var(--c-primary-dark); font-weight: 600; margin-bottom: 20px; font-family: var(--ff-heading); line-height: 1.2; }
+    .studio-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+    .studio-box { background: var(--c-white); padding: 30px; border-radius: var(--r-md); box-shadow: var(--sh-sm); min-height: 200px; border: 1px solid rgba(212, 175, 55, 0.2); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .studio-box:hover { transform: translateY(-4px); box-shadow: var(--sh-md); border-color: rgba(212, 175, 55, 0.5); }
+    .studio-box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--c-border); }
+    .studio-box-header h3 { font-size: 18px; color: var(--c-primary); font-weight: 600; margin: 0; font-family: var(--ff-heading); }
+    .studio-box-header a { font-size: 13px; color: var(--c-gold-dark); text-decoration: none; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+    .studio-box p { font-size: 15px; color: var(--c-text); margin-bottom: 8px; }
+    .studio-box .muted { color: var(--c-text-muted); font-size: 14px; }
+    .studio-checkbox-group { margin-top: 20px; display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--c-text-sub); }
+    
+    .pin-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--c-pearl); display: flex; align-items: center; justify-content: center; margin-top: 20px; color: var(--c-gold); border: 1px solid rgba(212, 175, 55, 0.2); }
+    .pin-icon svg { stroke: var(--c-gold); }
+
+    .studio-logout-btn { margin-top: 40px; background: var(--c-white); border: 1px solid var(--c-gold); padding: 12px 32px; color: var(--c-gold-dark); border-radius: var(--r-full); cursor: pointer; font-weight: 600; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; font-size: 13px; }
+    .studio-logout-btn:hover { background: var(--c-gold); color: var(--c-white); box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); }
+
+    @media (max-width: 768px) {
+      .studio-dashboard-inner { grid-template-columns: 1fr; padding: calc(var(--nav-h) + 24px) 15px 30px; }
+      .studio-sidebar { padding: 20px 15px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Global Navigation -->
+  <nav class="navbar">
+    <a href="/home" class="nav-brand brand-logo">
+                  <svg class="brand-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="48" fill="var(--c-primary-dark)"/>
+        <circle cx="50" cy="50" r="42" stroke="var(--c-gold)" stroke-width="2" stroke-dasharray="6 4"/>
+        <line x1="36" y1="73" x2="50" y2="22" stroke="var(--c-gold)" stroke-width="5" stroke-linecap="round"/>
+        <line x1="50" y1="22" x2="64" y2="73" stroke="var(--c-gold)" stroke-width="5" stroke-linecap="round"/>
+        <line x1="26" y1="73" x2="44" y2="73" stroke="var(--c-gold)" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="56" y1="73" x2="74" y2="73" stroke="var(--c-gold)" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="47" y1="22" x2="53" y2="22" stroke="var(--c-gold)" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="41" y1="53" x2="59" y2="53" stroke="var(--c-gold)" stroke-width="3.5" stroke-linecap="round"/>
+        <!-- Behind-needle thread segments (underlay) -->
+        <path d="M 33 60.5 C 31 58 34 54 38 54" stroke="#e8c96e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.75"/>
+        <path d="M 43 61 C 46 61 47 51 49 49" stroke="#e8c96e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.75"/>
+        <path d="M 55 56 C 57 56 59 58 60.4 60" stroke="#e8c96e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.75"/>
+        <line x1="30" y1="62" x2="69" y2="45" stroke="#f5e6b0" stroke-width="1.3" stroke-linecap="round" opacity="0.9"/>
+        <path d="M 67 45.8 L 74 42.5 L 67.5 47.2 Z" fill="#f5e6b0" opacity="0.9"/>
+        <ellipse cx="33" cy="60.5" rx="2.5" ry="1" fill="var(--c-primary-dark)" stroke="#f0e0b0" stroke-width="0.8" opacity="0.9" transform="rotate(-22 33 60.5)"/>
+        <!-- Front-needle thread segments (overlay) -->
+        <path d="M 38.5 65 C 37 63 35 61 33 60.5" stroke="#e8c96e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.95"/>
+        <path d="M 38 54 C 41 54 41 61 43 61" stroke="#e8c96e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.95"/>
+        <path d="M 49 49 C 52 49 53 56 55 56" stroke="#e8c96e" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.95"/>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-title">Cut &amp; Stitch</span>
+        <span class="brand-subtitle">Fashion Studio</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="/home" class="nav-link">Home</a>
+      <a href="/services" class="nav-link">Services</a>
+      <a href="/catalog" class="nav-link">Catalog</a>
+      <a href="/portal" class="nav-link active">Portal</a>
+      <a href="/contact" class="nav-link">Contact</a>
+      <button class="btn btn-orange hide-desktop nav-login-btn" style="margin-top: 1rem; width: 100%;" onclick="Auth.openModal()">Login</button>
+      <a href="/cart" class="btn btn-outline-gold hide-desktop nav-cart-btn" style="margin-top: 1rem;">Cart (0)</a>
+    </div>
+    <div class="flex items-center gap-4">
+      <button class="btn btn-orange hide-mobile nav-login-btn" onclick="Auth.openModal()">Login</button>
+      <a href="/cart" class="btn btn-outline-gold hide-mobile nav-cart-btn" >Cart (0)</a>
+      <button class="menu-toggle"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <div class="portal-wrapper" id="portal-wrapper">
+    <div class="auth-card" id="portal-guest">
+      <a href="/home" class="back-link">&larr; Home</a>
+      
+      <div class="auth-header mt-8">
+        <h2 class="mb-2" style="color: var(--c-primary);">Welcome Back</h2>
+        <p style="color: var(--c-text-sub);">Manage your measurements and orders.</p>
+      </div>
+
+      <div class="auth-toggle">
+        <button class="active" onclick="switchForm('login', this)">Login</button>
+        <button onclick="switchForm('signup', this)">Sign Up</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form active">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-control" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label" style="margin:0;">Password</label>
+            <a href="#" style="font-size: var(--fs-xs); color: var(--c-gold-dark);">Forgot?</a>
+          </div>
+          <input type="password" class="form-control" placeholder="Enter password" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--sp-4);">Login</button>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signup-form" class="auth-form">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-control" placeholder="John Doe" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-control" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-control" placeholder="Create password" required>
+        </div>
+        <button type="submit" class="btn btn-gold" style="width: 100%; margin-top: var(--sp-4);">Create Account</button>
+      </form>
+
+    </div>
+    
+    <div id="portal-dashboard" style="display: none; width: 100%;">
+      <div class="studio-dashboard-inner">
+        <!-- Sidebar -->
+        <aside class="studio-sidebar">
+          <div class="studio-greeting">Hello, <strong id="dashName"></strong></div>
+          <ul class="studio-menu">
+            <li class="active">Manage My Account
+              <ul class="studio-submenu">
+                <li style="color: #1a9cb7;">My Profile</li>
+                <li>Address Book</li>
+                <li>My Payment Options</li>
+                <li>Personal Wallet</li>
+              </ul>
+            </li>
+            <li>My Orders
+              <ul class="studio-submenu">
+                <li>My Returns</li>
+                <li>My Cancellations</li>
+              </ul>
+            </li>
+            <li>My Reviews</li>
+            <li>My Wishlist</li>
+            <li style="margin-top: 20px;">Sell Your Designs</li>
+          </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="studio-content">
+          <div class="studio-grid">
+            
+            <div class="studio-box">
+              <div class="studio-box-header">
+                <h3>Personal Profile</h3>
+                <a href="#" onclick="window.ShowAlert('Profile editing coming soon!'); return false;">| EDIT</a>
+              </div>
+              <p id="dashUsername" style="font-size: 16px; font-weight: 600; color: var(--c-primary-dark); margin-bottom: 8px;"></p>
+              <p class="muted" style="display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--c-gold-dark);"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                <span id="dashEmail"></span>
+              </p>
+              <p class="muted" id="dashPhoneRow" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 14px; margin-bottom: 12px;">
+                <span style="display: flex; align-items: center; gap: 8px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--c-gold-dark);"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                  <span id="dashPhone"></span>
+                </span>
+                <a id="phoneVerifyBadge" href="#" target="_blank" style="display: none; background: #FF6B35; color: white; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; text-decoration: none; letter-spacing: 0.3px; white-space: nowrap; transition: background 0.2s; font-family: 'Inter', sans-serif;">Not Verified</a>
+              </p>
+              <div class="studio-checkbox-group">
+                <input type="checkbox" checked id="marketingCheck">
+                <label for="marketingCheck">Receive marketing emails</label>
+              </div>
+            </div>
+
+            <div class="studio-box">
+              <div class="studio-box-header">
+                <h3>Address Book</h3>
+                <a href="#" onclick="window.ShowAlert('Address book coming soon!'); return false;">| Add</a>
+              </div>
+              <p class="muted" style="font-size: 13px;">Save your shipping address here.</p>
+              <div class="pin-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              </div>
+            </div>
+
+            <div class="studio-box" style="display: flex; align-items: center;">
+              <p class="muted" style="font-size: 13px;">Save your billing address here.</p>
+            </div>
+
+          </div>
+          
+          <button onclick="Auth.logout();" class="studio-logout-btn">Logout</button>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING WA -->
+  <a href="https://wa.me/923008771713" target="_blank" class="floating-wa">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+  </a>
+
+
+  <script src="js/main.js"></script>
+  <script src="js/cart.js"></script>
+  
+  <script src="js/auth.js"></script>
+  <script src="js/chatbot.js"></script>
+  <script>
+    // Global Email Verification Link functions
+    async function sendLinkEmailCode(e, userId) {
+      if (e) e.preventDefault();
+      // Fallback: always pull from live Auth.currentUser so stale localStorage (missing id) still works
+      if (!userId || userId === 'undefined' || userId === 'null') {
+        userId = (typeof Auth !== 'undefined' && Auth.currentUser && Auth.currentUser.id) ? Auth.currentUser.id : null;
+      }
+      if (!userId) {
+        window.ShowToast('Session error. Please refresh the page and try again.', 'error');
+        return;
+      }
+      const emailInput = document.getElementById('linkEmailInput');
+      const email = emailInput ? emailInput.value.trim() : '';
+      if (!email || !email.includes('@')) {
+        window.ShowToast('Please enter a valid email address.');
+        return;
+      }
+
+      const btn = document.getElementById('sendLinkEmailBtn');
+      const originalText = btn.textContent;
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/auth-handler?action=signup-otp-send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          window.ShowAlert(data.error === 'ALREADY_EXISTS' ? 'This email address is already registered to another account.' : (data.error || 'Failed to send OTP code.'));
+          btn.textContent = originalText;
+          btn.disabled = false;
+          return;
+        }
+
+        // OTP sent successfully! Swap out email-link-flow to show OTP input boxes
+        window.ShowToast('OTP code sent successfully to your email!', 'success');
+        
+        const flowContainer = document.getElementById('email-link-flow');
+        flowContainer.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 5px;">
+            <p style="font-size: 12px; color: var(--c-text-sub); margin-bottom: 2px;">
+              Enter the 6-digit code sent to <strong style="color:var(--c-primary-dark);">${email}</strong>:
+            </p>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="linkEmailOtpInput" placeholder="6-digit code" maxlength="6" style="flex: 1; padding: 10px 14px; border: 1px solid rgba(201,168,76,0.4); border-radius: 6px; font-size: 13px; font-family: 'Inter', sans-serif; letter-spacing: 3px; font-weight: bold; text-align: center; outline: none; background: white;" required>
+              <button onclick="verifyLinkEmailOtp(event, null, '${email}')" id="verifyLinkEmailBtn" style="background: var(--c-gold); color: var(--c-primary-dark); border: none; border-radius: 6px; padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.3s; white-space: nowrap;">Verify</button>
+            </div>
+            <a href="#" onclick="resetLinkEmailFlow(event)" style="font-size: 11px; color: var(--c-text-muted); text-decoration: underline; margin-top: 2px;">Back to change email</a>
+          </div>
+        `;
+
+      } catch (err) {
+        console.error(err);
+        window.ShowToast('Network error while sending OTP.');
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    async function verifyLinkEmailOtp(e, userId, email) {
+      if (e) e.preventDefault();
+      // Fallback: always pull from live Auth.currentUser so stale localStorage (missing id) still works
+      if (!userId || userId === 'undefined' || userId === 'null') {
+        userId = (typeof Auth !== 'undefined' && Auth.currentUser && Auth.currentUser.id) ? Auth.currentUser.id : null;
+      }
+      if (!userId) {
+        window.ShowToast('Session error. Please refresh the page and try again.', 'error');
+        return;
+      }
+      const otpInput = document.getElementById('linkEmailOtpInput');
+      const otp = otpInput ? otpInput.value.trim() : '';
+      if (!otp || otp.length !== 6 || !/^\d+$/.test(otp)) {
+        window.ShowToast('Please enter a valid 6-digit verification code.');
+        return;
+      }
+
+      const btn = document.getElementById('verifyLinkEmailBtn');
+      const originalText = btn.textContent;
+      btn.textContent = 'Verifying...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/auth-handler?action=link-email-verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, email, otp })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          window.ShowAlert(data.error || 'Failed to verify OTP. Please try again.');
+          btn.textContent = originalText;
+          btn.disabled = false;
+          return;
+        }
+
+        // Successfully verified! Link user in local Auth profile
+        window.ShowToast('Account verified and email linked successfully!', 'success');
+        
+        // Sync local auth state
+        if (typeof Auth !== 'undefined') {
+          Auth.currentUser = data.user;
+          localStorage.setItem('currentUser', JSON.stringify(data.user));
+          // Trigger the page auth render refresh
+          document.dispatchEvent(new CustomEvent('authStateChanged', { detail: data.user }));
+        }
+
+      } catch (err) {
+        console.error(err);
+        window.ShowToast('Network error while verifying OTP.');
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    function resetLinkEmailFlow(e, userId) {
+      if (e) e.preventDefault();
+      if (!userId || userId === 'undefined' || userId === 'null') {
+        userId = (typeof Auth !== 'undefined' && Auth.currentUser && Auth.currentUser.id) ? Auth.currentUser.id : null;
+      }
+      const flowContainer = document.getElementById('email-link-flow');
+      flowContainer.innerHTML = `
+        <div style="display: flex; gap: 8px;">
+          <input type="email" id="linkEmailInput" placeholder="Enter your email address" style="flex: 1; padding: 11px 14px; border: 1px solid rgba(201,168,76,0.4); border-radius: 8px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; background: #fafafa;" required>
+          <button onclick="sendLinkEmailCode(event)" id="sendLinkEmailBtn" style="background: var(--c-primary-dark); color: white; border: none; border-radius: 8px; padding: 11px 18px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.3s; white-space: nowrap;">Send Code</button>
+        </div>
+      `;
+    }
+
+    // Handle dynamic state changes from the central Auth system
+    document.addEventListener('authStateChanged', (e) => {
+      const user = e.detail;
+      const wrapper = document.getElementById('portal-wrapper');
+      
+      if (user) {
+        document.documentElement.classList.add('is-auth');
+        document.getElementById('portal-guest').style.display = 'none';
+        
+        // Always populate profile fields so data is ready regardless of verification state
+          document.getElementById('dashName').textContent = user.name || '';
+          document.getElementById('dashUsername').textContent = user.name || '';
+          document.getElementById('dashEmail').textContent = user.email || 'No email linked';
+          document.getElementById('dashPhone').textContent = user.phone || 'No phone number';
+          // Phone verification badge
+          const _badge = document.getElementById('phoneVerifyBadge');
+          if (_badge) {
+            if (user.phone && !user.phoneVerified) {
+              const _waMsg = encodeURIComponent('Hi, I am ' + (user.name || '') + '. I would like to verify my phone number: ' + user.phone + '.\n\nPlease verify my account so I can access the portal. Thank you!');
+              _badge.href = 'https://wa.me/923008771713?text=' + _waMsg;
+              _badge.style.display = 'inline-block';
+            } else {
+              _badge.style.display = 'none';
+            }
+          }
+
+        if (!user.isVerified && !window.__adminView) {
+          // Unverified dashboard — hide the main dashboard, show the verification gate
+          document.getElementById('portal-dashboard').style.setProperty('display', 'none', 'important');
+          
+          let unverifiedBox = document.getElementById('portal-unverified');
+          if (!unverifiedBox) {
+            unverifiedBox = document.createElement('div');
+            unverifiedBox.id = 'portal-unverified';
+            unverifiedBox.style.cssText = 'width: 100%; display: flex; justify-content: center; padding: calc(var(--nav-h) + 2rem) 1.5rem 3rem;';
+            unverifiedBox.innerHTML = `
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 900px; width: 100%;">
+
+                <!-- Card 1: WhatsApp Verification -->
+                <div style="background: white; padding: 32px; border-radius: 20px; box-shadow: var(--sh-lg); text-align: center; border: 1px solid rgba(201,168,76,0.3); animation: scaleIn 0.4s ease-out; display: flex; flex-direction: column; box-sizing: border-box;">
+                  <div style="font-size: 44px; margin-bottom: 14px;">🔒</div>
+                  <h2 style="font-family: var(--ff-heading); color: var(--c-primary); font-size: 21px; margin-bottom: 10px;">Account Verification Required</h2>
+                  <p style="color: var(--c-text-sub); line-height: 1.6; font-size: 13px; margin-bottom: 18px; font-family: 'Inter', sans-serif;">Your account is currently unverified. Dashboard features are temporarily locked. Please verify to gain full access.</p>
+                  <div style="background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3); border-radius: 8px; padding: 10px 14px; margin-bottom: 18px; font-size: 13px; text-align: left; font-family: 'Inter', sans-serif;">
+                    <span style="color: var(--c-text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Registered As</span>
+                    ${user.phone ? '<span style="color: var(--c-primary-dark); font-weight: 600;">📱 ' + user.phone + '</span>' : ''}${user.email ? '<span style="color: var(--c-primary-dark); font-weight: 600; margin-left: 8px;">📧 ' + user.email + '</span>' : ''}
+                  </div>
+                  <a href="https://wa.me/923008771713?text=${encodeURIComponent('Hi, I am ' + (user.name || '') + '. I would like to verify my account.\n\nPhone: ' + (user.phone || user.email || 'N/A') + '\n\nPlease verify my account so I can access the portal. Thank you!')}" target="_blank" style="background: #25D366; color: white; border: none; border-radius: 8px; padding: 13px 20px; font-size: 14px; font-weight: bold; cursor: pointer; display: block; text-decoration: none; box-sizing: border-box; margin-bottom: 14px; transition: background 0.3s; font-family: 'Inter', sans-serif; text-align: center;">✅ Verify via WhatsApp</a>
+                  <p style="font-size: 12px; color: var(--c-text-sub); line-height: 1.5; font-family: 'Inter', sans-serif; background: #fffdf6; border-left: 3px solid var(--c-gold); padding: 10px 14px; border-radius: 6px; text-align: left; margin-bottom: 0; flex-grow: 1;">
+                    ℹ️ <strong>Already contacted us?</strong> Verification is manual and may take up to one business day. You may ignore this screen while you wait.
+                  </p>
+                  <div style="border-top: 1px solid #eaeaea; padding-top: 14px; margin-top: 18px;">
+                    <button onclick="Auth.logout();" style="background: transparent; color: #999; border: none; cursor: pointer; text-decoration: underline; font-size: 13px; font-family: 'Inter', sans-serif;">Logout</button>
+                  </div>
+                </div>
+
+                <!-- Card 2: Instant Email Verification -->
+                <div id="email-verification-subpanel" style="background: white; padding: 32px; border-radius: 20px; box-shadow: var(--sh-lg); text-align: center; border: 1px solid rgba(201,168,76,0.3); animation: scaleIn 0.5s ease-out; display: flex; flex-direction: column; box-sizing: border-box;">
+                  <div style="font-size: 44px; margin-bottom: 14px;">⚡</div>
+                  <h2 style="font-family: var(--ff-heading); color: var(--c-primary); font-size: 21px; margin-bottom: 10px;">Verify Instantly via Email</h2>
+                  <p style="color: var(--c-text-sub); line-height: 1.6; font-size: 13px; margin-bottom: 24px; font-family: 'Inter', sans-serif;">Link your email address to receive an instant 6-digit OTP and unlock all portal features immediately — no waiting required.</p>
+                  <div id="email-link-flow" style="flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; gap: 12px;">
+                    <div style="display: flex; gap: 8px;">
+                      <input type="email" id="linkEmailInput" placeholder="Enter your email address" style="flex: 1; padding: 11px 14px; border: 1px solid rgba(201,168,76,0.4); border-radius: 8px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; background: #fafafa;" required>
+                      <button onclick="sendLinkEmailCode(event)" id="sendLinkEmailBtn" style="background: var(--c-primary-dark); color: white; border: none; border-radius: 8px; padding: 11px 18px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.3s; white-space: nowrap;">Send Code</button>
+                    </div>
+                  </div>
+                  <div style="margin-top: 24px; padding: 14px; background: linear-gradient(135deg, rgba(201,168,76,0.06), rgba(201,168,76,0.12)); border-radius: 10px; border: 1px dashed rgba(201,168,76,0.4); text-align: left;">
+                    <p style="font-size: 12px; color: var(--c-text-sub); line-height: 1.6; margin: 0; font-family: 'Inter', sans-serif;">
+                      🔐 <strong>Instant access</strong> — Enter your email, receive a 6-digit code, and gain immediate access to all portal features.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            `;
+            wrapper.appendChild(unverifiedBox);
+          } else {
+            unverifiedBox.style.display = 'flex';
+          }
+          wrapper.style.backgroundImage = 'none';
+          wrapper.style.backgroundColor = 'var(--c-pearl)';
+          wrapper.style.alignItems = 'center';
+        } else {
+          // Fully verified dashboard
+          const unverifiedBox = document.getElementById('portal-unverified');
+          if (unverifiedBox) unverifiedBox.style.display = 'none';
+          
+          document.getElementById('portal-dashboard').style.display = 'block';
+          document.getElementById('dashName').textContent = user.name || '';
+          document.getElementById('dashUsername').textContent = user.name || '';
+          document.getElementById('dashEmail').textContent = user.email || 'No email linked';
+          document.getElementById('dashPhone').textContent = user.phone || 'No phone number';
+          
+          wrapper.style.backgroundImage = 'none';
+          wrapper.style.backgroundColor = 'var(--c-pearl)';
+          wrapper.style.alignItems = 'flex-start';
+          wrapper.style.padding = '0';
+        }
+      } else {
+        // Logged out
+        const unverifiedBox = document.getElementById('portal-unverified');
+        if (unverifiedBox) unverifiedBox.style.display = 'none';
+        document.documentElement.classList.remove('is-auth');
+        document.getElementById('portal-guest').style.display = 'block';
+        document.getElementById('portal-dashboard').style.display = 'none';
+        
+        // Reset wrapper background
+        wrapper.style.backgroundImage = "linear-gradient(rgba(13,34,71,0.5), rgba(13,34,71,0.7)), url('https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80')";
+        wrapper.style.backgroundColor = 'transparent';
+        wrapper.style.alignItems = 'center';
+        wrapper.style.padding = 'var(--sp-12) var(--sp-4)';
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Trigger the initial state immediately without timeout
+      if (typeof Auth !== 'undefined' && Auth.currentUser) {
+        document.dispatchEvent(new CustomEvent('authStateChanged', { detail: Auth.currentUser }));
+      } else if (typeof Auth !== 'undefined' && !Auth.currentUser) {
+        document.dispatchEvent(new CustomEvent('authStateChanged', { detail: null }));
+      } else {
+        document.getElementById('portal-guest').style.display = 'block';
+        document.getElementById('portal-dashboard').style.display = 'none';
+      }
+    });
+
+    function switchForm(formId, btn) {
+      document.querySelectorAll('.auth-toggle button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+      
+      btn.classList.add('active');
+      document.getElementById(formId + '-form').classList.add('active');
+      
+      const headerTitle = document.querySelector('.auth-header h2');
+      const headerSub = document.querySelector('.auth-header p');
+      if(formId === 'login') {
+        headerTitle.textContent = 'Welcome Back';
+        headerSub.textContent = 'Manage your measurements and orders.';
+      } else {
+        headerTitle.textContent = 'Create Account';
+        headerSub.textContent = 'Join us for a premium tailoring experience.';
+      }
+    }
+    
+    // Wire up the local forms to the Auth system
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = e.target.querySelector('input[type="email"]').value;
+      const password = e.target.querySelector('input[type="password"]').value;
+      
+      const btn = e.target.querySelector('button[type="submit"]');
+      Auth.setLoading(btn, true);
+      
+      try {
+        const res = await fetch('/api/auth-handler?action=login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        
+        if (res.ok && data.success) {
+          Auth.currentUser = data.user;
+          localStorage.setItem('currentUser', JSON.stringify(Auth.currentUser));
+          window.ShowAlert('Login Successful! Welcome ' + Auth.currentUser.name);
+          Auth.checkAuth();
+        } else {
+          if (data.error === 'NOT_FOUND') {
+            window.ShowAlert(`The email or phone number you entered is not yet registered. Please sign up to register yourself.<br><br><button onclick="Auth.showSignup(event); if(window.CloseAlert) window.CloseAlert();" style="background: var(--c-gold); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 15px;">Go to Sign Up</button>`);
+          } else if (data.error === 'WRONG_PASSWORD') {
+            window.ShowAlert("Incorrect password. Please try again.");
+          } else {
+            window.ShowAlert(data.error || 'Login Failed');
+          }
+        }
+      } catch(err) {
+        window.ShowAlert("Network error occurred during login.");
+      } finally {
+        Auth.setLoading(btn, false);
+      }
+    });
+    
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = e.target.querySelector('input[type="text"]').value;
+      const email = e.target.querySelector('input[type="email"]').value;
+      const password = e.target.querySelector('input[type="password"]').value;
+      
+      const btn = e.target.querySelector('button[type="submit"]');
+      Auth.setLoading(btn, true);
+      
+      try {
+        // Send OTP first
+        const res = await fetch('/api/auth-handler?action=signup-otp-send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        
+        if (res.ok && data.success) {
+          Auth.signupPayload = { name, email, password };
+          Auth.openModal();
+          document.getElementById('signupVerifyEmail').innerText = email;
+          Auth.showSignupVerify(null);
+          Auth.startSignupResendTimer();
+        } else if (data.error === 'ALREADY_EXISTS') {
+          window.ShowAlert(`This email is already registered.<br><br><button onclick="Auth.showLogin(event); if(window.CloseAlert) window.CloseAlert();" style="background: var(--c-gold); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 15px;">Go to Sign in</button>`);
+        } else {
+          window.ShowAlert(data.error || 'Failed to send verification code.');
+        }
+      } catch(err) {
+        window.ShowAlert("Network error occurred during signup.");
+      } finally {
+        Auth.setLoading(btn, false);
+      }
+    });
+  </script>
+</body>
+</html>
