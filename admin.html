@@ -236,6 +236,42 @@
       thead th, tbody td { padding:10px 10px; }
       .table-search { width:100%; }
     }
+
+    /* ── Per-field verification hover tooltip ── */
+    .field-hover-wrap { position:relative; display:inline-flex; align-items:center; }
+    .field-tooltip {
+      position:absolute; bottom:calc(100% + 8px); left:50%;
+      transform:translateX(-50%) translateY(6px);
+      min-width:160px; background:var(--surface2);
+      border-radius:10px; padding:9px 12px;
+      display:flex; flex-direction:column; gap:4px;
+      opacity:0; pointer-events:none;
+      transition:opacity .18s, transform .18s;
+      z-index:60; white-space:nowrap;
+      box-shadow:0 10px 30px rgba(0,0,0,.5);
+    }
+    .field-tooltip::after {
+      content:''; position:absolute; top:100%; left:50%;
+      transform:translateX(-50%);
+      border:5px solid transparent;
+    }
+    .field-hover-wrap:hover .field-tooltip {
+      opacity:1; pointer-events:auto;
+      transform:translateX(-50%) translateY(0);
+    }
+    .tooltip-verified { border:1px solid var(--success-border); }
+    .tooltip-verified::after { border-top-color:#1a3a2a; }
+    .tooltip-unverified { border:1px solid var(--warn-border); cursor:pointer; }
+    .tooltip-unverified::after { border-top-color:#3a2e0a; }
+    .tooltip-unverified:hover { background:var(--surface3); }
+    .tooltip-row { display:flex; align-items:center; gap:7px; }
+    .tooltip-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .tooltip-verified .tooltip-dot { background:var(--success); }
+    .tooltip-unverified .tooltip-dot { background:var(--warn); }
+    .tooltip-label { font-size:12px; font-weight:700; }
+    .tooltip-verified .tooltip-label { color:#6ee7b7; }
+    .tooltip-unverified .tooltip-label { color:#fcd34d; }
+    .tooltip-action { font-size:10px; color:var(--muted); padding-left:15px; }
   </style>
 </head>
 <body>
@@ -702,8 +738,27 @@
             </span>
           </div>
         </td>
-        <td class="td-muted">${escHtml(u.phone)}</td>
-        <td class="td-muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(u.email)}</td>
+        <td>
+          <div class="field-hover-wrap">
+            <span class="td-muted">${escHtml(u.phone)}</span>
+            ${u.phone !== '—' ? `
+            <div class="field-tooltip ${u.phoneVerified ? 'tooltip-verified' : 'tooltip-unverified'}"
+                 onclick="event.stopPropagation(); togglePhoneVerified('${u.id}', ${u.phoneVerified}, '${escAttr(u.name)}')">
+              <div class="tooltip-row"><span class="tooltip-dot"></span><span class="tooltip-label">${u.phoneVerified ? '✓ Phone Verified' : '✗ Not Verified'}</span></div>
+              <div class="tooltip-action">${u.phoneVerified ? 'Click to revoke' : 'Click to verify'}</div>
+            </div>` : ''}
+          </div>
+        </td>
+        <td style="max-width:180px;">
+          <div class="field-hover-wrap" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+            <span class="td-muted">${escHtml(u.email)}</span>
+            ${u.email !== '—' ? `
+            <div class="field-tooltip tooltip-verified">
+              <div class="tooltip-row"><span class="tooltip-dot"></span><span class="tooltip-label">✓ Email Verified</span></div>
+              <div class="tooltip-action">Via OTP</div>
+            </div>` : ''}
+          </div>
+        </td>
         <td>
           ${u.passwordHash && u.passwordHash !== '—' ? `
             <div class="pw-wrap">
@@ -880,6 +935,9 @@
         body.userId = pendingToggle.userId;
       } else if (action === 'deleteMessage') {
         body.messageId = pendingToggle.messageId;
+      } else if (action === 'setPhoneVerified') {
+        body.userId   = pendingToggle.userId;
+        body.verified = pendingToggle.verified;
       }
 
       const res = await fetch('/api/admin-users', {
@@ -944,6 +1002,31 @@
   }
   function escAttr(s) {
     return String(s ?? '').replace(/'/g, "\\'");
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // PHONE VERIFICATION TOGGLE
+  // ═══════════════════════════════════════════════════════════════
+  function togglePhoneVerified(userId, currentState, userName) {
+    const newState = !currentState;
+    pendingToggle = { action: 'setPhoneVerified', userId, verified: newState, name: userName };
+
+    const color = newState ? '#6ee7b7' : '#fcd34d';
+    document.getElementById('modalTitle').textContent = newState ? '📱 Verify Phone Number' : '📱 Revoke Phone Verification';
+    document.getElementById('modalSubtitle').textContent =
+      'Enter your Confirmation Password to apply this per-field change.';
+    document.getElementById('modalTarget').innerHTML =
+      `Customer: <strong style="color:${color};">${escHtml(userName)}</strong><br>
+       Action: <strong style="color:${color};">${newState ? 'Mark phone as ✅ Verified' : 'Mark phone as ⛔ Not Verified'}</strong>`;
+
+    const confirmBtn = document.getElementById('confirmBtn');
+    confirmBtn.className = 'btn-confirm';
+    confirmBtn.textContent = newState ? '✓ Verify Phone' : '✗ Revoke Verification';
+
+    document.getElementById('toggleSecretInput').value = '';
+    document.getElementById('modalAlert').classList.remove('show');
+    document.getElementById('confirmModal').classList.add('open');
+    setTimeout(() => document.getElementById('toggleSecretInput').focus(), 200);
   }
 </script>
 </body>

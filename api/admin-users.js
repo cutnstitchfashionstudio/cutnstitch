@@ -1,4 +1,4 @@
-const { getRows, findRow, appendRow, deleteRowBy, generateId } = require('../lib/sheets');
+const { getRows, findRow, updateRow, appendRow, deleteRowBy, generateId } = require('../lib/sheets');
 
 /**
  * GET  /api/admin-users   → list all users (verified + pending) + contact messages
@@ -38,6 +38,8 @@ module.exports = async (req, res) => {
         passwordHash: u.PasswordHash || '—',
         provider:     u.Provider || 'local',
         status,
+        phoneVerified: (u.PhoneVerified || '').toString().toUpperCase() === 'TRUE',
+        emailVerified: !!(u.Email && u.Email.includes('@')),
         createdAt: u.CreatedAt
           ? new Date(u.CreatedAt).toLocaleDateString('en-PK', { timeZone: 'Asia/Karachi' })
           : '—',
@@ -112,6 +114,24 @@ module.exports = async (req, res) => {
         }
 
         return res.status(404).json({ error: 'User not found.' });
+      }
+
+      // ── setPhoneVerified: toggle PhoneVerified column on a Users row ────────
+      if (action === 'setPhoneVerified') {
+        if (!userId) return res.status(400).json({ error: 'Missing userId.' });
+        const { verified } = req.body;
+
+        const result = await findRow('Users', 'ID', userId);
+        if (!result) return res.status(404).json({ error: 'User not found in verified users.' });
+
+        const updatedData = { ...result.data, PhoneVerified: verified ? 'TRUE' : 'FALSE' };
+        await updateRow('Users', result.rowIndex, updatedData);
+
+        return res.status(200).json({
+          success: true,
+          message: `Phone ${verified ? 'verified ✅' : 'unverified ⛔'} for ${result.data.Name || 'user'}.`,
+          phoneVerified: verified,
+        });
       }
 
       // ── delete user: remove from both tabs ─────────────────────────────
