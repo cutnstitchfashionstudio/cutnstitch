@@ -974,8 +974,8 @@
       track.innerHTML = fullHTML;
       strip.style.display = 'flex';
 
-      // Adjust speed: faster for fewer items so it doesn't look static
-      const duration = Math.max(15, items.length * 8);
+      // Adjust speed: scale with number of items but keep a readable minimum
+      const duration = Math.max(60, items.length * 20);
       track.style.animationDuration = duration + 's';
     }
 
