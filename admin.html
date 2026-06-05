@@ -271,6 +271,10 @@
     .tooltip-label { font-size:12px; font-weight:700; }
     .tooltip-verified .tooltip-label { color:#6ee7b7; }
     .tooltip-unverified .tooltip-label { color:#fcd34d; }
+    .tooltip-actions { border:1px solid var(--border); min-width:180px; }
+    .tooltip-actions::after { border-top-color:var(--surface2); }
+    .tooltip-actions .tooltip-label { color:var(--text); font-size:11px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; }
+    .tooltip-btn-row { display:flex; gap:7px; margin-top:4px; }
     .tooltip-action { font-size:10px; color:var(--muted); padding-left:15px; }
   </style>
 </head>
@@ -643,18 +647,21 @@
       <tr data-id="${m.id}">
         <td class="td-muted">${i + 1}</td>
         <td class="td-name-cell">
-          <div class="name-container">
+          <div class="field-hover-wrap">
             <span class="name-text">${escHtml(m.name)}</span>
-            <span class="name-actions">
-              <button class="btn-name-action btn-name-profile" ${profileDisabled}
-                onclick="${matchedUser ? `openProfileView('${profileUserId}')` : 'void 0'}">
-                👤 Profile
-              </button>
-              <button class="btn-name-action btn-name-delete" title="Delete this message permanently"
-                onclick="openDeleteMessageModal('${m.id}', '${escAttr(m.name)}')">
-                🗑️ Delete
-              </button>
-            </span>
+            <div class="field-tooltip tooltip-actions">
+              <div class="tooltip-row"><span class="tooltip-label">Quick Actions</span></div>
+              <div class="tooltip-btn-row">
+                <button class="btn-name-action btn-name-profile" ${profileDisabled}
+                  onclick="event.stopPropagation(); ${matchedUser ? `openProfileView('${profileUserId}')` : 'void 0'}">
+                  👤 Profile
+                </button>
+                <button class="btn-name-action btn-name-delete" title="Delete this message permanently"
+                  onclick="event.stopPropagation(); openDeleteMessageModal('${m.id}', '${escAttr(m.name)}')">
+                  🗑️ Delete
+                </button>
+              </div>
+            </div>
           </div>
         </td>
         <td class="td-muted">${escHtml(m.phone)}</td>
@@ -724,18 +731,21 @@
           data-search="${(u.name + u.phone + u.email).toLowerCase()}">
         <td class="td-muted">${i + 1}</td>
         <td class="td-name-cell">
-          <div class="name-container">
+          <div class="field-hover-wrap">
             <span class="name-text">${escHtml(u.name)}</span>
-            <span class="name-actions">
-              <button class="btn-name-action btn-name-profile" title="View profile as admin"
-                onclick="openProfileView('${u.id}')">
-                👤 Profile
-              </button>
-              <button class="btn-name-action btn-name-delete" title="Delete this customer permanently"
-                onclick="openDeleteUserModal('${u.id}', '${escAttr(u.name)}')">
-                🗑️ Delete
-              </button>
-            </span>
+            <div class="field-tooltip tooltip-actions">
+              <div class="tooltip-row"><span class="tooltip-label">Quick Actions</span></div>
+              <div class="tooltip-btn-row">
+                <button class="btn-name-action btn-name-profile" title="View profile as admin"
+                  onclick="event.stopPropagation(); openProfileView('${u.id}')">
+                  👤 Profile
+                </button>
+                <button class="btn-name-action btn-name-delete" title="Delete this customer permanently"
+                  onclick="event.stopPropagation(); openDeleteUserModal('${u.id}', '${escAttr(u.name)}')">
+                  🗑️ Delete
+                </button>
+              </div>
+            </div>
           </div>
         </td>
         <td>
