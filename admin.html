@@ -240,18 +240,28 @@
     /* ── Per-field verification hover tooltip ── */
     .field-hover-wrap { position:relative; display:inline-flex; align-items:center; }
     .field-tooltip {
-      position:absolute; bottom:calc(100% + 8px); left:50%;
-      transform:translateX(-50%) translateY(6px);
+      position:absolute;
+      top:calc(100% + 8px);   /* opens BELOW the cell — never overlaps search bar */
+      bottom:auto; left:50%;
+      transform:translateX(-50%) translateY(-6px);
       min-width:160px; background:var(--surface2);
       border-radius:10px; padding:9px 12px;
       display:flex; flex-direction:column; gap:4px;
       opacity:0; pointer-events:none;
       transition:opacity .18s, transform .18s;
-      z-index:60; white-space:nowrap;
+      z-index:200; white-space:nowrap;
       box-shadow:0 10px 30px rgba(0,0,0,.5);
     }
+    /* Invisible gap bridge — keeps hover alive while mouse travels from cell into tooltip */
+    .field-tooltip::before {
+      content:''; position:absolute;
+      bottom:100%; left:0; right:0;
+      height:10px; background:transparent;
+    }
+    /* Upward-pointing arrow at top of tooltip */
     .field-tooltip::after {
-      content:''; position:absolute; top:100%; left:50%;
+      content:''; position:absolute;
+      bottom:100%; left:50%;
       transform:translateX(-50%);
       border:5px solid transparent;
     }
@@ -260,9 +270,9 @@
       transform:translateX(-50%) translateY(0);
     }
     .tooltip-verified { border:1px solid var(--success-border); }
-    .tooltip-verified::after { border-top-color:#1a3a2a; }
+    .tooltip-verified::after { border-bottom-color:#1a3a2a; }
     .tooltip-unverified { border:1px solid var(--warn-border); cursor:pointer; }
-    .tooltip-unverified::after { border-top-color:#3a2e0a; }
+    .tooltip-unverified::after { border-bottom-color:#3a2e0a; }
     .tooltip-unverified:hover { background:var(--surface3); }
     .tooltip-row { display:flex; align-items:center; gap:7px; }
     .tooltip-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
@@ -272,7 +282,7 @@
     .tooltip-verified .tooltip-label { color:#6ee7b7; }
     .tooltip-unverified .tooltip-label { color:#fcd34d; }
     .tooltip-actions { border:1px solid var(--border); min-width:180px; }
-    .tooltip-actions::after { border-top-color:var(--surface2); }
+    .tooltip-actions::after { border-bottom-color:var(--surface2); }
     .tooltip-actions .tooltip-label { color:var(--text); font-size:11px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; }
     .tooltip-btn-row { display:flex; gap:7px; margin-top:4px; }
     .tooltip-action { font-size:10px; color:var(--muted); padding-left:15px; }
