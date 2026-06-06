@@ -578,6 +578,23 @@
             </div>
           </div>
 
+          <!-- Size Chart -->
+          <div class="form-section-label" style="margin-top:6px;">Size Chart <span style="font-weight:400;color:var(--muted2);text-transform:none;letter-spacing:0;font-size:11px;">(optional — used in AI description &amp; product page)</span></div>
+          <div class="form-grid form-grid-3" style="margin-bottom:20px;">
+            <div class="form-field">
+              <label>Small (S)</label>
+              <input class="form-input" id="fSizeS" placeholder='e.g. Chest: 36", Waist: 30"'>
+            </div>
+            <div class="form-field">
+              <label>Medium (M)</label>
+              <input class="form-input" id="fSizeM" placeholder='e.g. Chest: 38", Waist: 32"'>
+            </div>
+            <div class="form-field">
+              <label>Large (L)</label>
+              <input class="form-input" id="fSizeL" placeholder='e.g. Chest: 40", Waist: 34"'>
+            </div>
+          </div>
+
           <!-- Images -->
           <div class="form-section-label">Product Images</div>
           <div class="img-grid">
@@ -1081,12 +1098,24 @@ function filterProducts(cat) {
 }
 function searchProducts() { filterProducts(filterCat); }
 
+// ── DRIVE THUMBNAIL HELPER ────────────────────────────────────
+// Converts any Drive share/view URL to a reliable thumbnail URL
+function driveThumb(url, sz='w400') {
+  if (!url) return '';
+  if (url.includes('drive.google.com/thumbnail')) return url;
+  let id = null;
+  const m1 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (m1) id = m1[1];
+  if (!id) { const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/); if (m2) id = m2[1]; }
+  return id ? `https://drive.google.com/thumbnail?id=${id}&sz=${sz}` : url;
+}
+
 function renderTable() {
   const tbody=document.getElementById('prodTableBody');
   if(!filteredProd.length){ tbody.innerHTML='<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🔍</div><p>No products found.</p></div></td></tr>'; return; }
   tbody.innerHTML=filteredProd.map((p,i)=>`
     <tr>
-      <td>${p.img1?`<img class="prod-thumb" src="${escH(p.img1)}" loading="lazy" alt="">`:`<div class="prod-thumb-ph">📦</div>`}</td>
+      <td>${p.img1?`<img class="prod-thumb" src="${escH(driveThumb(p.img1,'w200'))}" loading="lazy" alt="" onerror="this.src='';this.parentElement.innerHTML='<div class=\'prod-thumb-ph\'>📦</div>'"`:`<div class="prod-thumb-ph">📦</div>`}</td>
       <td><code style="font-size:12px;color:var(--gold)">${escH(p.id)}</code></td>
       <td class="td-name">${escH(p.name)}</td>
       <td><span class="cat-badge ${p.tab==='Women'?'cat-w':p.tab==='Men'?'cat-m':'cat-k'}">${p.tab}</span></td>
@@ -1121,7 +1150,7 @@ async function loadNextId() {
 }
 
 function resetForm() {
-  ['fId','fName','fPrice','fOrigPrice','fOffer','fShort','fFull'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  ['fId','fName','fPrice','fOrigPrice','fOffer','fShort','fFull','fSizeS','fSizeM','fSizeL'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   document.getElementById('fId').readOnly=true;
   document.getElementById('fActive').checked=true;
   imgData={1:null,2:null,3:null};
@@ -1147,11 +1176,14 @@ function startEdit(idx) {
   document.getElementById('fShort').value=p.shortDesc;
   document.getElementById('fFull').value=p.fullDesc;
   document.getElementById('fActive').checked=p.active;
+  document.getElementById('fSizeS').value=p.sizeS||'';
+  document.getElementById('fSizeM').value=p.sizeM||'';
+  document.getElementById('fSizeL').value=p.sizeL||'';
   imgData={1:null,2:null,3:null};
-  // Set existing image previews
+  // Set existing image previews — use thumbnail URL for reliable loading
   [1,2,3].forEach(n=>{
     const url=p['img'+n];
-    if(url){ setSlotPreview(n,url,null,true); }
+    if(url){ setSlotPreview(n, driveThumb(url,'w600'), null, true); }
   });
 }
 
@@ -1279,7 +1311,9 @@ async function submitProduct() {
       imgUrls[2],
       active,
       document.getElementById('fOffer').value.trim(),
-      '', '', ''
+      document.getElementById('fSizeS').value.trim(),
+      document.getElementById('fSizeM').value.trim(),
+      document.getElementById('fSizeL').value.trim()
     ];
 
     if(editingProd){
@@ -1368,7 +1402,14 @@ async function generateAI() {
 
   try {
     const b64=await blobToBase64(imgData[1].blob);
-    const prompt=`You are a fashion product copywriter for "Cut & Stitch Fashion Studio", a premium Pakistani fashion store. Analyse the image and write product descriptions for: "${name}". Return ONLY valid JSON: {"ShortDesc":"2-3 sentence overview","FullDesc":"8-10 sentence detailed description"}`;
+    const sizeS=document.getElementById('fSizeS').value.trim();
+    const sizeM=document.getElementById('fSizeM').value.trim();
+    const sizeL=document.getElementById('fSizeL').value.trim();
+    const hasSizes = sizeS||sizeM||sizeL;
+    const sizeInfo = hasSizes
+      ? `\n\nAvailable size measurements:\n${sizeS?'• Small (S): '+sizeS:''}${sizeM?'\n• Medium (M): '+sizeM:''}${sizeL?'\n• Large (L): '+sizeL:''}\n\nNaturally weave the size range into the FullDesc (e.g. mention fit, silhouette, and that it's available from S to L with specific measurements). Keep it professional and elegant — do not list sizes robotically.`
+      : '';
+    const prompt=`You are a fashion product copywriter for "Cut & Stitch Fashion Studio", a premium Pakistani fashion store.\nAnalyse the garment image and write product descriptions for: "${name}".${sizeInfo}\n\nReturn ONLY valid JSON with exactly these two keys:\n{"ShortDesc":"A crisp 2-3 sentence overview highlighting the style, key design element, and who it suits.","FullDesc":"A rich 8-10 sentence store listing describing design details, fabric appearance, embellishments, colour palette, silhouette, craftsmanship${hasSizes?', fit across the size range,':''} and overall premium appeal."}`;
     const res=await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{ Authorization:`Bearer ${groqKey}`, 'Content-Type':'application/json' },
