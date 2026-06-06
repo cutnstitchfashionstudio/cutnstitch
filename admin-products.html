@@ -60,8 +60,31 @@
     }
     .btn-google:hover { box-shadow:0 6px 20px rgba(0,0,0,.2); transform:translateY(-1px); }
     .btn-google svg { width:20px; height:20px; flex-shrink:0; }
+    .btn-google:disabled { opacity:.6; cursor:not-allowed; transform:none; box-shadow:none; }
     .login-note { margin-top:20px; font-size:12px; color:var(--muted2); }
     .login-deny { margin-top:16px; background:var(--error-bg); border:1px solid var(--error-border); color:#fca5a5; border-radius:10px; padding:12px 16px; font-size:13px; display:none; }
+
+    /* Email pre-check step */
+    .login-email-step { margin-bottom:20px; text-align:left; }
+    .login-email-step label { display:block; font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px; }
+    .login-email-input {
+      width:100%; background:var(--surface2); border:1px solid var(--border);
+      border-radius:12px; padding:13px 16px; font-size:14px; color:var(--text);
+      outline:none; transition:border-color .2s, box-shadow .2s;
+      font-family:'Inter',sans-serif;
+    }
+    .login-email-input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,168,76,.12); }
+    .login-email-input::placeholder { color:var(--muted2); }
+    .btn-continue {
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      background:linear-gradient(135deg,var(--gold),var(--gold-light));
+      color:var(--primary); border:none; border-radius:12px;
+      padding:14px 24px; font-size:15px; font-weight:700; cursor:pointer;
+      width:100%; transition:all .2s; margin-bottom:12px;
+    }
+    .btn-continue:hover { transform:translateY(-1px); box-shadow:0 8px 24px rgba(201,168,76,.35); }
+    .btn-continue:disabled { opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
+    #loginStep2 { display:none; }
 
     /* ── APP SHELL ── */
     #appShell { display:none; height:100vh; flex-direction:column; }
@@ -181,7 +204,13 @@
     .form-input { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:11px 14px; font-size:14px; color:var(--text); outline:none; transition:border-color .2s; }
     .form-input:focus { border-color:var(--gold); }
     .form-input::placeholder { color:var(--muted2); }
-    .form-input:read-only { opacity:.65; cursor:not-allowed; }
+    .form-input:read-only { opacity:.5; cursor:not-allowed; background:var(--surface3); user-select:none; }
+
+    /* ── Settings lock overlay ── */
+    #panelContent { transition:opacity .3s, filter .3s; }
+    #panelContent.locked { opacity:0.28; pointer-events:none; user-select:none; filter:blur(2px); }
+    .sidebar.sidebar-locked .nav-item:not(#nav-settings) { opacity:0.28; pointer-events:none; }
+    .settings-notice a { pointer-events:auto !important; cursor:pointer; }
     .form-textarea { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:11px 14px; font-size:13px; color:var(--text); outline:none; resize:vertical; min-height:80px; line-height:1.6; transition:border-color .2s; }
     .form-textarea:focus { border-color:var(--gold); }
     .active-row { display:flex; align-items:center; gap:12px; padding:11px 14px; background:var(--surface2); border:1px solid var(--border); border-radius:10px; }
@@ -327,13 +356,43 @@
       <path d="M 67 45.8 L 74 42.5 L 67.5 47.2 Z" fill="#f5e6b0" opacity="0.9"/>
     </svg>
     <h1 class="login-title">Product Manager</h1>
-    <p class="login-sub">Sign in with your Google account to manage products, upload images to Drive, and sync with Google Sheets.</p>
-    <div id="loginDeny" class="login-deny">⛔ Your Google account is not authorised to access this panel.</div>
-    <button class="btn-google" id="btnGoogleSignin">
-      <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.16 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-3.66-13.46-9.01l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
-      Sign in with Google
-    </button>
-    <p class="login-note">🔒 Access restricted to authorised team members only.</p>
+    <p class="login-sub">Enter your Gmail address to verify access, then sign in with Google.</p>
+
+    <!-- STEP 1: Email pre-check -->
+    <div id="loginStep1">
+      <div class="login-email-step">
+        <label for="loginEmailInput">Your Gmail Address</label>
+        <input
+          type="email"
+          id="loginEmailInput"
+          class="login-email-input"
+          placeholder="yourname@gmail.com"
+          autocomplete="email"
+          spellcheck="false"
+        >
+      </div>
+      <div id="loginDeny" class="login-deny">⛔ This email is not authorised to access this panel.</div>
+      <button class="btn-continue" id="btnContinue" onclick="checkEmailPreAuth()">
+        🔑 Continue to Sign In
+      </button>
+      <p class="login-note">🔒 Access restricted to authorised team members only.</p>
+    </div>
+
+    <!-- STEP 2: Google Sign-In (shown only after email is verified) -->
+    <div id="loginStep2">
+      <div style="margin-bottom:16px;background:var(--success-bg);border:1px solid var(--success-border);color:#6ee7b7;border-radius:10px;padding:11px 16px;font-size:13px;display:flex;align-items:center;gap:8px;">
+        <span>✅</span>
+        <span>Email verified — click below to sign in with Google.</span>
+      </div>
+      <button class="btn-google" id="btnGoogleSignin">
+        <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.16 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-3.66-13.46-9.01l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+        Sign in with Google
+      </button>
+      <button
+        style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;margin-top:12px;text-decoration:underline;"
+        onclick="document.getElementById('loginStep1').style.display='block';document.getElementById('loginStep2').style.display='none';document.getElementById('loginEmailInput').value='';document.getElementById('loginDeny').style.display='none';"
+      >← Use a different email</button>
+    </div>
   </div>
 </div>
 
@@ -410,6 +469,9 @@
       <div class="settings-notice" id="settingsNotice">
         ⚠️ Please <a onclick="navigate('settings')">configure your Spreadsheet ID</a> in Settings before loading products.
       </div>
+
+      <!-- ══ LOCKABLE PANEL CONTENT ═══════════════════════════════ -->
+      <div id="panelContent">
 
       <!-- ══ ALL PRODUCTS VIEW ════════════════════════════════════ -->
       <div id="view-all">
@@ -546,7 +608,7 @@
           <!-- AI Description -->
           <div class="form-section-label">Descriptions</div>
           <div class="ai-row">
-            <button class="btn-ai" id="btnAI" onclick="generateAI()">✦ Generate with AI</button>
+            <button class="btn-ai" id="btnAI" onclick="generateAI()">✦ Generate Description</button>
             <p class="ai-hint">Upload Image 1 &amp; enter product name first.<br>AI will write both descriptions automatically.</p>
           </div>
           <div class="form-grid form-grid-1" style="margin-bottom:14px;">
@@ -645,6 +707,8 @@
 
         <button class="btn-primary" onclick="saveSettings()" style="min-width:180px;">💾 Save Settings</button>
       </div>
+
+      </div><!-- /panelContent -->
 
     </main>
   </div>
@@ -749,15 +813,27 @@ function loadSettings() {
   document.getElementById('cfgGroqKey').value  = cfg.groqKey||'';
   document.getElementById('cfgEmails').value   = cfg.emails||'';
   document.getElementById('settingsNotice').style.display = cfg.spreadsheetId ? 'none' : 'block';
+  updateLockState();
 }
 function saveSettings() {
+  const wasEmpty = !cfg.spreadsheetId;
   cfg.spreadsheetId = document.getElementById('cfgSheetId').value.trim();
   cfg.folderId      = document.getElementById('cfgFolderId').value.trim();
   cfg.groqKey       = document.getElementById('cfgGroqKey').value.trim();
   cfg.emails        = document.getElementById('cfgEmails').value.trim();
   localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
   document.getElementById('settingsNotice').style.display = cfg.spreadsheetId ? 'none' : 'block';
+  updateLockState();
   toast('Settings saved!', 'success');
+  // Auto-load products the first time a Spreadsheet ID is configured
+  if (wasEmpty && cfg.spreadsheetId) { setTimeout(()=>{ navigate('all'); loadAllProducts(); }, 400); }
+}
+function updateLockState() {
+  const locked = !cfg.spreadsheetId;
+  const pc = document.getElementById('panelContent');
+  const sb = document.querySelector('.sidebar');
+  if (pc) pc.classList.toggle('locked', locked);
+  if (sb) sb.classList.toggle('sidebar-locked', locked);
 }
 
 // ── GOOGLE OAUTH2 (GIS Token Model) ──────────────────────────
@@ -777,6 +853,54 @@ function initGIS() {
     }
   });
 }
+// ── EMAIL PRE-CHECK (runs BEFORE Google OAuth) ───────────────
+function checkEmailPreAuth() {
+  const input  = document.getElementById('loginEmailInput');
+  const deny   = document.getElementById('loginDeny');
+  const email  = (input.value||'').trim().toLowerCase();
+  deny.style.display = 'none';
+
+  if (!email) {
+    input.focus();
+    input.style.borderColor = 'var(--error)';
+    setTimeout(()=>{ input.style.borderColor = ''; }, 1200);
+    return;
+  }
+
+  // Load saved settings so we always have the latest whitelist
+  let savedCfg = {};
+  try { savedCfg = JSON.parse(localStorage.getItem(CFG_KEY)||'{}'); } catch{}
+  const emailsRaw = savedCfg.emails || cfg.emails || '';
+  const allowed   = emailsRaw.split('\n').map(e=>e.trim().toLowerCase()).filter(Boolean);
+
+  if (allowed.length === 0) {
+    // Whitelist is empty — allow anyone (dev/setup mode)
+    proceedToGoogleSignIn();
+    return;
+  }
+
+  if (allowed.includes(email)) {
+    // ✅ Email is whitelisted — proceed to Google OAuth
+    proceedToGoogleSignIn();
+  } else {
+    // ❌ Not in whitelist — block here, never call Google
+    deny.style.display = 'block';
+    deny.textContent   = `⛔ ${input.value.trim()} is not authorised to access this panel.`;
+    input.style.borderColor = 'var(--error)';
+    setTimeout(()=>{ input.style.borderColor = ''; }, 1800);
+  }
+}
+
+function proceedToGoogleSignIn() {
+  document.getElementById('loginStep1').style.display = 'none';
+  document.getElementById('loginStep2').style.display = 'block';
+}
+
+// Allow pressing Enter in the email input to trigger the check
+document.getElementById('loginEmailInput').addEventListener('keydown', (e)=>{
+  if (e.key === 'Enter') checkEmailPreAuth();
+});
+
 document.getElementById('btnGoogleSignin').addEventListener('click', ()=>{
   if(!tokenClient) initGIS();
   tokenClient.requestAccessToken({ prompt:'select_account' });
@@ -786,7 +910,11 @@ document.getElementById('btnSignout').addEventListener('click', ()=>{
   gToken=null; gUser=null;
   document.getElementById('appShell').classList.remove('visible');
   document.getElementById('loginScreen').style.display='flex';
-  document.getElementById('loginDeny').style.display='none';
+  // Reset login flow back to Step 1
+  document.getElementById('loginStep1').style.display = 'block';
+  document.getElementById('loginStep2').style.display = 'none';
+  document.getElementById('loginEmailInput').value = '';
+  document.getElementById('loginDeny').style.display = 'none';
 });
 
 async function fetchUserInfo() {
@@ -987,7 +1115,7 @@ async function loadNextId() {
     let next=1;
     if(rows.length){ const last=rows[rows.length-1][0]||''; next=(parseInt(last.replace(/\D/g,''))||0)+1; }
     field.value=`${currentCat[0]}${String(next).padStart(3,'0')}`;
-  } catch{ field.value=''; field.readOnly=false; }
+  } catch{ field.value='—'; }
 }
 
 function resetForm() {
@@ -1236,7 +1364,7 @@ async function generateAI() {
     document.getElementById('fFull').value=result.FullDesc||'';
     toast('✓ AI description generated!', 'success');
   } catch(e){ toast('AI Error: '+e.message,'error'); }
-  finally{ btn.disabled=false; btn.innerHTML='✦ Generate with AI'; }
+  finally{ btn.disabled=false; btn.innerHTML='✦ Generate Description'; }
 }
 function blobToBase64(blob) {
   return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(',')[1]); r.onerror=rej; r.readAsDataURL(blob); });
