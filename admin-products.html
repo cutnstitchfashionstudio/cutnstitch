@@ -499,7 +499,7 @@
             <button class="cat-pill" onclick="filterProducts('Men')">👔 Men</button>
             <button class="cat-pill" onclick="filterProducts('Kids')">🧒 Kids</button>
           </div>
-          <input class="search-box" id="prodSearch" placeholder="🔍 Search products…" oninput="searchProducts()">
+          <input class="search-box" id="prodSearch" placeholder="🔍 Search products…" oninput="searchProducts()" style="margin-left:auto;">
         </div>
         <div class="table-card">
           <div class="table-scroll">
@@ -579,7 +579,7 @@
           </div>
 
           <!-- Size Chart -->
-          <div class="form-section-label" style="margin-top:6px;">Size Chart <span style="font-weight:400;color:var(--muted2);text-transform:none;letter-spacing:0;font-size:11px;">(optional — used in AI description &amp; product page)</span></div>
+          <div class="form-section-label" style="margin-top:6px;">Size Chart</div>
           <div class="form-grid form-grid-3" style="margin-bottom:20px;">
             <div class="form-field">
               <label>Small (S)</label>
@@ -1390,18 +1390,37 @@ function exportCSV() {
 }
 
 // ── AI DESCRIPTION ────────────────────────────────────────────
+// Get base64 from a new blob OR from an existing Drive URL (edit mode)
+async function imgToBase64ForAI() {
+  if (imgData[1]?.blob) return blobToBase64(imgData[1].blob);
+  if (imgData[1]?.url) {
+    try {
+      const resp = await fetch(imgData[1].url);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      return blobToBase64(await resp.blob());
+    } catch {
+      throw new Error('Could not read the existing image — please re-upload Image 1 to regenerate the description.');
+    }
+  }
+  throw new Error('No image available. Upload Image 1 first.');
+}
+
 async function generateAI() {
   const name=document.getElementById('fName').value.trim();
   if(!name){ toast('Enter the product name first.','error'); return; }
-  if(!imgData[1]?.blob){ toast('Upload Image 1 first — AI needs a photo to analyse.','error'); return; }
   const groqKey=cfg.groqKey;
   if(!groqKey){ toast('Set your Groq API key in Settings.','error'); navigate('settings'); return; }
+
+  // Accept both: newly uploaded blob OR existing image URL (edit mode)
+  const hasBlob = !!imgData[1]?.blob;
+  const hasUrl  = !!imgData[1]?.url;
+  if(!hasBlob && !hasUrl){ toast('Upload Image 1 first — AI needs a photo to analyse.','error'); return; }
 
   const btn=document.getElementById('btnAI');
   btn.disabled=true; btn.innerHTML='<span class="spin"></span> Analysing…';
 
   try {
-    const b64=await blobToBase64(imgData[1].blob);
+    const b64=await imgToBase64ForAI(); // handles blob (new upload) or URL (edit mode)
     const sizeS=document.getElementById('fSizeS').value.trim();
     const sizeM=document.getElementById('fSizeM').value.trim();
     const sizeL=document.getElementById('fSizeL').value.trim();
