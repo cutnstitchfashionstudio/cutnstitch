@@ -998,7 +998,7 @@ async function sheetsGet(range) {
   return res.json();
 }
 async function sheetsAppend(sheetName, values) {
-  const range=`${sheetName}!A:K`;
+  const range=`${sheetName}!A:N`;
   const url=`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(cfg.spreadsheetId)}/values/${encodeURIComponent(range)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`;
   const res=await fetch(url, {
     method:'POST', headers:{Authorization:`Bearer ${gToken}`,'Content-Type':'application/json'},
@@ -1041,11 +1041,13 @@ async function loadAllProducts() {
     await fetchSheetMeta();
     for(const tab of ['Women','Men','Kids']) {
       try {
-        const data=await sheetsGet(`${tab}!A2:K`);
+        const data=await sheetsGet(`${tab}!A2:N`);
         const rows=data.values||[];
         rows.forEach((r,i)=>{
           if(!r[0]&&!r[1]) return; // skip empty rows
-          allProducts.push({ tab, rowNum:i+2, id:r[0]||'', name:r[1]||'', salePrice:r[2]||'', origPrice:r[3]||'', offerText:r[4]||'', active:(r[5]||'TRUE').toUpperCase()!=='FALSE', shortDesc:r[6]||'', fullDesc:r[7]||'', img1:r[8]||'', img2:r[9]||'', img3:r[10]||'' });
+          // Sheet schema: A=ID B=Name C=Price D=OrigPrice E=ShortDesc F=FullDesc
+          //               G=Image1 H=Image2 I=Image3 J=Active K=OfferText L=SizeS M=SizeM N=SizeL
+          allProducts.push({ tab, rowNum:i+2, id:r[0]||'', name:r[1]||'', salePrice:r[2]||'', origPrice:r[3]||'', shortDesc:r[4]||'', fullDesc:r[5]||'', img1:r[6]||'', img2:r[7]||'', img3:r[8]||'', active:(r[9]||'TRUE').toUpperCase()!=='FALSE', offerText:r[10]||'', sizeS:r[11]||'', sizeM:r[12]||'', sizeL:r[13]||'' });
         });
       } catch(e){ console.warn(tab,'load failed:',e.message); }
     }
@@ -1263,10 +1265,25 @@ async function submitProduct() {
 
     setStep('Saving to Google Sheets…', 85);
     const active=document.getElementById('fActive').checked ? 'TRUE' : 'FALSE';
-    const row=[id, name, +price, document.getElementById('fOrigPrice').value||'', document.getElementById('fOffer').value.trim(), active, document.getElementById('fShort').value.trim(), document.getElementById('fFull').value.trim(), imgUrls[0], imgUrls[1], imgUrls[2]];
+    // Row must match sheet schema: A=ID B=Name C=Price D=OrigPrice E=ShortDesc F=FullDesc
+    //   G=Image1 H=Image2 I=Image3 J=Active K=OfferText L=SizeS M=SizeM N=SizeL
+    const row=[
+      id,
+      name,
+      +price,
+      document.getElementById('fOrigPrice').value||'',
+      document.getElementById('fShort').value.trim(),
+      document.getElementById('fFull').value.trim(),
+      imgUrls[0],
+      imgUrls[1],
+      imgUrls[2],
+      active,
+      document.getElementById('fOffer').value.trim(),
+      '', '', ''
+    ];
 
     if(editingProd){
-      await sheetsUpdate(`${editingProd.tab}!A${editingProd.rowNum}:K${editingProd.rowNum}`, row);
+      await sheetsUpdate(`${editingProd.tab}!A${editingProd.rowNum}:N${editingProd.rowNum}`, row);
       toast(`✓ Product "${name}" updated!`, 'success');
     } else {
       await sheetsAppend(currentCat, row);
@@ -1318,10 +1335,10 @@ async function loadDbView() {
   document.getElementById('dbTitle').textContent=`Database — ${currentDbCat}`;
   document.getElementById('dbMeta').textContent='Loading…';
   document.getElementById('dbBody').innerHTML='';
-  const HEADERS=['ID','Name','Sale Price','Orig Price','Offer Text','Active','Short Desc','Full Desc','Image 1','Image 2','Image 3'];
+  const HEADERS=['ID','Name','Sale Price','Orig Price','Short Desc','Full Desc','Image 1','Image 2','Image 3','Active','Offer Text','Size S','Size M','Size L'];
   document.getElementById('dbHead').innerHTML='<tr>'+['#',...HEADERS].map(h=>`<th>${h}</th>`).join('')+'</tr>';
   try {
-    const data=await sheetsGet(`${currentDbCat}!A2:K`);
+    const data=await sheetsGet(`${currentDbCat}!A2:N`);
     const rows=data.values||[];
     document.getElementById('dbMeta').textContent=`${rows.length} rows in ${currentDbCat} sheet`;
     document.getElementById('dbBody').innerHTML=rows.map((r,i)=>`<tr><td style="color:var(--muted2)">${i+2}</td>${HEADERS.map((_,ci)=>{
