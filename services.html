@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -102,6 +102,22 @@
 
     .price-table th { font-family: var(--ff-heading); color: var(--c-primary); }
     .price-table tr:last-child td { border-bottom: none; }
+
+    /* Sticky tab bar — always visible while scrolling */
+    .tabs-nav {
+      position: sticky;
+      top: var(--nav-h);
+      z-index: 100;
+      background: rgba(248, 244, 235, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 12px 0;
+      margin: 0 calc(-1 * var(--container-pad));
+      padding-left: var(--container-pad);
+      padding-right: var(--container-pad);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      box-shadow: 0 4px 20px rgba(13, 34, 71, 0.08);
+    }
   </style>
 </head>
 <body>
