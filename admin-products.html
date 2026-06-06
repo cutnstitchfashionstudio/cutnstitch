@@ -326,16 +326,88 @@
     .progress-track { background:var(--surface2); border-radius:4px; height:6px; overflow:hidden; }
     .progress-fill { height:100%; background:linear-gradient(90deg,var(--gold),var(--gold-light)); border-radius:4px; transition:width .3s; }
 
-    @media(max-width:900px) {
-      .sidebar { display:none; }
-      .main-panel { padding:20px 16px; }
-      .form-grid { grid-template-columns:1fr; }
-      .settings-grid { grid-template-columns:1fr; }
-      .stats-row { grid-template-columns:1fr 1fr; }
+    /* ── HAMBURGER BUTTON ─────────────────────────────────────── */
+    .btn-hamburger {
+      display:none; background:none; border:none; color:var(--text);
+      font-size:22px; cursor:pointer; padding:6px 8px; border-radius:8px;
+      line-height:1; transition:background .2s; margin-right:4px;
     }
+    .btn-hamburger:hover { background:rgba(255,255,255,.08); }
+
+    /* ── SIDEBAR MOBILE OVERLAY ───────────────────────────────── */
+    .sidebar-overlay {
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,.55);
+      z-index:199; backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px);
+    }
+    .sidebar-overlay.open { display:block; }
+
+    /* ── RESPONSIVE: TABLET (≤900px) ─────────────────────────── */
+    @media(max-width:900px) {
+      .btn-hamburger { display:block; }
+      .sidebar {
+        display:flex !important;
+        position:fixed;
+        left:-260px;
+        top:60px;
+        bottom:0;
+        z-index:200;
+        width:240px;
+        transition:left .28s cubic-bezier(.4,0,.2,1);
+        box-shadow:4px 0 24px rgba(0,0,0,.45);
+        overflow-y:auto;
+      }
+      .sidebar.mobile-open { left:0; }
+      .main-panel { padding:16px 12px; }
+      .form-grid  { grid-template-columns:1fr; }
+      .form-grid-3 { grid-template-columns:1fr 1fr; }
+      .settings-grid { grid-template-columns:1fr; }
+      .stats-row  { grid-template-columns:repeat(2,1fr); }
+      .page-header { flex-direction:column; align-items:flex-start; gap:10px; }
+      .page-actions { display:flex; gap:8px; width:100%; }
+      .page-actions .btn-primary, .page-actions .btn-outline { flex:1; text-align:center; justify-content:center; }
+      .filter-bar { flex-wrap:wrap; gap:8px; }
+      .filter-bar > div { flex:1; min-width:0; display:flex; flex-wrap:wrap; gap:6px; }
+      .search-box { margin-left:0 !important; width:100% !important; box-sizing:border-box; }
+      .brand-sep, .page-badge { display:none; }
+      .btn-back { display:none; }
+      .user-name { display:none; }
+      .topbar-right { gap:8px; }
+      .btn-signout { padding:6px 12px; font-size:12px; }
+      .table-card { border-radius:12px; }
+      .table-scroll { font-size:12px; }
+      .table-scroll table { min-width:600px; }
+      .form-card { padding:20px 16px; }
+      .img-grid { grid-template-columns:repeat(3,1fr); }
+    }
+
+    /* ── RESPONSIVE: MOBILE (≤600px) ─────────────────────────── */
     @media(max-width:600px) {
+      .topbar { padding:0 10px; height:56px; }
+      .topbar-brand svg { width:28px; height:28px; }
+      .brand-text { font-size:14px; }
+      .btn-hamburger { font-size:20px; }
+      .main-panel { padding:12px 8px; }
+      .stats-row { grid-template-columns:repeat(2,1fr); }
+      .stat-card { padding:14px 12px; }
+      .stat-num { font-size:28px; }
       .img-grid { grid-template-columns:1fr 1fr; }
-      .stats-row { grid-template-columns:1fr; }
+      .form-grid-3 { grid-template-columns:1fr; }
+      .form-card { padding:16px 12px; border-radius:14px; }
+      .modal { padding:22px 16px; }
+      .btn-primary, .btn-outline, .btn-danger, .btn-ai {
+        padding:10px 14px; font-size:13px;
+      }
+      .cat-pill { padding:7px 12px; font-size:12px; }
+      .table-scroll table { min-width:520px; }
+      .page-header h2 { font-size:20px; }
+      .login-card { padding:28px 18px; }
+      .sidebar { top:56px; }
+    }
+
+    /* ── TOUCH: Larger tap targets ────────────────────────────── */
+    @media(hover:none) {
+      .nav-item { padding:11px 14px; }
+      .slot-remove { width:28px; height:28px; font-size:14px; }
     }
   </style>
 </head>
@@ -416,6 +488,7 @@
       <span class="page-badge">Product Manager</span>
     </div>
     <div class="topbar-right">
+      <button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()" aria-label="Menu">&#9776;</button>
       <a href="admin.html" class="btn-back">← Customer Panel</a>
       <div class="user-chip">
         <img id="userAvatar" class="user-avatar" src="" alt="avatar">
@@ -426,6 +499,8 @@
   </header>
 
   <div class="app-body">
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
     <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar-section">
@@ -758,6 +833,24 @@
 // ── CONFIG KEY ────────────────────────────────────────────────
 const CFG_KEY = 'cs_admin_products_cfg';
 
+// ── ADMIN EMAIL WHITELIST ─────────────────────────────────────────
+// These emails are always authorised on ALL devices (embedded in code).
+// Add more emails here — one per line, lowercase.
+const ADMIN_EMAILS = [
+  'cutnstitchfashionstudio@gmail.com',
+  'mmstalin66@gmail.com',
+];
+
+// Returns merged list: hardcoded ADMIN_EMAILS + any saved in localStorage Settings
+function getAllowedEmails() {
+  let localList = [];
+  try {
+    const saved = JSON.parse(localStorage.getItem(CFG_KEY) || '{}');
+    localList = (saved.emails || '').split('\n').map(e => e.trim().toLowerCase()).filter(Boolean);
+  } catch {}
+  return [...new Set([...ADMIN_EMAILS, ...localList])];
+}
+
 // ── STATE ─────────────────────────────────────────────────────
 let gToken        = null;   // Google access token
 let gUser         = null;   // { email, name, picture }
@@ -870,7 +963,7 @@ function initGIS() {
     }
   });
 }
-// ── EMAIL PRE-CHECK (runs BEFORE Google OAuth) ───────────────
+// ── EMAIL PRE-CHECK (runs BEFORE Google OAuth) ─────────────────
 function checkEmailPreAuth() {
   const input  = document.getElementById('loginEmailInput');
   const deny   = document.getElementById('loginDeny');
@@ -884,15 +977,12 @@ function checkEmailPreAuth() {
     return;
   }
 
-  // Load saved settings so we always have the latest whitelist
-  let savedCfg = {};
-  try { savedCfg = JSON.parse(localStorage.getItem(CFG_KEY)||'{}'); } catch{}
-  const emailsRaw = savedCfg.emails || cfg.emails || '';
-  const allowed   = emailsRaw.split('\n').map(e=>e.trim().toLowerCase()).filter(Boolean);
+  const allowed = getAllowedEmails();
 
   if (allowed.length === 0) {
-    // Whitelist is empty — allow anyone (dev/setup mode)
-    proceedToGoogleSignIn();
+    // No whitelist configured at all — block for safety
+    deny.style.display = 'block';
+    deny.textContent = '⛔ No admin whitelist configured. Please contact the site administrator.';
     return;
   }
 
@@ -940,12 +1030,17 @@ async function fetchUserInfo() {
       headers: { Authorization: `Bearer ${gToken}` }
     });
     gUser = await res.json();
-    // Check allowed emails
-    const allowed = cfg.emails.split('\n').map(e=>e.trim().toLowerCase()).filter(Boolean);
-    if (allowed.length && !allowed.includes((gUser.email||'').toLowerCase())) {
+    // Always enforce whitelist — merges hardcoded + localStorage lists
+    const allowed = getAllowedEmails();
+    if (allowed.length > 0 && !allowed.includes((gUser.email||'').toLowerCase())) {
       google.accounts.oauth2.revoke(gToken, ()=>{});
       gToken=null; gUser=null;
-      document.getElementById('loginDeny').style.display='block';
+      const deny = document.getElementById('loginDeny');
+      deny.style.display='block';
+      deny.textContent=`⛔ ${gUser?.email||'This account'} is not authorised to access this panel.`;
+      // Return to step 1
+      document.getElementById('loginStep1').style.display='block';
+      document.getElementById('loginStep2').style.display='none';
       return;
     }
     onSignedIn();
@@ -1005,9 +1100,23 @@ function navigate(view, param='Women') {
     document.getElementById('nav-settings').classList.add('active');
     currentView='settings';
   }
+  // Close sidebar on mobile whenever we navigate
+  closeSidebar();
 }
 
-// ── SHEETS API ────────────────────────────────────────────────
+// ── MOBILE SIDEBAR ────────────────────────────────────────────
+function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('mobile-open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+  document.body.style.overflow = document.querySelector('.sidebar').classList.contains('mobile-open') ? 'hidden' : '';
+}
+function closeSidebar() {
+  document.querySelector('.sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+
 async function sheetsGet(range) {
   const url=`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(cfg.spreadsheetId)}/values/${encodeURIComponent(range)}`;
   const res=await fetch(url, { headers:{Authorization:`Bearer ${gToken}`} });
@@ -1390,19 +1499,34 @@ function exportCSV() {
 }
 
 // ── AI DESCRIPTION ────────────────────────────────────────────
-// Get base64 from a new blob OR from an existing Drive URL (edit mode)
+// Get base64: blob (new upload) OR canvas re-draw of Drive URL (edit mode)
 async function imgToBase64ForAI() {
   if (imgData[1]?.blob) return blobToBase64(imgData[1].blob);
   if (imgData[1]?.url) {
-    try {
-      const resp = await fetch(imgData[1].url);
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      return blobToBase64(await resp.blob());
-    } catch {
-      throw new Error('Could not read the existing image — please re-upload Image 1 to regenerate the description.');
-    }
+    // Re-load with crossOrigin='anonymous' + cache-bust to get CORS-enabled response
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        try {
+          const c = document.createElement('canvas');
+          const maxW = 1200;
+          const scale = Math.min(1, maxW / (img.naturalWidth || maxW));
+          c.width  = Math.round((img.naturalWidth  || 800) * scale);
+          c.height = Math.round((img.naturalHeight || 1000) * scale);
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          resolve(c.toDataURL('image/jpeg', 0.85).split(',')[1]);
+        } catch {
+          reject(new Error('Please click Image 1 slot and re-select the photo to regenerate the AI description.'));
+        }
+      };
+      img.onerror = () => reject(new Error('Please click Image 1 slot and re-select the photo to regenerate the AI description.'));
+      // Cache-bust forces a fresh CORS-enabled request (avoids stale non-CORS cached response)
+      const sep = imgData[1].url.includes('?') ? '&' : '?';
+      img.src = imgData[1].url + sep + '_cb=' + Date.now();
+    });
   }
-  throw new Error('No image available. Upload Image 1 first.');
+  throw new Error('No image available — Upload Image 1 first.');
 }
 
 async function generateAI() {
