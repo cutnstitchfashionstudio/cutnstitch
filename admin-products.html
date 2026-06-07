@@ -206,6 +206,18 @@
     .form-input::placeholder { color:var(--muted2); }
     .form-input:read-only { opacity:.5; cursor:not-allowed; background:var(--surface3); user-select:none; }
 
+    /* ── Settings input eye-toggle wrapper ── */
+    .cfg-input-wrap { position:relative; display:flex; align-items:center; }
+    .cfg-input-wrap .form-input { padding-right:44px; }
+    .cfg-eye {
+      position:absolute; right:12px; top:50%; transform:translateY(-50%);
+      background:none; border:none; cursor:pointer; padding:4px;
+      color:var(--muted); line-height:0; border-radius:6px;
+      transition:color .2s, background .2s;
+    }
+    .cfg-eye:hover { color:var(--gold); background:rgba(201,168,76,.1); }
+    .cfg-eye svg { width:18px; height:18px; display:block; }
+
     /* ── Settings lock overlay ── */
     #panelContent { transition:opacity .3s, filter .3s; }
     #panelContent.locked { opacity:0.28; pointer-events:none; user-select:none; filter:blur(2px); }
@@ -768,12 +780,22 @@
           <div class="settings-grid">
             <div class="settings-field">
               <label>Spreadsheet ID *</label>
-              <input class="form-input" id="cfgSheetId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
+              <div class="cfg-input-wrap">
+                <input class="form-input" id="cfgSheetId" type="password" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" autocomplete="off" spellcheck="false">
+                <button class="cfg-eye" type="button" onclick="toggleCfgEye('cfgSheetId',this)" title="Show / Hide">
+                  <svg id="eye-cfgSheetId" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
               <div class="settings-hint">The long ID from your Google Sheets URL:<br><code style="font-size:11px;color:var(--gold)">docs.google.com/spreadsheets/d/<b>THIS_PART</b>/edit</code></div>
             </div>
             <div class="settings-field">
               <label>Drive Folder ID <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
-              <input class="form-input" id="cfgFolderId" placeholder="Leave blank to upload to Drive root">
+              <div class="cfg-input-wrap">
+                <input class="form-input" id="cfgFolderId" type="password" placeholder="Leave blank to upload to Drive root" autocomplete="off" spellcheck="false">
+                <button class="cfg-eye" type="button" onclick="toggleCfgEye('cfgFolderId',this)" title="Show / Hide">
+                  <svg id="eye-cfgFolderId" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
               <div class="settings-hint">Product images will be uploaded here. Get it from the folder URL:<br><code style="font-size:11px;color:var(--gold)">drive.google.com/drive/folders/<b>THIS_PART</b></code></div>
             </div>
           </div>
@@ -783,7 +805,12 @@
           <div class="settings-title">🤖 Groq AI</div>
           <div class="settings-field" style="max-width:400px;">
             <label>Groq API Key</label>
-            <input class="form-input" id="cfgGroqKey" type="password" placeholder="gsk_…">
+            <div class="cfg-input-wrap">
+              <input class="form-input" id="cfgGroqKey" type="password" placeholder="gsk_…" autocomplete="off" spellcheck="false">
+              <button class="cfg-eye" type="button" onclick="toggleCfgEye('cfgGroqKey',this)" title="Show / Hide">
+                <svg id="eye-cfgGroqKey" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
             <div class="settings-hint">Used for AI-generated product descriptions. Get your key from <a href="https://console.groq.com" target="_blank" style="color:var(--gold)">console.groq.com</a></div>
           </div>
         </div>
@@ -1014,8 +1041,9 @@ document.getElementById('btnGoogleSignin').addEventListener('click', ()=>{
   tokenClient.requestAccessToken({ prompt:'select_account' });
 });
 document.getElementById('btnSignout').addEventListener('click', ()=>{
-  google.accounts.oauth2.revoke(gToken, ()=>{});
+  if (gToken) google.accounts.oauth2.revoke(gToken, ()=>{});
   gToken=null; gUser=null;
+  sessionStorage.removeItem('cs_prod_user'); // clear session — forces fresh login next window
   document.getElementById('appShell').classList.remove('visible');
   document.getElementById('loginScreen').style.display='flex';
   // Reset login flow back to Step 1
@@ -1049,6 +1077,8 @@ async function fetchUserInfo() {
 }
 
 function onSignedIn() {
+  // Persist user profile for session restore (survives same-tab navigation)
+  sessionStorage.setItem('cs_prod_user', JSON.stringify(gUser));
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('appShell').classList.add('visible');
   document.getElementById('userAvatar').src = gUser.picture||'';
@@ -1572,12 +1602,56 @@ function blobToBase64(blob) {
   return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(',')[1]); r.onerror=rej; r.readAsDataURL(blob); });
 }
 
+// ── SETTINGS EYE TOGGLE ──────────────────────────────────────
+// SVG: eye-open (visible) and eye-closed (hidden)
+const EYE_OPEN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const EYE_SHUT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+
+function toggleCfgEye(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  if (!inp) return;
+  const isHidden = inp.type === 'password';
+  inp.type = isHidden ? 'text' : 'password';
+  btn.innerHTML = isHidden ? EYE_SHUT : EYE_OPEN;
+  btn.title = isHidden ? 'Hide' : 'Show';
+}
+
 // ── UTILITY ───────────────────────────────────────────────────
 function escH(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 // ── INIT ──────────────────────────────────────────────────────
 window.addEventListener('load', ()=>{
   loadSettings();
+
+  // ── SESSION RESTORE — skip login if same window was already authed ──
+  // sessionStorage lives only for this browser window/tab.
+  // Closing the window wipes it automatically — no manual expiry needed.
+  const savedUser = sessionStorage.getItem('cs_prod_user');
+  if (savedUser) {
+    try {
+      gUser = JSON.parse(savedUser);
+      // Re-validate email is still in whitelist (guards against list changes)
+      const allowed = getAllowedEmails();
+      if (allowed.length > 0 && !allowed.includes((gUser.email||'').toLowerCase())) {
+        sessionStorage.removeItem('cs_prod_user');
+        gUser = null;
+        return; // drop to login screen
+      }
+      // Restore UI instantly — no OAuth popup needed
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('appShell').classList.add('visible');
+      document.getElementById('userAvatar').src = gUser.picture || '';
+      document.getElementById('userName').textContent = gUser.name || gUser.email || 'User';
+      loadAllProducts();
+
+      // Silently get a fresh access token in background (needed for Drive/Sheets API calls).
+      // prompt:'' = no account-picker dialog; Google auto-selects the previously-used account.
+      initGIS();
+      tokenClient.requestAccessToken({ prompt: '' });
+    } catch {
+      sessionStorage.removeItem('cs_prod_user'); // corrupted — reset to login
+    }
+  }
   // GIS loads asynchronously; button click will trigger initGIS() if needed
 });
 </script>

@@ -534,8 +534,9 @@
         return;
       }
 
-      // Success — store secret and show dashboard
+      // Success — store secret in sessionStorage so switching panels doesn't re-ask
       adminSecret = key;
+      sessionStorage.setItem('cs_admin_secret', key);
       const data = await res.json();
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('adminScreen').style.display  = 'block';
@@ -569,12 +570,31 @@
   function doLogout() {
     adminSecret = '';
     allUsers = [];
+    sessionStorage.removeItem('cs_admin_secret'); // clear session so next window must log in
     document.getElementById('secretInput').value = '';
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('adminScreen').style.display  = 'none';
     document.getElementById('logoutBtn').style.display    = 'none';
     hideLoginAlert();
   }
+
+  // ═══════════════════════════════════════════════════════════════
+  // SESSION RESTORE — skip login if same window was already authed
+  // ═══════════════════════════════════════════════════════════════
+  (async function restoreSession() {
+    const saved = sessionStorage.getItem('cs_admin_secret');
+    if (!saved) return; // no session — show login normally
+    try {
+      const res = await fetch('/api/admin-users', { headers: { 'x-admin-secret': saved } });
+      if (!res.ok) { sessionStorage.removeItem('cs_admin_secret'); return; } // expired/invalid
+      adminSecret = saved;
+      const data = await res.json();
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminScreen').style.display  = 'block';
+      document.getElementById('logoutBtn').style.display    = 'inline-block';
+      renderDashboard(data.users || [], data.messages || []);
+    } catch { /* network error — fall through to login screen */ }
+  })();
 
   // ═══════════════════════════════════════════════════════════════
   // LOAD / REFRESH USERS
