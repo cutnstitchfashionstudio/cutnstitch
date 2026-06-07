@@ -1568,9 +1568,48 @@ function exportCSV() {
 }
 
 // ── AI DESCRIPTION ────────────────────────────────────────────
-// Root issue: canvas.toDataURL() on a Drive URL throws SecurityError (CORS).
-// Fix: send the Drive URL directly to Groq — it fetches server-side (no CORS).
-//      Only convert to base64 when we have a local blob (new upload).
+// Both previous approaches failed:
+//   1. canvas.toDataURL() → CORS SecurityError (Drive has no CORS headers)
+//   2. Send URL to Groq   → Groq servers can't reach drive.google.com
+//
+// Correct approach: fetch the Drive file using the browser's own gToken
+// via Drive Files API → base64 locally → send base64 to Groq.
+// The browser has the OAuth token, so Drive returns the image fine.
+// Groq only ever sees a base64 data URI — no network access to Drive needed.
+
+// Extract Google Drive file ID from any common URL format
+function extractDriveFileId(url) {
+  if (!url) return null;
+  // ?id=FILE_ID  (uc?export=view&id=, uc?id=, thumbnail?id=)
+  let m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (m) return m[1];
+  // /d/FILE_ID/  (file/d/, /d/ on lh3)
+  m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (m) return m[1];
+  // googleusercontent.com/d/FILE_ID
+  m = url.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+  if (m) return m[1];
+  return null;
+}
+
+// Fetch a Drive file as base64 using the current OAuth token
+async function driveUrlToBase64(url) {
+  const fileId = extractDriveFileId(url);
+  if (!fileId) throw new Error('Cannot extract Drive file ID from image URL.');
+  if (!gToken)  throw new Error('Not signed in — cannot fetch image from Drive.');
+
+  const res = await fetch(
+    `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`,
+    { headers: { Authorization: `Bearer ${gToken}` } }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `Drive fetch failed (${res.status})`);
+  }
+  const blob = await res.blob();
+  return blobToBase64(blob);
+}
+
 async function generateAI() {
   const name = document.getElementById('fName').value.trim();
   if (!name) { toast('Enter the product name first.', 'error'); return; }
@@ -1588,16 +1627,14 @@ async function generateAI() {
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Analysing…';
 
   try {
-    // Build the image payload for Groq Vision:
-    // • New upload (blob)  → base64 data URI — fully local, no network/CORS needed
-    // • Existing Drive URL → pass URL directly — Groq fetches it server-side, no CORS
-    let imageContent;
+    // Always send base64 to Groq — never a Drive URL (Groq can't reach drive.google.com)
+    let b64;
     if (hasBlob) {
-      const b64 = await blobToBase64(imgData[1].blob);
-      imageContent = { type:'image_url', image_url:{ url:`data:image/jpeg;base64,${b64}` } };
+      b64 = await blobToBase64(imgData[1].blob);          // new upload — local blob
     } else {
-      imageContent = { type:'image_url', image_url:{ url: imgData[1].url } };
+      b64 = await driveUrlToBase64(imgData[1].url);        // edit mode — fetch via Drive API
     }
+    const imageContent = { type:'image_url', image_url:{ url:`data:image/jpeg;base64,${b64}` } };
 
     const sizeS = document.getElementById('fSizeS').value.trim();
     const sizeM = document.getElementById('fSizeM').value.trim();
