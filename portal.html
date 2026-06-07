@@ -194,7 +194,7 @@
         <div class="form-group">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <label class="form-label" style="margin:0;">Password</label>
-            <a href="#" style="font-size: var(--fs-xs); color: var(--c-gold-dark);">Forgot?</a>
+            <a href="#" style="font-size: var(--fs-xs); color: var(--c-gold-dark);" onclick="openPortalForgotPassword(event)">Forgot?</a>
           </div>
           <input type="password" class="form-control" placeholder="Enter password" required>
         </div>
@@ -205,15 +205,15 @@
       <form id="signup-form" class="auth-form">
         <div class="form-group">
           <label class="form-label">Full Name</label>
-          <input type="text" class="form-control" placeholder="John Doe" required>
+          <input type="text" id="portalSignupName" class="form-control" placeholder="John Doe" required>
         </div>
         <div class="form-group">
-          <label class="form-label">Email Address</label>
-          <input type="email" class="form-control" placeholder="Enter your email" required>
+          <label class="form-label">Email or Phone Number</label>
+          <input type="text" id="portalSignupIdentifier" class="form-control" placeholder="Enter email or phone number" required>
         </div>
         <div class="form-group">
           <label class="form-label">Password</label>
-          <input type="password" class="form-control" placeholder="Create password" required>
+          <input type="password" id="portalSignupPassword" class="form-control" placeholder="Create password" required>
         </div>
         <button type="submit" class="btn btn-gold" style="width: 100%; margin-top: var(--sp-4);">Create Account</button>
       </form>
@@ -623,67 +623,126 @@
       }
     });
     
+    // ── Portal signup form — supports both email (OTP) and phone (direct) ──
     document.getElementById('signup-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const name = e.target.querySelector('input[type="text"]').value;
-      const email = e.target.querySelector('input[type="email"]').value;
-      const password = e.target.querySelector('input[type="password"]').value;
-      
-      const btn = e.target.querySelector('button[type="submit"]');
+
+      const name       = document.getElementById('portalSignupName').value.trim();
+      const identifier = document.getElementById('portalSignupIdentifier').value.trim();
+      const password   = document.getElementById('portalSignupPassword').value;
+      const btn        = e.target.querySelector('button[type="submit"]');
+
+      if (!name || !identifier || !password) {
+        window.ShowAlert('All fields are required.');
+        return;
+      }
+
+      // Validate: email must contain @, phone must be digits/+/spaces only
+      const hasLetters = /[a-zA-Z]/.test(identifier);
+      if (hasLetters) {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier)) {
+          window.ShowAlert('Please enter a valid email address.');
+          return;
+        }
+      } else {
+        if (!/^[\d\+\-\s()]+$/.test(identifier) || identifier.replace(/\D/g, '').length < 7) {
+          window.ShowAlert('Please enter a valid phone number without letters.');
+          return;
+        }
+      }
+
+      const isEmail = hasLetters;
       Auth.setLoading(btn, true);
-      
+
       try {
-        // Send OTP first
-        const res = await fetch('/api/auth-handler?action=signup-otp-send', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
-        });
-        const data = await res.json();
-        
-        if (res.ok && data.success) {
-          Auth.signupPayload = { name, email, password };
-          
-          // ── Fix: open the modal overlay cleanly and go DIRECTLY to the OTP
-          //    verify view, without triggering showLogin() (which openModal()
-          //    calls internally and causes login + OTP views to overlap). ──
-          const overlay = document.getElementById('authOverlay');
-          if (overlay) {
-            // 1. Hide every view inside the modal
-            overlay.querySelectorAll('.auth-view').forEach(v => v.classList.remove('active'));
-            // 2. Make overlay visible (display:flex first, then opacity transition)
-            overlay.style.display = 'flex';
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                overlay.classList.add('active');
-              });
-            });
-            // 3. Populate email label then show only the verify view
-            const emailLabel = document.getElementById('signupVerifyEmail');
-            if (emailLabel) emailLabel.innerText = email;
-            const verifyView = document.getElementById('view-signup-verify');
-            if (verifyView) verifyView.classList.add('active');
-            Auth.startSignupResendTimer();
+        if (isEmail) {
+          // ── EMAIL path: send OTP, then open verify modal ──
+          const res = await fetch('/api/auth-handler?action=signup-otp-send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: identifier })
+          });
+          const data = await res.json();
+
+          if (res.ok && data.success) {
+            Auth.signupPayload = { name, email: identifier, password };
+
+            // Open modal overlay DIRECTLY on the OTP verify view (no login-view flash)
+            const overlay = document.getElementById('authOverlay');
+            if (overlay) {
+              overlay.querySelectorAll('.auth-view').forEach(v => v.classList.remove('active'));
+              overlay.style.display = 'flex';
+              requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('active')));
+              const lbl = document.getElementById('signupVerifyEmail');
+              if (lbl) lbl.innerText = identifier;
+              const vw = document.getElementById('view-signup-verify');
+              if (vw) vw.classList.add('active');
+              Auth.startSignupResendTimer();
+            }
+          } else if (data.error === 'ALREADY_EXISTS') {
+            window.ShowAlert(`This email is already registered.<br><br><button onclick="openPortalLoginModal(event)" style="background:var(--c-gold);color:white;border:none;padding:10px 20px;border-radius:4px;cursor:pointer;margin-top:15px;">Go to Sign in</button>`);
           } else {
-            // Fallback – should never happen but keeps behaviour intact
-            Auth.openModal();
-            const emailLabel = document.getElementById('signupVerifyEmail');
-            if (emailLabel) emailLabel.innerText = email;
-            Auth.showSignupVerify(null);
-            Auth.startSignupResendTimer();
+            window.ShowAlert(data.error || 'Failed to send verification code.');
           }
 
-        } else if (data.error === 'ALREADY_EXISTS') {
-          window.ShowAlert(`This email is already registered.<br><br><button onclick="Auth.showLogin(event); if(window.CloseAlert) window.CloseAlert();" style="background: var(--c-gold); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 15px;">Go to Sign in</button>`);
         } else {
-          window.ShowAlert(data.error || 'Failed to send verification code.');
+          // ── PHONE path: direct registration (same as modal's Auth.registerUser) ──
+          const phone = Auth.formatPhoneNumber(identifier);
+          const res = await fetch('/api/auth-handler?action=register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, phone, password })
+          });
+          const data = await res.json();
+
+          if (res.ok && data.success) {
+            localStorage.removeItem('nss_explicit_logout');
+            Auth.currentUser = data.user;
+            localStorage.setItem('currentUser', JSON.stringify(data.user));
+            Auth.checkAuth();
+            if (!Auth.currentUser.isVerified) {
+              Auth.checkVerification && Auth.checkVerification();
+            } else {
+              window.ShowAlert('Registration Successful! Welcome ' + Auth.currentUser.name);
+            }
+          } else if (data.error === 'ALREADY_EXISTS') {
+            window.ShowAlert(`This phone number is already registered.<br><br><button onclick="openPortalLoginModal(event)" style="background:var(--c-gold);color:white;border:none;padding:10px 20px;border-radius:4px;cursor:pointer;margin-top:15px;">Go to Sign in</button>`);
+          } else {
+            window.ShowAlert(data.error || 'Registration failed.');
+          }
         }
       } catch(err) {
-        window.ShowAlert("Network error occurred during signup.");
+        window.ShowAlert('Network error occurred during signup.');
       } finally {
         Auth.setLoading(btn, false);
       }
     });
+
+    // ── Helper: open auth modal DIRECTLY on the forgot-password view ──
+    // Called by the "Forgot?" link in the portal's own inline login form.
+    function openPortalForgotPassword(e) {
+      if (e) e.preventDefault();
+      const overlay = document.getElementById('authOverlay');
+      if (!overlay) return;
+      overlay.querySelectorAll('.auth-view').forEach(v => v.classList.remove('active'));
+      overlay.style.display = 'flex';
+      requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('active')));
+      const forgotView = document.getElementById('view-forgot-request');
+      if (forgotView) forgotView.classList.add('active');
+      // Pre-fill the forgot-email field from the portal's own login email input
+      const portalEmail = document.querySelector('#login-form input[type="email"]');
+      const forgotInput = document.getElementById('forgotInput');
+      if (portalEmail && forgotInput && portalEmail.value.trim()) {
+        forgotInput.value = portalEmail.value.trim();
+      }
+    }
+
+    // ── Helper: open auth modal on login view (used in ALREADY_EXISTS alerts above) ──
+    function openPortalLoginModal(e) {
+      if (e) e.preventDefault();
+      if (window.CloseAlert) window.CloseAlert();
+      Auth.openModal();
+    }
   </script>
 </body>
 </html>
