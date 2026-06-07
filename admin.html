@@ -996,11 +996,38 @@
         return;
       }
 
-      // Success
+      // ── Capture toggle context BEFORE closing (pendingToggle is cleared by closeModal) ──
+      const wasToggleAction  = action === 'toggle';
+      const toggledUserId    = pendingToggle.userId;
+      const toggledUserName  = pendingToggle.name;
+      const newStatus        = (pendingToggle.currentStatus !== 'verified') ? 'verified' : 'suspended';
+
+      // Success — close modal, show global confirmation, reload table
       closeModal();
       const icon = action === 'toggle' ? '✅' : '🗑️';
       showGlobalAlert('success', `${icon} ${data.message}`);
       await loadUsers();
+
+      // ── Phone reminder: after table reload, look up the toggled user ──
+      if (wasToggleAction) {
+        const user = (allUsers || []).find(u => u.id === toggledUserId);
+        if (user && user.phone && user.phone !== '—' && user.phone !== '-') {
+          // Determine whether a mismatch exists that the admin should fix
+          const phoneNeedsVerify   = newStatus === 'verified'  && !user.phoneVerified;
+          const phoneNeedsRevoke   = newStatus === 'suspended' && user.phoneVerified;
+
+          if (phoneNeedsVerify || phoneNeedsRevoke) {
+            const action2Label  = phoneNeedsVerify ? 'Verify Phone' : 'Revoke Phone Verification';
+            const action2Emoji  = phoneNeedsVerify ? '📱✅' : '📱⏸️';
+            const action2Color  = phoneNeedsVerify ? '#6ee7b7' : '#fca5a5';
+            const action2Hint   = phoneNeedsVerify
+              ? `<strong>${escHtml(toggledUserName)}</strong> was just <span style="color:#6ee7b7;font-weight:600;">VERIFIED</span> but their phone number <span style="color:#fff;font-weight:600;">${escHtml(user.phone)}</span> is still <span style="color:#fca5a5;font-weight:600;">NOT verified</span>.`
+              : `<strong>${escHtml(toggledUserName)}</strong> was just <span style="color:#fca5a5;font-weight:600;">SUSPENDED</span> but their phone number <span style="color:#fff;font-weight:600;">${escHtml(user.phone)}</span> is still marked as <span style="color:#6ee7b7;font-weight:600;">VERIFIED</span>.`;
+
+            showPhoneReminderBanner(action2Hint, action2Emoji, action2Label, action2Color, user, phoneNeedsVerify);
+          }
+        }
+      }
 
     } catch {
       showModalAlert('Network error. Please check your connection.');
@@ -1009,6 +1036,81 @@
       btn.innerHTML = originalHtml;
     }
   }
+
+  // ═══════════════════════════════════════════════════════════════
+  // PHONE STATUS REMINDER BANNER
+  // ═══════════════════════════════════════════════════════════════
+  function showPhoneReminderBanner(hint, emoji, actionLabel, actionColor, user, shouldVerify) {
+    // Remove any existing reminder
+    const existing = document.getElementById('phoneReminderBanner');
+    if (existing) existing.remove();
+
+    const banner = document.createElement('div');
+    banner.id = 'phoneReminderBanner';
+    banner.style.cssText = `
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: #1a2035; border: 1.5px solid ${actionColor};
+      border-radius: 14px; padding: 18px 24px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04);
+      z-index: 9999; max-width: 520px; width: 90%;
+      display: flex; gap: 16px; align-items: flex-start;
+      font-family: 'Inter', sans-serif;
+      opacity: 0; transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    `;
+
+    banner.innerHTML = `
+      <div style="font-size:32px;line-height:1;flex-shrink:0;margin-top:2px;">${emoji}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:700;color:#f0c040;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px;">
+          📋 Admin Reminder — Phone Status
+        </div>
+        <div style="font-size:13px;color:#c9d1e0;line-height:1.55;margin-bottom:14px;">${hint}</div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <button id="phoneReminderActBtn"
+            style="background:${actionColor};color:#0f1623;border:none;border-radius:8px;
+                   padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;
+                   font-family:'Inter',sans-serif;transition:opacity 0.2s;white-space:nowrap;"
+            onclick="
+              document.getElementById('phoneReminderBanner').style.opacity='0';
+              setTimeout(()=>{const b=document.getElementById('phoneReminderBanner');if(b)b.remove();},400);
+              togglePhoneVerified('${escAttr(user.id)}', ${!shouldVerify}, '${escAttr(user.name)}');
+            ">
+            ${actionLabel} Now
+          </button>
+          <button
+            style="background:transparent;color:#7a8599;border:1px solid #2e3850;border-radius:8px;
+                   padding:9px 14px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;
+                   transition:color 0.2s;white-space:nowrap;"
+            onclick="
+              var b=document.getElementById('phoneReminderBanner');
+              if(b){b.style.opacity='0';b.style.transform='translateX(-50%) translateY(80px)';}
+              setTimeout(()=>{var b2=document.getElementById('phoneReminderBanner');if(b2)b2.remove();},400);
+            ">
+            Dismiss
+          </button>
+          <span style="font-size:11px;color:#4a5568;margin-left:auto;">You can also click the phone cell in the table</span>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(banner);
+
+    // Animate in
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      banner.style.opacity = '1';
+      banner.style.transform = 'translateX(-50%) translateY(0)';
+    }));
+
+    // Auto-dismiss after 20 seconds
+    setTimeout(() => {
+      if (document.getElementById('phoneReminderBanner')) {
+        banner.style.opacity = '0';
+        banner.style.transform = 'translateX(-50%) translateY(80px)';
+        setTimeout(() => { if (banner.parentNode) banner.remove(); }, 400);
+      }
+    }, 20000);
+  }
+
 
   function showModalAlert(msg) {
     const a = document.getElementById('modalAlert');
