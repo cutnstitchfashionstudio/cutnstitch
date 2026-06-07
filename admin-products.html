@@ -218,12 +218,21 @@
     .cfg-eye:hover { color:var(--gold); background:rgba(201,168,76,.1); }
     .cfg-eye svg { width:18px; height:18px; display:block; }
 
-    /* ── Settings lock overlay ── */
-    #panelContent { transition:opacity .3s, filter .3s; }
-    #panelContent.locked { opacity:0.28; pointer-events:none; user-select:none; filter:blur(2px); }
-    /* Settings view must ALWAYS be editable — it's where the user enters the Spreadsheet ID
-       to unlock everything else. Override the parent lock for #view-settings and all its children. */
-    #panelContent.locked #view-settings { opacity:1; filter:none; pointer-events:auto; user-select:auto; }
+    /* ── Settings lock overlay ─────────────────────────────────────────────────
+       IMPORTANT: CSS filter on a PARENT composites ALL children — there is no
+       CSS trick to un-blur a child when the parent has filter:blur().
+       Fix: apply lock styles directly to the views that should be locked, and
+       NEVER to #view-settings (that must always be editable on first visit). */
+    #panelContent.locked #view-all,
+    #panelContent.locked #view-form,
+    #panelContent.locked #view-db {
+      opacity: 0.28;
+      pointer-events: none;
+      user-select: none;
+      filter: blur(2px);
+      transition: opacity .3s, filter .3s;
+    }
+    /* #view-settings is intentionally NOT in the locked rule — always accessible */
     .sidebar.sidebar-locked .nav-item:not(#nav-settings) { opacity:0.28; pointer-events:none; }
     .settings-notice a { pointer-events:auto !important; cursor:pointer; }
     .form-textarea { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:11px 14px; font-size:13px; color:var(--text); outline:none; resize:vertical; min-height:80px; line-height:1.6; transition:border-color .2s; }
@@ -1108,7 +1117,12 @@ function onSignedIn() {
   document.getElementById('userAvatar').src = gUser.picture||'';
   document.getElementById('userName').textContent = gUser.name||gUser.email||'User';
   loadSettings();
-  loadAllProducts();
+  if (!cfg.spreadsheetId) {
+    // First visit — no Spreadsheet ID yet → go straight to Settings
+    navigate('settings');
+  } else {
+    loadAllProducts();
+  }
 }
 
 // ── NAVIGATION ────────────────────────────────────────────────
