@@ -883,6 +883,7 @@ function getAllowedEmails() {
 let gToken        = null;   // Google access token
 let gUser         = null;   // { email, name, picture }
 let tokenClient   = null;   // GIS token client
+let sessionRestoring = false; // true while silent token refresh is in flight
 let allProducts   = [];     // loaded from Sheets
 let filteredProd  = [];     // current filter result
 let filterCat     = 'All';  // active category filter
@@ -985,9 +986,28 @@ function initGIS() {
       'https://www.googleapis.com/auth/userinfo.email'
     ].join(' '),
     callback: async (resp) => {
-      if (resp.error) { toast('Google sign-in failed: '+resp.error, 'error'); return; }
+      if (resp.error) {
+        if (sessionRestoring) {
+          // Silent refresh failed (e.g. consent revoked) — fall back to login
+          sessionRestoring = false;
+          gUser = null;
+          sessionStorage.removeItem('cs_prod_user');
+          document.getElementById('appShell').classList.remove('visible');
+          document.getElementById('loginScreen').style.display = 'flex';
+          toast('Session expired — please sign in again.', 'info');
+        } else {
+          toast('Google sign-in failed: ' + resp.error, 'error');
+        }
+        return;
+      }
       gToken = resp.access_token;
-      await fetchUserInfo();
+      if (sessionRestoring) {
+        // Session restore path: user already validated — skip fetchUserInfo, load data directly
+        sessionRestoring = false;
+        onSignedIn();
+      } else {
+        await fetchUserInfo();
+      }
     }
   });
 }
@@ -1637,17 +1657,18 @@ window.addEventListener('load', ()=>{
         gUser = null;
         return; // drop to login screen
       }
-      // Restore UI instantly — no OAuth popup needed
+      // Show UI shell instantly — user sees their name/avatar right away
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('appShell').classList.add('visible');
       document.getElementById('userAvatar').src = gUser.picture || '';
       document.getElementById('userName').textContent = gUser.name || gUser.email || 'User';
-      loadAllProducts();
 
-      // Silently get a fresh access token in background (needed for Drive/Sheets API calls).
-      // prompt:'' = no account-picker dialog; Google auto-selects the previously-used account.
+      // ⚠️  DO NOT call loadAllProducts() here — gToken is still null.
+      // Set the flag and request a silent token refresh.
+      // The GIS callback will fire with a fresh token and call onSignedIn() → loadAllProducts().
+      sessionRestoring = true;
       initGIS();
-      tokenClient.requestAccessToken({ prompt: '' });
+      tokenClient.requestAccessToken({ prompt: '' }); // '' = silent, no account-picker popup
     } catch {
       sessionStorage.removeItem('cs_prod_user'); // corrupted — reset to login
     }
