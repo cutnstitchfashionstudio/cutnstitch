@@ -1568,73 +1568,64 @@ function exportCSV() {
 }
 
 // ── AI DESCRIPTION ────────────────────────────────────────────
-// Get base64: blob (new upload) OR canvas re-draw of Drive URL (edit mode)
-async function imgToBase64ForAI() {
-  if (imgData[1]?.blob) return blobToBase64(imgData[1].blob);
-  if (imgData[1]?.url) {
-    // Re-load with crossOrigin='anonymous' + cache-bust to get CORS-enabled response
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        try {
-          const c = document.createElement('canvas');
-          const maxW = 1200;
-          const scale = Math.min(1, maxW / (img.naturalWidth || maxW));
-          c.width  = Math.round((img.naturalWidth  || 800) * scale);
-          c.height = Math.round((img.naturalHeight || 1000) * scale);
-          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-          resolve(c.toDataURL('image/jpeg', 0.85).split(',')[1]);
-        } catch {
-          reject(new Error('Please click Image 1 slot and re-select the photo to regenerate the AI description.'));
-        }
-      };
-      img.onerror = () => reject(new Error('Please click Image 1 slot and re-select the photo to regenerate the AI description.'));
-      // Cache-bust forces a fresh CORS-enabled request (avoids stale non-CORS cached response)
-      const sep = imgData[1].url.includes('?') ? '&' : '?';
-      img.src = imgData[1].url + sep + '_cb=' + Date.now();
-    });
-  }
-  throw new Error('No image available — Upload Image 1 first.');
-}
-
+// Root issue: canvas.toDataURL() on a Drive URL throws SecurityError (CORS).
+// Fix: send the Drive URL directly to Groq — it fetches server-side (no CORS).
+//      Only convert to base64 when we have a local blob (new upload).
 async function generateAI() {
-  const name=document.getElementById('fName').value.trim();
-  if(!name){ toast('Enter the product name first.','error'); return; }
-  const groqKey=cfg.groqKey;
-  if(!groqKey){ toast('Set your Groq API key in Settings.','error'); navigate('settings'); return; }
+  const name = document.getElementById('fName').value.trim();
+  if (!name) { toast('Enter the product name first.', 'error'); return; }
+  const groqKey = cfg.groqKey;
+  if (!groqKey) { toast('Set your Groq API key in Settings.', 'error'); navigate('settings'); return; }
 
-  // Accept both: newly uploaded blob OR existing image URL (edit mode)
   const hasBlob = !!imgData[1]?.blob;
   const hasUrl  = !!imgData[1]?.url;
-  if(!hasBlob && !hasUrl){ toast('Upload Image 1 first — AI needs a photo to analyse.','error'); return; }
+  if (!hasBlob && !hasUrl) {
+    toast('Upload Image 1 first — AI needs a photo to analyse.', 'error');
+    return;
+  }
 
-  const btn=document.getElementById('btnAI');
-  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Analysing…';
+  const btn = document.getElementById('btnAI');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Analysing…';
 
   try {
-    const b64=await imgToBase64ForAI(); // handles blob (new upload) or URL (edit mode)
-    const sizeS=document.getElementById('fSizeS').value.trim();
-    const sizeM=document.getElementById('fSizeM').value.trim();
-    const sizeL=document.getElementById('fSizeL').value.trim();
-    const hasSizes = sizeS||sizeM||sizeL;
+    // Build the image payload for Groq Vision:
+    // • New upload (blob)  → base64 data URI — fully local, no network/CORS needed
+    // • Existing Drive URL → pass URL directly — Groq fetches it server-side, no CORS
+    let imageContent;
+    if (hasBlob) {
+      const b64 = await blobToBase64(imgData[1].blob);
+      imageContent = { type:'image_url', image_url:{ url:`data:image/jpeg;base64,${b64}` } };
+    } else {
+      imageContent = { type:'image_url', image_url:{ url: imgData[1].url } };
+    }
+
+    const sizeS = document.getElementById('fSizeS').value.trim();
+    const sizeM = document.getElementById('fSizeM').value.trim();
+    const sizeL = document.getElementById('fSizeL').value.trim();
+    const hasSizes = sizeS || sizeM || sizeL;
     const sizeInfo = hasSizes
       ? `\n\nAvailable size measurements:\n${sizeS?'• Small (S): '+sizeS:''}${sizeM?'\n• Medium (M): '+sizeM:''}${sizeL?'\n• Large (L): '+sizeL:''}\n\nNaturally weave the size range into the FullDesc (e.g. mention fit, silhouette, and that it's available from S to L with specific measurements). Keep it professional and elegant — do not list sizes robotically.`
       : '';
-    const prompt=`You are a fashion product copywriter for "Cut & Stitch Fashion Studio", a premium Pakistani fashion store.\nAnalyse the garment image and write product descriptions for: "${name}".${sizeInfo}\n\nReturn ONLY valid JSON with exactly these two keys:\n{"ShortDesc":"A crisp 2-3 sentence overview highlighting the style, key design element, and who it suits.","FullDesc":"A rich 8-10 sentence store listing describing design details, fabric appearance, embellishments, colour palette, silhouette, craftsmanship${hasSizes?', fit across the size range,':''} and overall premium appeal."}`;
-    const res=await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method:'POST',
-      headers:{ Authorization:`Bearer ${groqKey}`, 'Content-Type':'application/json' },
-      body:JSON.stringify({ model:'meta-llama/llama-4-scout-17b-16e-instruct', messages:[{ role:'user', content:[{ type:'text', text:prompt },{ type:'image_url', image_url:{ url:`data:image/jpeg;base64,${b64}` } }] }], max_tokens:800, response_format:{type:'json_object'} })
+    const prompt = `You are a fashion product copywriter for "Cut & Stitch Fashion Studio", a premium Pakistani fashion store.\nAnalyse the garment image and write product descriptions for: "${name}".${sizeInfo}\n\nReturn ONLY valid JSON with exactly these two keys:\n{"ShortDesc":"A crisp 2-3 sentence overview highlighting the style, key design element, and who it suits.","FullDesc":"A rich 8-10 sentence store listing describing design details, fabric appearance, embellishments, colour palette, silhouette, craftsmanship${hasSizes?', fit across the size range,':''} and overall premium appeal."}`;
+
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { Authorization:`Bearer ${groqKey}`, 'Content-Type':'application/json' },
+      body: JSON.stringify({
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+        messages: [{ role:'user', content:[{ type:'text', text:prompt }, imageContent] }],
+        max_tokens: 800,
+        response_format: { type:'json_object' }
+      })
     });
-    if(!res.ok){ const e=await res.json(); throw new Error(e.error?.message||'Groq error'); }
-    const data=await res.json();
-    const result=JSON.parse(data.choices[0].message.content);
-    document.getElementById('fShort').value=result.ShortDesc||'';
-    document.getElementById('fFull').value=result.FullDesc||'';
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Groq error'); }
+    const data   = await res.json();
+    const result = JSON.parse(data.choices[0].message.content);
+    document.getElementById('fShort').value = result.ShortDesc || '';
+    document.getElementById('fFull').value  = result.FullDesc  || '';
     toast('✓ AI description generated!', 'success');
-  } catch(e){ toast('AI Error: '+e.message,'error'); }
-  finally{ btn.disabled=false; btn.innerHTML='✦ Generate Description'; }
+  } catch(e) { toast('AI Error: ' + e.message, 'error'); }
+  finally { btn.disabled = false; btn.innerHTML = '✦ Generate Description'; }
 }
 function blobToBase64(blob) {
   return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(',')[1]); r.onerror=rej; r.readAsDataURL(blob); });
