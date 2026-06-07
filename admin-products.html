@@ -880,10 +880,11 @@ function getAllowedEmails() {
 }
 
 // ── STATE ─────────────────────────────────────────────────────
-let gToken        = null;   // Google access token
-let gUser         = null;   // { email, name, picture }
-let tokenClient   = null;   // GIS token client
-let sessionRestoring = false; // true while silent token refresh is in flight
+let gToken           = null;   // Google access token
+let gUser            = null;   // { email, name, picture }
+let tokenClient      = null;   // GIS token client
+let sessionRestoring = false;  // true while silent token refresh is in flight
+let gisReady         = false;  // true once GIS library has loaded
 let allProducts   = [];     // loaded from Sheets
 let filteredProd  = [];     // current filter result
 let filterCat     = 'All';  // active category filter
@@ -1639,39 +1640,56 @@ function toggleCfgEye(inputId, btn) {
 // ── UTILITY ───────────────────────────────────────────────────
 function escH(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ── INIT ──────────────────────────────────────────────────────
-window.addEventListener('load', ()=>{
-  loadSettings();
-
-  // ── SESSION RESTORE — skip login if same window was already authed ──
-  // sessionStorage lives only for this browser window/tab.
-  // Closing the window wipes it automatically — no manual expiry needed.
+// ── SESSION RESTORE ───────────────────────────────────────────
+// Extracted into its own function so it can be safely called by
+// window.onGoogleLibraryLoad — the only point where google.accounts.oauth2
+// is guaranteed to exist (GIS script is loaded with "async").
+function doSessionRestore() {
   const savedUser = sessionStorage.getItem('cs_prod_user');
-  if (savedUser) {
-    try {
-      gUser = JSON.parse(savedUser);
-      // Re-validate email is still in whitelist (guards against list changes)
-      const allowed = getAllowedEmails();
-      if (allowed.length > 0 && !allowed.includes((gUser.email||'').toLowerCase())) {
-        sessionStorage.removeItem('cs_prod_user');
-        gUser = null;
-        return; // drop to login screen
-      }
-      // Show UI shell instantly — user sees their name/avatar right away
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('appShell').classList.add('visible');
-      document.getElementById('userAvatar').src = gUser.picture || '';
-      document.getElementById('userName').textContent = gUser.name || gUser.email || 'User';
-
-      // ⚠️  DO NOT call loadAllProducts() here — gToken is still null.
-      // Set the flag and request a silent token refresh.
-      // The GIS callback will fire with a fresh token and call onSignedIn() → loadAllProducts().
-      sessionRestoring = true;
-      initGIS();
-      tokenClient.requestAccessToken({ prompt: '' }); // '' = silent, no account-picker popup
-    } catch {
-      sessionStorage.removeItem('cs_prod_user'); // corrupted — reset to login
+  if (!savedUser) return;
+  try {
+    gUser = JSON.parse(savedUser);
+    // Re-validate email against the current whitelist
+    const allowed = getAllowedEmails();
+    if (allowed.length > 0 && !allowed.includes((gUser.email||'').toLowerCase())) {
+      sessionStorage.removeItem('cs_prod_user');
+      gUser = null;
+      return;
     }
+    // Show UI shell instantly — user sees name/avatar immediately
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appShell').classList.add('visible');
+    document.getElementById('userAvatar').src = gUser.picture || '';
+    document.getElementById('userName').textContent = gUser.name || gUser.email || 'User';
+
+    // Request a silent token — GIS is guaranteed ready at this point.
+    // The callback sets gToken then calls onSignedIn() → loadAllProducts().
+    sessionRestoring = true;
+    initGIS();
+    tokenClient.requestAccessToken({ prompt: '' });
+  } catch(e) {
+    // Any error (bad JSON, unexpected state) → fall back to login
+    sessionStorage.removeItem('cs_prod_user');
+    gUser = null;
+    sessionRestoring = false;
+  }
+}
+
+// window.onGoogleLibraryLoad is the official GIS callback fired when the
+// async script finishes loading. Define it BEFORE the script tag so it's
+// in place when GIS calls it.
+window.onGoogleLibraryLoad = function() {
+  gisReady = true;
+  doSessionRestore(); // safe now — google.accounts.oauth2 exists
+};
+
+// ── INIT ──────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  loadSettings();
+  // If GIS happened to load before this event (rare but possible),
+  // run restore now. Otherwise onGoogleLibraryLoad handles it.
+  if (gisReady && sessionStorage.getItem('cs_prod_user')) {
+    doSessionRestore();
   }
   // GIS loads asynchronously; button click will trigger initGIS() if needed
 });
