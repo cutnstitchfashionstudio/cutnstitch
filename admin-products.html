@@ -221,6 +221,9 @@
     /* ── Settings lock overlay ── */
     #panelContent { transition:opacity .3s, filter .3s; }
     #panelContent.locked { opacity:0.28; pointer-events:none; user-select:none; filter:blur(2px); }
+    /* Settings view must ALWAYS be editable — it's where the user enters the Spreadsheet ID
+       to unlock everything else. Override the parent lock for #view-settings and all its children. */
+    #panelContent.locked #view-settings { opacity:1; filter:none; pointer-events:auto; user-select:auto; }
     .sidebar.sidebar-locked .nav-item:not(#nav-settings) { opacity:0.28; pointer-events:none; }
     .settings-notice a { pointer-events:auto !important; cursor:pointer; }
     .form-textarea { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:11px 14px; font-size:13px; color:var(--text); outline:none; resize:vertical; min-height:80px; line-height:1.6; transition:border-color .2s; }
@@ -799,6 +802,18 @@
               <div class="settings-hint">Product images will be uploaded here. Get it from the folder URL:<br><code style="font-size:11px;color:var(--gold)">drive.google.com/drive/folders/<b>THIS_PART</b></code></div>
             </div>
           </div>
+
+          <!-- ── Test Connection ── -->
+          <div style="margin-top:18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+            <button id="btnTestConn" type="button" onclick="testGoogleConnection()"
+              style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:.2s;display:inline-flex;align-items:center;gap:8px;"
+              onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'"
+              onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              Test Google Connection
+            </button>
+            <span id="connStatusMsg" style="font-size:12px;"></span>
+          </div>
         </div>
 
         <div class="settings-section">
@@ -880,12 +895,10 @@ function getAllowedEmails() {
 }
 
 // ── STATE ─────────────────────────────────────────────────────
-let gToken           = null;   // Google access token
-let gUser            = null;   // { email, name, picture }
-let tokenClient      = null;   // GIS token client
-let sessionRestoring = false;  // true while silent token refresh is in flight
-let gisReady         = false;  // true once GIS library has loaded
-let allProducts   = [];     // loaded from Sheets
+let gToken      = null;   // Google access token
+let gUser       = null;   // { email, name, picture }
+let tokenClient = null;   // GIS token client
+let allProducts = [];     // loaded from Sheets
 let filteredProd  = [];     // current filter result
 let filterCat     = 'All';  // active category filter
 let editingProd   = null;   // null=add, object=edit
@@ -988,27 +1001,17 @@ function initGIS() {
     ].join(' '),
     callback: async (resp) => {
       if (resp.error) {
-        if (sessionRestoring) {
-          // Silent refresh failed (e.g. consent revoked) — fall back to login
-          sessionRestoring = false;
-          gUser = null;
-          sessionStorage.removeItem('cs_prod_user');
-          document.getElementById('appShell').classList.remove('visible');
-          document.getElementById('loginScreen').style.display = 'flex';
-          toast('Session expired — please sign in again.', 'info');
-        } else {
-          toast('Google sign-in failed: ' + resp.error, 'error');
+        // Silent auto-login failed — reset login screen so user can sign in manually
+        document.getElementById('loginStep1').style.display = 'block';
+        document.getElementById('loginStep2').style.display = 'none';
+        document.getElementById('loginDeny').style.display = 'none';
+        if (resp.error !== 'user_logged_out' && resp.error !== 'access_denied') {
+          toast('Sign-in error: ' + resp.error + ' — please sign in manually.', 'info');
         }
         return;
       }
       gToken = resp.access_token;
-      if (sessionRestoring) {
-        // Session restore path: user already validated — skip fetchUserInfo, load data directly
-        sessionRestoring = false;
-        onSignedIn();
-      } else {
-        await fetchUserInfo();
-      }
+      await fetchUserInfo();
     }
   });
 }
@@ -1640,58 +1643,80 @@ function toggleCfgEye(inputId, btn) {
 // ── UTILITY ───────────────────────────────────────────────────
 function escH(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ── SESSION RESTORE ───────────────────────────────────────────
-// Extracted into its own function so it can be safely called by
-// window.onGoogleLibraryLoad — the only point where google.accounts.oauth2
-// is guaranteed to exist (GIS script is loaded with "async").
-function doSessionRestore() {
-  const savedUser = sessionStorage.getItem('cs_prod_user');
-  if (!savedUser) return;
+// ── TEST GOOGLE CONNECTION ────────────────────────────────────
+async function testGoogleConnection() {
+  const btn = document.getElementById('btnTestConn');
+  const msg = document.getElementById('connStatusMsg');
+  msg.textContent = '';
+  if (!gToken) {
+    msg.style.color = 'var(--error)';
+    msg.textContent = '⚠ Sign in first, then test the connection.';
+    return;
+  }
+  if (!cfg.spreadsheetId) {
+    msg.style.color = 'var(--error)';
+    msg.textContent = '⚠ Enter a Spreadsheet ID first.';
+    return;
+  }
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Testing…';
   try {
-    gUser = JSON.parse(savedUser);
-    // Re-validate email against the current whitelist
-    const allowed = getAllowedEmails();
-    if (allowed.length > 0 && !allowed.includes((gUser.email||'').toLowerCase())) {
-      sessionStorage.removeItem('cs_prod_user');
-      gUser = null;
-      return;
-    }
-    // Show UI shell instantly — user sees name/avatar immediately
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('appShell').classList.add('visible');
-    document.getElementById('userAvatar').src = gUser.picture || '';
-    document.getElementById('userName').textContent = gUser.name || gUser.email || 'User';
-
-    // Request a silent token — GIS is guaranteed ready at this point.
-    // The callback sets gToken then calls onSignedIn() → loadAllProducts().
-    sessionRestoring = true;
-    initGIS();
-    tokenClient.requestAccessToken({ prompt: '' });
+    const res = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(cfg.spreadsheetId)}?fields=properties.title,sheets.properties.title`,
+      { headers: { Authorization: `Bearer ${gToken}` } }
+    );
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || 'Connection failed');
+    const title  = data.properties?.title || 'Untitled';
+    const sheets = (data.sheets || []).map(s => s.properties.title).join(', ') || '—';
+    msg.style.color = 'var(--success)';
+    msg.textContent = `✓ Connected: "${title}" — Tabs: ${sheets}`;
+    toast(`✓ Google Sheets connected — "${title}"`, 'success');
   } catch(e) {
-    // Any error (bad JSON, unexpected state) → fall back to login
-    sessionStorage.removeItem('cs_prod_user');
-    gUser = null;
-    sessionRestoring = false;
+    msg.style.color = 'var(--error)';
+    msg.textContent = '✕ ' + e.message;
+    toast('Connection failed: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Test Google Connection';
   }
 }
 
-// window.onGoogleLibraryLoad is the official GIS callback fired when the
-// async script finishes loading. Define it BEFORE the script tag so it's
-// in place when GIS calls it.
+// ── AUTO SIGN-IN via GIS ready callback ───────────────────────
+// onGoogleLibraryLoad fires when the async GIS <script> finishes loading.
+// This is the ONLY safe place to call google.accounts.oauth2 on page load.
+// Strategy: always show the login page first, then silently sign in if the
+// user already authenticated in this browser session.
 window.onGoogleLibraryLoad = function() {
-  gisReady = true;
-  doSessionRestore(); // safe now — google.accounts.oauth2 exists
+  const savedUser = sessionStorage.getItem('cs_prod_user');
+  if (!savedUser) return; // no prior session — user signs in manually as normal
+  try {
+    const user = JSON.parse(savedUser);
+    // Validate email is still whitelisted
+    const allowed = getAllowedEmails();
+    if (allowed.length > 0 && !allowed.includes((user.email||'').toLowerCase())) {
+      sessionStorage.removeItem('cs_prod_user');
+      return;
+    }
+    // Pre-fill email field and show step 2 with a "resuming" message
+    document.getElementById('loginEmailInput').value = user.email || '';
+    const step2status = document.querySelector('#loginStep2 > div > span:last-child');
+    if (step2status) step2status.textContent = 'Resuming your session — connecting to Google…';
+    document.getElementById('loginStep1').style.display = 'none';
+    document.getElementById('loginStep2').style.display = 'block';
+    // Request a silent token — no popup, GIS uses the existing Google session
+    initGIS();
+    tokenClient.requestAccessToken({ prompt: '' });
+  } catch {
+    sessionStorage.removeItem('cs_prod_user'); // corrupt data — let user sign in manually
+  }
 };
 
 // ── INIT ──────────────────────────────────────────────────────
 window.addEventListener('load', () => {
   loadSettings();
-  // If GIS happened to load before this event (rare but possible),
-  // run restore now. Otherwise onGoogleLibraryLoad handles it.
-  if (gisReady && sessionStorage.getItem('cs_prod_user')) {
-    doSessionRestore();
-  }
-  // GIS loads asynchronously; button click will trigger initGIS() if needed
+  // GIS loads asynchronously via onGoogleLibraryLoad callback above.
+  // Button clicks trigger initGIS() on demand if GIS isn't used at load time.
 });
 </script>
 </body>
