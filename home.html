@@ -988,7 +988,7 @@
       // Show max 3 featured
       const toShow = products.slice(0, 3);
 
-      grid.innerHTML = toShow.map(p => {
+      grid.innerHTML = toShow.map((p, idx) => {
         const catLabel = { men: 'Men', women: 'Women', kids: 'Kids' }[p.category] || p.category;
         const badge = p.discountPct > 0
           ? `<span class="featured-card-badge">-${p.discountPct}% OFF</span>`
@@ -996,8 +996,9 @@
         const origPrice = p.origPrice > p.price
           ? `<s style="font-size:12px;color:var(--c-text-muted);margin-left:6px;">Rs. ${Number(p.origPrice).toLocaleString('en-PK')}</s>`
           : '';
+        const delayClass = `delay-${idx + 1}`;
         return `
-          <div class="featured-card reveal reveal-up">
+          <div class="featured-card reveal reveal-up ${delayClass}">
             <div class="featured-card-img-wrap">
               ${badge}
               <img src="${p.images[0]}" alt="${p.name}"
@@ -1019,10 +1020,13 @@
 
       section.style.display = '';
 
-      // Trigger reveal animations
-      setTimeout(() => {
+      // Observe dynamic cards with the global IntersectionObserver
+      if (window.revealObserver) {
+        grid.querySelectorAll('.reveal').forEach(el => window.revealObserver.observe(el));
+      } else {
+        // Fallback if observer not ready
         grid.querySelectorAll('.reveal').forEach(el => el.classList.add('revealed'));
-      }, 150);
+      }
     }
   </script>
 </body>

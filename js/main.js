@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }, { rootMargin: '0px 0px -50px 0px', threshold: 0.1 });
 
   revealElements.forEach(el => revealObserver.observe(el));
+  window.revealObserver = revealObserver;
 
   // --- Animated Counters ---
   const counters = document.querySelectorAll('.counter-val');

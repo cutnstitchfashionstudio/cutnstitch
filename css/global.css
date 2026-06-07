@@ -122,6 +122,23 @@ main { padding-top: var(--nav-h); }
   .grid-3 { grid-template-columns: repeat(2,1fr); }
   .grid-2 { grid-template-columns: 1fr; }
 }
+
+/* Margin & Padding Utilities */
+.mt-4  { margin-top: var(--sp-4); }
+.mt-8  { margin-top: var(--sp-8); }
+.mt-12 { margin-top: var(--sp-12); }
+.mt-16 { margin-top: var(--sp-16); }
+.mt-20 { margin-top: var(--sp-20); }
+.mt-auto { margin-top: auto; }
+
+.mb-2  { margin-bottom: var(--sp-2); }
+.mb-4  { margin-bottom: var(--sp-4); }
+.mb-6  { margin-bottom: var(--sp-6); }
+.mb-8  { margin-bottom: var(--sp-8); }
+.mb-12 { margin-bottom: var(--sp-12); }
+.mb-16 { margin-bottom: var(--sp-16); }
+.mb-20 { margin-bottom: var(--sp-20); }
+
 @media (max-width: 640px) {
   .grid-3, .grid-4 { grid-template-columns: 1fr; }
 }
