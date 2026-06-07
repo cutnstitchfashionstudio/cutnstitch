@@ -643,10 +643,36 @@
         
         if (res.ok && data.success) {
           Auth.signupPayload = { name, email, password };
-          Auth.openModal();
-          document.getElementById('signupVerifyEmail').innerText = email;
-          Auth.showSignupVerify(null);
-          Auth.startSignupResendTimer();
+          
+          // ── Fix: open the modal overlay cleanly and go DIRECTLY to the OTP
+          //    verify view, without triggering showLogin() (which openModal()
+          //    calls internally and causes login + OTP views to overlap). ──
+          const overlay = document.getElementById('authOverlay');
+          if (overlay) {
+            // 1. Hide every view inside the modal
+            overlay.querySelectorAll('.auth-view').forEach(v => v.classList.remove('active'));
+            // 2. Make overlay visible (display:flex first, then opacity transition)
+            overlay.style.display = 'flex';
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                overlay.classList.add('active');
+              });
+            });
+            // 3. Populate email label then show only the verify view
+            const emailLabel = document.getElementById('signupVerifyEmail');
+            if (emailLabel) emailLabel.innerText = email;
+            const verifyView = document.getElementById('view-signup-verify');
+            if (verifyView) verifyView.classList.add('active');
+            Auth.startSignupResendTimer();
+          } else {
+            // Fallback – should never happen but keeps behaviour intact
+            Auth.openModal();
+            const emailLabel = document.getElementById('signupVerifyEmail');
+            if (emailLabel) emailLabel.innerText = email;
+            Auth.showSignupVerify(null);
+            Auth.startSignupResendTimer();
+          }
+
         } else if (data.error === 'ALREADY_EXISTS') {
           window.ShowAlert(`This email is already registered.<br><br><button onclick="Auth.showLogin(event); if(window.CloseAlert) window.CloseAlert();" style="background: var(--c-gold); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 15px;">Go to Sign in</button>`);
         } else {
