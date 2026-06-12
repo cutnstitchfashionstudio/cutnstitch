@@ -31,6 +31,28 @@
     #logoutBtn { display:none; background:transparent; border:1px solid rgba(239,68,68,.3); color:#fca5a5; border-radius:8px; padding:7px 16px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:.2s; }
     #logoutBtn:hover { background:rgba(239,68,68,.1); }
 
+    /* Unified Header Navigation Button */
+    .btn-nav-panel {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(201, 168, 76, 0.12);
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .btn-nav-panel:hover {
+      background: rgba(201, 168, 76, 0.22);
+      border-color: var(--gold-light);
+      color: var(--gold-light);
+    }
+
     /* ── Main ── */
     .main { flex:1; padding:32px 20px; max-width:1100px; margin:0 auto; width:100%; }
 
@@ -47,6 +69,8 @@
     .btn-primary { width:100%; background:linear-gradient(135deg,var(--gold),var(--gold-light)); color:var(--primary); border:none; border-radius:10px; padding:13px; font-size:15px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; transition:.2s; margin-top:8px; }
     .btn-primary:hover { transform:translateY(-1px); box-shadow:0 8px 20px rgba(201,168,76,.3); }
     .btn-primary:disabled { opacity:.6; cursor:not-allowed; transform:none !important; }
+    .btn-secondary { width:100%; background:var(--surface2); border:1px solid var(--border2); color:var(--muted); border-radius:10px; padding:13px; font-size:14px; font-weight:600; cursor:pointer; transition:.2s; text-align:center; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; font-family:'Inter',sans-serif; }
+    .btn-secondary:hover { border-color:var(--border); color:var(--text); }
 
     /* ── Alerts ── */
     .alert { border-radius:10px; padding:12px 15px; font-size:13px; margin-bottom:16px; display:none; gap:9px; line-height:1.5; align-items:flex-start; }
@@ -232,6 +256,11 @@
     @media(max-width:700px) {
       .main { padding:20px 12px; }
       .topbar { padding:12px 16px; }
+      .topbar-brand svg { width:28px; height:28px; }
+      .brand-name { font-size:13px; }
+      .brand-sub { display:none; }
+      .admin-badge { display:none !important; }
+      .btn-nav-panel { padding:6px 12px; font-size:11px; }
       table { font-size:12px; }
       thead th, tbody td { padding:10px 10px; }
       .table-search { width:100%; }
@@ -288,7 +317,7 @@
 <!-- Top Bar -->
 <div class="topbar">
   <div class="topbar-brand">
-        <svg class="brand-icon-spin" viewBox="0 0 100 100" fill="none">
+    <svg class="brand-icon-spin" viewBox="0 0 100 100" fill="none">
       <circle cx="50" cy="50" r="48" fill="#0d2247"/>
       <circle cx="50" cy="50" r="42" stroke="#c9a84c" stroke-width="2" stroke-dasharray="6 4"/>
       <line x1="36" y1="73" x2="50" y2="22" stroke="#c9a84c" stroke-width="5" stroke-linecap="round"/>
@@ -315,8 +344,8 @@
     </div>
   </div>
   <div class="topbar-right">
-    <a href="admin-products.html" style="background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);color:var(--gold);font-size:12px;font-weight:700;padding:7px 16px;border-radius:8px;text-decoration:none;letter-spacing:.04em;transition:.2s;" onmouseover="this.style.background='rgba(201,168,76,.22)'" onmouseout="this.style.background='rgba(201,168,76,.12)'">📦 Products</a>
-    <span class="admin-badge">🔐 Admin Panel</span>
+    <a href="admin-products.html" class="btn-nav-panel">📦 Product Manager</a>
+    <span class="admin-badge">🔐 Customer Management</span>
     <button id="logoutBtn" onclick="doLogout()">Logout</button>
   </div>
 </div>
@@ -333,7 +362,7 @@
   <div id="loginScreen">
     <div class="login-card">
       <div class="card-icon">🔑</div>
-      <h1 class="card-title">Admin Login</h1>
+      <h1 class="card-title">Customer management</h1>
       <p class="card-sub">Enter your Admin Secret Key to access the customer management panel.</p>
 
       <div id="loginAlert" class="alert alert-error">
@@ -346,6 +375,9 @@
       </div>
 
       <button class="btn-primary" id="loginBtn" onclick="doLogin()">Unlock Admin Panel</button>
+      <a href="admin-products.html" class="btn-secondary" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; text-decoration: none; border-radius: 12px; padding: 14px 24px; font-size: 15px;">
+        📦 Switch to Product Manager
+      </a>
 
       <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:16px;">
         🔒 Only for the shop owner. Customers cannot access this page.

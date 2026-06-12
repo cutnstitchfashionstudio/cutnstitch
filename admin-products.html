@@ -22,7 +22,7 @@
       --purple:#7c3aed; --purple-bg:rgba(124,58,237,.12);
       --sidebar-w:240px;
     }
-    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); height:100vh; display:flex; flex-direction:column; overflow:hidden; }
     a { color:inherit; text-decoration:none; }
     button { font-family:'Inter',sans-serif; }
 
@@ -33,9 +33,8 @@
 
     /* ── LOGIN SCREEN ── */
     #loginScreen {
-      position:fixed; inset:0; background:var(--bg);
-      display:flex; align-items:center; justify-content:center;
-      z-index:1000; padding:20px;
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      background: var(--bg); padding: 20px; overflow-y: auto;
     }
     .login-card {
       background:var(--surface); border:1px solid var(--border);
@@ -49,6 +48,11 @@
       display:block;
     }
     @keyframes coinFlip { 0%{transform:perspective(600px) rotateY(0deg)} 100%{transform:perspective(600px) rotateY(360deg)} }
+    .brand-icon-spin {
+      animation: coinFlip 6s infinite linear;
+      transform-style: preserve-3d;
+      display: block;
+    }
     .login-title { font-family:'Playfair Display',serif; font-size:1.6rem; color:var(--gold); margin-bottom:8px; }
     .login-sub { color:var(--muted); font-size:13px; line-height:1.7; margin-bottom:32px; }
     .btn-google {
@@ -87,28 +91,52 @@
     #loginStep2 { display:none; }
 
     /* ── APP SHELL ── */
-    #appShell { display:none; height:100vh; flex-direction:column; }
+    #appShell { display:none; flex:1; flex-direction:column; overflow:hidden; }
     #appShell.visible { display:flex; }
 
     /* ── TOPBAR ── */
-    .topbar {
-      background:var(--surface); border-bottom:1px solid var(--border);
-      padding:0 24px; height:60px; display:flex; align-items:center;
-      justify-content:space-between; flex-shrink:0; z-index:100;
-    }
-    .topbar-brand { display:flex; align-items:center; gap:10px; }
-    .topbar-brand svg { width:32px; height:32px; animation:coinFlip 6s linear infinite; transform-style:preserve-3d; }
-    .brand-text { font-family:'Playfair Display',serif; font-size:.95rem; color:var(--gold); }
-    .brand-sep { color:var(--border3); margin:0 4px; }
-    .page-badge { font-size:12px; font-weight:600; color:var(--muted); }
+    .topbar { background:var(--surface); border-bottom:1px solid var(--border); padding:14px 28px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; z-index:100; }
+    .topbar-brand { display:flex; align-items:center; gap:12px; }
+    .topbar-brand svg { width:34px; height:34px; }
+    .brand-name { font-family:'Playfair Display',serif; font-size:1rem; color:var(--gold); }
+    .brand-sub  { font-size:10px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; }
+    .admin-badge { background:rgba(201,168,76,.12); border:1px solid var(--border); color:var(--gold); font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; }
     .topbar-right { display:flex; align-items:center; gap:12px; }
     .user-chip { display:flex; align-items:center; gap:8px; background:var(--surface2); border:1px solid var(--border2); border-radius:20px; padding:5px 12px 5px 5px; }
     .user-avatar { width:28px; height:28px; border-radius:50%; background:var(--gold-dim); border:1px solid var(--border); object-fit:cover; }
     .user-name { font-size:13px; font-weight:600; color:var(--text); max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .btn-back { background:var(--surface2); border:1px solid var(--border2); color:var(--muted); border-radius:8px; padding:7px 14px; font-size:13px; cursor:pointer; transition:.2s; }
-    .btn-back:hover { border-color:var(--border3); color:var(--text); }
     .btn-signout { background:transparent; border:1px solid var(--error-border); color:#fca5a5; border-radius:8px; padding:7px 14px; font-size:13px; cursor:pointer; transition:.2s; }
     .btn-signout:hover { background:var(--error-bg); }
+    .btn-hamburger { display:none; background:none; border:none; color:var(--text); font-size:22px; cursor:pointer; padding:6px 8px; border-radius:8px; line-height:1; transition:background .2s; margin-right:4px; }
+
+    /* Unified Header Navigation Button */
+    .btn-nav-panel {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(201, 168, 76, 0.12);
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .btn-nav-panel:hover {
+      background: rgba(201, 168, 76, 0.22);
+      border-color: var(--gold-light);
+      color: var(--gold-light);
+    }
+
+    /* Hide logged-in elements by default */
+    #btnHamburger, .user-chip, #btnSignout { display: none !important; }
+    /* Show them when logged in */
+    body.logged-in #btnHamburger { display: block !important; }
+    body.logged-in .user-chip { display: flex !important; }
+    body.logged-in #btnSignout { display: block !important; }
 
     /* ── BODY: SIDEBAR + MAIN ── */
     .app-body { display:flex; flex:1; overflow:hidden; }
@@ -367,7 +395,7 @@
 
     /* ── RESPONSIVE: TABLET (≤900px) ─────────────────────────── */
     @media(max-width:900px) {
-      .btn-hamburger { display:block; }
+      body.logged-in .btn-hamburger { display:block !important; }
       .sidebar {
         display:flex !important;
         position:fixed;
@@ -392,8 +420,8 @@
       .filter-bar { flex-wrap:wrap; gap:8px; }
       .filter-bar > div { flex:1; min-width:0; display:flex; flex-wrap:wrap; gap:6px; }
       .search-box { margin-left:0 !important; width:100% !important; box-sizing:border-box; }
-      .brand-sep, .page-badge { display:none; }
-      .btn-back { display:none; }
+      .brand-sep, .admin-badge { display:none !important; }
+      .btn-nav-panel { padding:6px 12px; font-size:11px; }
       .user-name { display:none; }
       .topbar-right { gap:8px; }
       .btn-signout { padding:6px 12px; font-size:12px; }
@@ -405,9 +433,10 @@
 
     /* ── RESPONSIVE: MOBILE (≤600px) ─────────────────────────── */
     @media(max-width:600px) {
-      .topbar { padding:0 10px; height:56px; }
+      .topbar { padding:10px 14px; }
       .topbar-brand svg { width:28px; height:28px; }
-      .brand-text { font-size:14px; }
+      .brand-name { font-size:13px; }
+      .brand-sub { display:none; }
       .btn-hamburger { font-size:20px; }
       .main-panel { padding:12px 8px; }
       .stats-row { grid-template-columns:repeat(2,1fr); }
@@ -434,6 +463,47 @@
   </style>
 </head>
 <body>
+
+<!-- Top Bar -->
+<header class="topbar">
+  <div class="topbar-brand">
+    <svg class="brand-icon-spin" viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="48" fill="#0d2247"/>
+      <circle cx="50" cy="50" r="42" stroke="#c9a84c" stroke-width="2" stroke-dasharray="6 4"/>
+      <line x1="36" y1="73" x2="50" y2="22" stroke="#c9a84c" stroke-width="5" stroke-linecap="round"/>
+      <line x1="50" y1="22" x2="64" y2="73" stroke="#c9a84c" stroke-width="5" stroke-linecap="round"/>
+      <line x1="26" y1="73" x2="44" y2="73" stroke="#c9a84c" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="56" y1="73" x2="74" y2="73" stroke="#c9a84c" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="47" y1="22" x2="53" y2="22" stroke="#c9a84c" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="41" y1="53" x2="59" y2="53" stroke="#c9a84c" stroke-width="3.5" stroke-linecap="round"/>
+      <!-- Behind-needle thread segments (underlay) -->
+      <path d="M 33 60.5 C 31 58 34 54 38 54" stroke="#c9a84c" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.75"/>
+      <path d="M 43 61 C 46 61 47 51 49 49" stroke="#c9a84c" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.75"/>
+      <path d="M 55 56 C 57 56 59 58 60.4 60" stroke="#c9a84c" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.75"/>
+      <line x1="30" y1="62" x2="69" y2="45" stroke="#f5e6b0" stroke-width="1.3" stroke-linecap="round" opacity="0.9"/>
+      <path d="M 67 45.8 L 74 42.5 L 67.5 47.2 Z" fill="#f5e6b0" opacity="0.9"/>
+      <ellipse cx="33" cy="60.5" rx="2.5" ry="1" fill="#0d2247" stroke="#f0e0b0" stroke-width="0.8" opacity="0.9" transform="rotate(-22 33 60.5)"/>
+      <!-- Front-needle thread segments (overlay) -->
+      <path d="M 38.5 65 C 37 63 35 61 33 60.5" stroke="#c9a84c" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.95"/>
+      <path d="M 38 54 C 41 54 41 61 43 61" stroke="#c9a84c" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.95"/>
+      <path d="M 49 49 C 52 49 53 56 55 56" stroke="#c9a84c" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.95"/>
+    </svg>
+    <div>
+      <div class="brand-name">Cut &amp; Stitch</div>
+      <div class="brand-sub">Fashion Studio</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()" aria-label="Menu">&#9776;</button>
+    <a href="admin.html" class="btn-nav-panel">👤 Customer Manager</a>
+    <span class="admin-badge">📦 Product Manager</span>
+    <div class="user-chip">
+      <img id="userAvatar" class="user-avatar" src="" alt="avatar">
+      <span id="userName" class="user-name">—</span>
+    </div>
+    <button class="btn-signout" id="btnSignout">Sign out</button>
+  </div>
+</header>
 
 <!-- ══ LOGIN SCREEN ══════════════════════════════════════════ -->
 <div id="loginScreen">
@@ -495,33 +565,6 @@
 
 <!-- ══ APP SHELL ══════════════════════════════════════════════ -->
 <div id="appShell">
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <div class="topbar-brand">
-      <svg viewBox="0 0 100 100" fill="none">
-        <circle cx="50" cy="50" r="48" fill="#0d2247"/>
-        <circle cx="50" cy="50" r="42" stroke="#c9a84c" stroke-width="2" stroke-dasharray="6 4"/>
-        <line x1="36" y1="73" x2="50" y2="22" stroke="#c9a84c" stroke-width="5" stroke-linecap="round"/>
-        <line x1="50" y1="22" x2="64" y2="73" stroke="#c9a84c" stroke-width="5" stroke-linecap="round"/>
-        <line x1="26" y1="73" x2="44" y2="73" stroke="#c9a84c" stroke-width="3.5" stroke-linecap="round"/>
-        <line x1="56" y1="73" x2="74" y2="73" stroke="#c9a84c" stroke-width="3.5" stroke-linecap="round"/>
-        <line x1="41" y1="53" x2="59" y2="53" stroke="#c9a84c" stroke-width="3.5" stroke-linecap="round"/>
-        <line x1="30" y1="62" x2="69" y2="45" stroke="#f5e6b0" stroke-width="1.3" stroke-linecap="round" opacity="0.9"/>
-      </svg>
-      <span class="brand-text">Cut &amp; Stitch</span>
-      <span class="brand-sep">|</span>
-      <span class="page-badge">Product Manager</span>
-    </div>
-    <div class="topbar-right">
-      <button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()" aria-label="Menu">&#9776;</button>
-      <a href="admin.html" class="btn-back">← Customer Panel</a>
-      <div class="user-chip">
-        <img id="userAvatar" class="user-avatar" src="" alt="avatar">
-        <span id="userName" class="user-name">—</span>
-      </div>
-      <button class="btn-signout" id="btnSignout">Sign out</button>
-    </div>
-  </header>
 
   <div class="app-body">
     <!-- Mobile sidebar overlay -->
@@ -1061,6 +1104,7 @@ document.getElementById('btnSignout').addEventListener('click', ()=>{
   if (gToken) google.accounts.oauth2.revoke(gToken, ()=>{});
   gToken=null; gUser=null;
   sessionStorage.removeItem('cs_prod_user'); // clear session — forces fresh login next window
+  document.body.classList.remove('logged-in');
   document.getElementById('appShell').classList.remove('visible');
   document.getElementById('loginScreen').style.display='flex';
   // Reset login flow back to Step 1
@@ -1096,6 +1140,7 @@ async function fetchUserInfo() {
 function onSignedIn() {
   // Persist user profile for session restore (survives same-tab navigation)
   sessionStorage.setItem('cs_prod_user', JSON.stringify(gUser));
+  document.body.classList.add('logged-in');
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('appShell').classList.add('visible');
   document.getElementById('userAvatar').src = gUser.picture||'';
