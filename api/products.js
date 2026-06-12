@@ -67,18 +67,32 @@ function parseRow(row, category) {
   const origPrice = parseFloat(String(row[3] || '0').replace(/[^0-9.]/g, '')) || 0;
   const shortDesc = String(row[4] || '').trim();
   const fullDesc  = String(row[5] || '').trim();
-  const img1      = driveToDirectUrl(String(row[6] || '').trim());
-  const img2      = driveToDirectUrl(String(row[7] || '').trim());
-  const img3      = driveToDirectUrl(String(row[8] || '').trim());
+
+  // Parse G, H, I (columns 6, 7, 8) allowing multiple comma-separated URLs in each, 
+  // and any columns from O onwards (indices 14+)
+  const rawUrls = [];
+  [row[6], row[7], row[8]].forEach(val => {
+    if (val) {
+      String(val).split(',').forEach(item => {
+        if (item.trim()) rawUrls.push(item.trim());
+      });
+    }
+  });
+  for (let i = 14; i < row.length; i++) {
+    if (row[i] && String(row[i]).trim()) {
+      rawUrls.push(String(row[i]).trim());
+    }
+  }
+
+  const images = rawUrls.map(url => driveToDirectUrl(url)).filter(Boolean);
   const active    = yes(row[9]);
   const offerText = String(row[10] || '').trim();
   const sizeS     = String(row[11] || '').trim();
   const sizeM     = String(row[12] || '').trim();
   const sizeL     = String(row[13] || '').trim();
 
-  if (!id || !name || !img1 || !active) return null;
+  if (!id || !name || images.length === 0 || !active) return null;
 
-  const images = [img1, img2, img3].filter(Boolean);
   const discountPct = origPrice > price && origPrice > 0
     ? Math.round(((origPrice - price) / origPrice) * 100)
     : 0;
@@ -95,7 +109,7 @@ function parseRow(row, category) {
  * Fetch one sheet tab and return parsed product rows.
  */
 async function fetchTab(sheetId, apiKey, tabName, category) {
-  const range = encodeURIComponent(`${tabName}!A2:N500`);
+  const range = encodeURIComponent(`${tabName}!A2:Z500`);
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
 
   const res = await fetch(url);

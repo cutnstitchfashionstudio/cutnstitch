@@ -245,9 +245,9 @@
     .toggle-label { font-size:13px; font-weight:600; color:var(--text); }
 
     /* Image Slots */
-    .img-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
+    .img-grid { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
     .img-slot {
-      aspect-ratio:1; border:2px dashed rgba(201,168,76,.25); border-radius:14px;
+      width:110px; flex:0 0 110px; aspect-ratio:1; border:2px dashed rgba(201,168,76,.25); border-radius:14px;
       cursor:pointer; position:relative; display:flex; flex-direction:column;
       align-items:center; justify-content:center; background:var(--surface2);
       overflow:hidden; transition:all .2s;
@@ -401,7 +401,6 @@
       .table-scroll { font-size:12px; }
       .table-scroll table { min-width:600px; }
       .form-card { padding:20px 16px; }
-      .img-grid { grid-template-columns:repeat(3,1fr); }
     }
 
     /* ── RESPONSIVE: MOBILE (≤600px) ─────────────────────────── */
@@ -414,7 +413,6 @@
       .stats-row { grid-template-columns:repeat(2,1fr); }
       .stat-card { padding:14px 12px; }
       .stat-num { font-size:28px; }
-      .img-grid { grid-template-columns:1fr 1fr; }
       .form-grid-3 { grid-template-columns:1fr; }
       .form-card { padding:16px 12px; border-radius:14px; }
       .modal { padding:22px 16px; }
@@ -471,6 +469,9 @@
       <button class="btn-continue" id="btnContinue" onclick="checkEmailPreAuth()">
         🔑 Continue to Sign In
       </button>
+      <a href="admin.html" class="btn-secondary" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; text-decoration: none; border-radius: 12px; padding: 14px 24px; font-size: 15px;">
+        👤 Switch to Customer Panel
+      </a>
       <p class="login-note">🔒 Access restricted to authorised team members only.</p>
     </div>
 
@@ -696,30 +697,12 @@
 
           <!-- Images -->
           <div class="form-section-label">Product Images</div>
-          <div class="img-grid">
-            <div class="img-slot" id="slot-1" onclick="triggerFile(1)">
-              <div class="slot-plus">+</div>
-              <div class="slot-lbl">Image 1 *</div>
-              <div class="slot-badge" style="display:none" id="slot-1-size"></div>
-              <button class="slot-remove" id="slot-1-rm" onclick="removeImg(event,1)">✕</button>
-              <div class="uploading-overlay"><span class="spin"></span></div>
-            </div>
-            <div class="img-slot" id="slot-2" onclick="triggerFile(2)">
-              <div class="slot-plus">+</div>
-              <div class="slot-lbl">Image 2</div>
-              <button class="slot-remove" id="slot-2-rm" onclick="removeImg(event,2)">✕</button>
-              <div class="uploading-overlay"><span class="spin"></span></div>
-            </div>
-            <div class="img-slot" id="slot-3" onclick="triggerFile(3)">
-              <div class="slot-plus">+</div>
-              <div class="slot-lbl">Image 3</div>
-              <button class="slot-remove" id="slot-3-rm" onclick="removeImg(event,3)">✕</button>
-              <div class="uploading-overlay"><span class="spin"></span></div>
-            </div>
+          <div class="img-grid" id="imagesContainer">
+            <!-- Dynamic image slots will be rendered here by JS -->
           </div>
-          <input type="file" id="fileInput-1" accept="image/*" style="display:none">
-          <input type="file" id="fileInput-2" accept="image/*" style="display:none">
-          <input type="file" id="fileInput-3" accept="image/*" style="display:none">
+          <div id="hiddenInputsContainer" style="display:none">
+            <!-- Dynamic file input elements will be rendered here by JS -->
+          </div>
 
           <!-- AI Description -->
           <div class="form-section-label">Descriptions</div>
@@ -914,7 +897,8 @@ let editingProd   = null;   // null=add, object=edit
 let deleteTarget  = null;   // product to delete
 let currentDbTab  = 'Women';
 let sheetIds      = {};     // { Women:sheetId, Men:sheetId, Kids:sheetId }
-let imgData       = {1:null,2:null,3:null}; // {blob, dataUrl, url}
+let imgData       = []; // array of {blob, url, id}
+let nextFileId    = 1;
 let currentCat    = 'Women';
 let cfg           = { spreadsheetId:'', folderId:'', groqKey:'', emails:'' };
 
@@ -1193,7 +1177,7 @@ async function sheetsGet(range) {
   return res.json();
 }
 async function sheetsAppend(sheetName, values) {
-  const range=`${sheetName}!A:N`;
+  const range=`${sheetName}!A:Z`;
   const url=`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(cfg.spreadsheetId)}/values/${encodeURIComponent(range)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`;
   const res=await fetch(url, {
     method:'POST', headers:{Authorization:`Bearer ${gToken}`,'Content-Type':'application/json'},
@@ -1236,13 +1220,45 @@ async function loadAllProducts() {
     await fetchSheetMeta();
     for(const tab of ['Women','Men','Kids']) {
       try {
-        const data=await sheetsGet(`${tab}!A2:N`);
+        const data=await sheetsGet(`${tab}!A2:Z`);
         const rows=data.values||[];
         rows.forEach((r,i)=>{
           if(!r[0]&&!r[1]) return; // skip empty rows
-          // Sheet schema: A=ID B=Name C=Price D=OrigPrice E=ShortDesc F=FullDesc
-          //               G=Image1 H=Image2 I=Image3 J=Active K=OfferText L=SizeS M=SizeM N=SizeL
-          allProducts.push({ tab, rowNum:i+2, id:r[0]||'', name:r[1]||'', salePrice:r[2]||'', origPrice:r[3]||'', shortDesc:r[4]||'', fullDesc:r[5]||'', img1:r[6]||'', img2:r[7]||'', img3:r[8]||'', active:(r[9]||'TRUE').toUpperCase()!=='FALSE', offerText:r[10]||'', sizeS:r[11]||'', sizeM:r[12]||'', sizeL:r[13]||'' });
+          
+          // Gather all image URLs from G (6), H (7), I (8) and columns O onwards (index 14+)
+          const imgs = [];
+          [r[6], r[7], r[8]].forEach(val => {
+            if (val) {
+              String(val).split(',').forEach(item => {
+                if (item.trim()) imgs.push(item.trim());
+              });
+            }
+          });
+          for(let col = 14; col < r.length; col++) {
+            if(r[col] && String(r[col]).trim()) {
+              imgs.push(String(r[col]).trim());
+            }
+          }
+
+          allProducts.push({
+            tab,
+            rowNum: i+2,
+            id: r[0]||'',
+            name: r[1]||'',
+            salePrice: r[2]||'',
+            origPrice: r[3]||'',
+            shortDesc: r[4]||'',
+            fullDesc: r[5]||'',
+            img1: r[6]||'', // fallback / backward compatibility
+            img2: r[7]||'', 
+            img3: r[8]||'',
+            images: imgs,
+            active: (r[9]||'TRUE').toUpperCase()!=='FALSE',
+            offerText: r[10]||'',
+            sizeS: r[11]||'',
+            sizeM: r[12]||'',
+            sizeL: r[13]||''
+          });
         });
       } catch(e){ console.warn(tab,'load failed:',e.message); }
     }
@@ -1327,14 +1343,102 @@ async function loadNextId() {
   } catch{ field.value='—'; }
 }
 
+function renderImageSlots() {
+  const container = document.getElementById('imagesContainer');
+  if(!container) return;
+  
+  let html = '';
+  imgData.forEach((slot, index) => {
+    const n = slot.id;
+    const hasImg = slot.blob || slot.url;
+    const isRequired = (index === 0 && !editingProd) ? ' *' : '';
+    
+    html += `
+      <div class="img-slot ${hasImg ? 'has-img' : ''}" id="slot-${n}" onclick="${hasImg ? 'void(0)' : `triggerFile(${n})`}">
+        ${hasImg ? `
+          <img src="${slot.blob ? URL.createObjectURL(slot.blob) : driveThumb(slot.url, 'w600')}" alt="">
+          <button class="slot-remove" onclick="removeImg(event, ${n})">✕</button>
+          <div class="slot-badge" style="${slot.blob ? '' : 'display:none'}">${slot.blob ? (slot.blob.size/1024).toFixed(0) + 'KB' : ''}</div>
+        ` : `
+          <div class="slot-plus">+</div>
+          <div class="slot-lbl">Image ${index + 1}${isRequired}</div>
+          <div class="uploading-overlay"><span class="spin"></span></div>
+        `}
+      </div>
+    `;
+  });
+  
+  html += `
+    <div class="img-slot btn-upload-more" id="btn-add-slot" onclick="addImageSlot()" style="border-style: dashed; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; background: var(--surface2);">
+      <div class="slot-plus" style="font-size: 24px; color: var(--gold);">＋</div>
+      <div class="slot-lbl" style="font-weight: 700; color: var(--gold);">Add More</div>
+    </div>
+  `;
+  
+  container.innerHTML = html;
+  
+  const inputContainer = document.getElementById('hiddenInputsContainer');
+  if (inputContainer) {
+    let inputsHtml = '';
+    imgData.forEach(slot => {
+      inputsHtml += `<input type="file" id="fileInput-${slot.id}" accept="image/*" style="display:none" onchange="handleFileChange(event, ${slot.id})">`;
+    });
+    inputContainer.innerHTML = inputsHtml;
+  }
+}
+
+function addImageSlot() {
+  const fileId = nextFileId++;
+  imgData.push({ blob: null, url: null, id: fileId });
+  renderImageSlots();
+}
+
+function triggerFile(n) {
+  const el = document.getElementById('fileInput-' + n);
+  if (el) el.click();
+}
+
+async function handleFileChange(e, n) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const slotEl = document.getElementById('slot-' + n);
+  if (slotEl) slotEl.classList.add('uploading');
+  try {
+    const blob = await compressImage(file, 1200, 0.85);
+    const slot = imgData.find(s => s.id === n);
+    if (slot) {
+      slot.blob = blob;
+      slot.url = null;
+    }
+    renderImageSlots();
+  } catch(err) {
+    toast('Image error: ' + err.message, 'error');
+  }
+}
+
+function removeImg(e, n) {
+  e.stopPropagation();
+  const idx = imgData.findIndex(s => s.id === n);
+  if (idx !== -1) {
+    if (imgData.length === 1) {
+      imgData[0].blob = null;
+      imgData[0].url = null;
+    } else {
+      imgData.splice(idx, 1);
+    }
+    renderImageSlots();
+  }
+}
+
 function resetForm() {
   ['fId','fName','fPrice','fOrigPrice','fOffer','fShort','fFull','fSizeS','fSizeM','fSizeL'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   document.getElementById('fId').readOnly=true;
   document.getElementById('fActive').checked=true;
-  imgData={1:null,2:null,3:null};
-  [1,2,3].forEach(n=>{ const s=document.getElementById('slot-'+n); if(s){ s.classList.remove('has-img'); const img=s.querySelector('img'); if(img) img.remove(); } });
   document.getElementById('uploadProgress').classList.remove('show');
   selectCat('Women');
+  imgData = [{ blob: null, url: null, id: 1 }];
+  nextFileId = 2;
+  renderImageSlots();
 }
 
 function startEdit(idx) {
@@ -1344,7 +1448,6 @@ function startEdit(idx) {
   document.getElementById('formTitle').textContent='Edit Product';
   document.getElementById('formSubtitle').textContent=`Editing: ${p.name}`;
   document.getElementById('submitLabel').textContent='Save Changes';
-  // Fill form
   selectCat(p.tab);
   document.getElementById('fId').value=p.id;
   document.getElementById('fName').value=p.name;
@@ -1357,50 +1460,18 @@ function startEdit(idx) {
   document.getElementById('fSizeS').value=p.sizeS||'';
   document.getElementById('fSizeM').value=p.sizeM||'';
   document.getElementById('fSizeL').value=p.sizeL||'';
-  imgData={1:null,2:null,3:null};
-  // Set existing image previews — use thumbnail URL for reliable loading
-  [1,2,3].forEach(n=>{
-    const url=p['img'+n];
-    if(url){ setSlotPreview(n, driveThumb(url,'w600'), null, true); }
-  });
-}
-
-// ── IMAGE HANDLING ────────────────────────────────────────────
-[1,2,3].forEach(n=>{
-  document.getElementById('fileInput-'+n).addEventListener('change', async(e)=>{
-    const file=e.target.files[0]; if(!file) return;
-    e.target.value='';
-    const slot=document.getElementById('slot-'+n);
-    slot.classList.add('uploading');
-    try {
-      const blob=await compressImage(file,1200,0.85);
-      const url=URL.createObjectURL(blob);
-      const kb=(blob.size/1024).toFixed(0);
-      setSlotPreview(n,url,blob,false);
-      const badge=document.getElementById('slot-'+n+'-size');
-      if(badge){ badge.textContent=kb+'KB'; badge.style.display='block'; }
-    } catch(e){ toast('Image error: '+e.message,'error'); }
-    finally{ slot.classList.remove('uploading'); }
-  });
-});
-function triggerFile(n) { document.getElementById('fileInput-'+n).click(); }
-function removeImg(e,n) {
-  e.stopPropagation();
-  const slot=document.getElementById('slot-'+n);
-  const img=slot.querySelector('img'); if(img) img.remove();
-  slot.classList.remove('has-img');
-  const badge=document.getElementById('slot-'+n+'-size');
-  if(badge) badge.style.display='none';
-  imgData[n]=null;
-  if(editingProd) editingProd['img'+n]='';
-}
-function setSlotPreview(n, src, blob, isUrl) {
-  const slot=document.getElementById('slot-'+n);
-  let img=slot.querySelector('img');
-  if(!img){ img=document.createElement('img'); slot.appendChild(img); }
-  img.src=src;
-  slot.classList.add('has-img');
-  imgData[n]={ blob: blob, url: isUrl?src:null };
+  
+  imgData = [];
+  if (p.images && p.images.length > 0) {
+    p.images.forEach((imgUrl, i) => {
+      imgData.push({ blob: null, url: imgUrl, id: i + 1 });
+    });
+    nextFileId = p.images.length + 1;
+  } else {
+    imgData = [{ blob: null, url: null, id: 1 }];
+    nextFileId = 2;
+  }
+  renderImageSlots();
 }
 
 function compressImage(file, maxPx=1200, quality=0.85) {
@@ -1445,7 +1516,8 @@ async function submitProduct() {
   const price=document.getElementById('fPrice').value.trim();
   if(!name){ toast('Product name is required.','error'); return; }
   if(!price||isNaN(+price)){ toast('A valid sale price is required.','error'); return; }
-  if(!editingProd && !imgData[1]?.blob){ toast('Upload at least Image 1 before submitting.','error'); return; }
+  const firstSlot = imgData[0];
+  if(!editingProd && (!firstSlot || !firstSlot.blob)){ toast('Upload at least Image 1 before submitting.','error'); return; }
 
   const btn=document.getElementById('btnSubmit');
   btn.disabled=true;
@@ -1456,25 +1528,25 @@ async function submitProduct() {
 
   try {
     const id=document.getElementById('fId').value||'AUTO';
-    const imgUrls=['','',''];
+    const imgUrls=[];
     let step=0;
 
     // Upload new blobs; fall back to existing URL for unchanged slots
-    const snap = editingProd ? {...editingProd} : null; // capture before any mutation
-    for(let n=1;n<=3;n++){
-      if(imgData[n]?.blob){
-        setStep(`Uploading Image ${n}…`, 20+step*20);
-        imgUrls[n-1]=await uploadToDrive(imgData[n].blob, `${id}_img${n}_${Date.now()}.jpg`);
+    for(let i=0;i<imgData.length;i++){
+      const slot = imgData[i];
+      if(slot.blob){
+        setStep(`Uploading Image ${i+1}…`, 20+step*(60/imgData.length));
+        const url = await uploadToDrive(slot.blob, `${id}_img${i+1}_${Date.now()}.jpg`);
+        imgUrls.push(url);
         step++;
-      } else if(imgData[n]?.url){
-        imgUrls[n-1]=imgData[n].url;
-      } else if(snap){
-        imgUrls[n-1]=snap['img'+n]||'';
+      } else if(slot.url){
+        imgUrls.push(slot.url);
       }
     }
 
     setStep('Saving to Google Sheets…', 85);
     const active=document.getElementById('fActive').checked ? 'TRUE' : 'FALSE';
+    
     // Row must match sheet schema: A=ID B=Name C=Price D=OrigPrice E=ShortDesc F=FullDesc
     //   G=Image1 H=Image2 I=Image3 J=Active K=OfferText L=SizeS M=SizeM N=SizeL
     const row=[
@@ -1484,18 +1556,23 @@ async function submitProduct() {
       document.getElementById('fOrigPrice').value||'',
       document.getElementById('fShort').value.trim(),
       document.getElementById('fFull').value.trim(),
-      imgUrls[0],
-      imgUrls[1],
-      imgUrls[2],
+      imgUrls[0] || '',
+      imgUrls[1] || '',
+      imgUrls[2] || '',
       active,
       document.getElementById('fOffer').value.trim(),
       document.getElementById('fSizeS').value.trim(),
       document.getElementById('fSizeM').value.trim(),
       document.getElementById('fSizeL').value.trim()
     ];
+    
+    // Push extra images from index 3 onwards to the end of the row (columns O+)
+    for(let i=3;i<imgUrls.length;i++){
+      row.push(imgUrls[i]);
+    }
 
     if(editingProd){
-      await sheetsUpdate(`${editingProd.tab}!A${editingProd.rowNum}:N${editingProd.rowNum}`, row);
+      await sheetsUpdate(`${editingProd.tab}!A${editingProd.rowNum}:Z${editingProd.rowNum}`, row);
       toast(`✓ Product "${name}" updated!`, 'success');
     } else {
       await sheetsAppend(currentCat, row);
@@ -1509,7 +1586,6 @@ async function submitProduct() {
   } catch(e){ toast('Error: '+e.message, 'error'); prog.classList.remove('show'); }
   finally{
     btn.disabled=false;
-    // Restore button label (editingProd may have been set to null by navigate, so check currentView)
     const isEdit = currentView==='form' && editingProd;
     const submitEl = document.getElementById('submitLabel');
     if(submitEl){ submitEl.textContent = isEdit ? 'Save Changes' : 'Upload to Sheet'; }
@@ -1547,14 +1623,24 @@ async function loadDbView() {
   document.getElementById('dbTitle').textContent=`Database — ${currentDbCat}`;
   document.getElementById('dbMeta').textContent='Loading…';
   document.getElementById('dbBody').innerHTML='';
-  const HEADERS=['ID','Name','Sale Price','Orig Price','Short Desc','Full Desc','Image 1','Image 2','Image 3','Active','Offer Text','Size S','Size M','Size L'];
-  document.getElementById('dbHead').innerHTML='<tr>'+['#',...HEADERS].map(h=>`<th>${h}</th>`).join('')+'</tr>';
+  const baseHeaders=['ID','Name','Sale Price','Orig Price','Short Desc','Full Desc','Image 1','Image 2','Image 3','Active','Offer Text','Size S','Size M','Size L'];
   try {
-    const data=await sheetsGet(`${currentDbCat}!A2:N`);
+    const data=await sheetsGet(`${currentDbCat}!A2:Z`);
     const rows=data.values||[];
+    
+    let maxLen = 14;
+    rows.forEach(r => { if(r.length > maxLen) maxLen = r.length; });
+    
+    const headers = [...baseHeaders];
+    for(let i = 14; i < maxLen; i++) {
+      headers.push(`Image ${i - 10}`);
+    }
+    
+    document.getElementById('dbHead').innerHTML='<tr>'+['#',...headers].map(h=>`<th>${h}</th>`).join('')+'</tr>';
     document.getElementById('dbMeta').textContent=`${rows.length} rows in ${currentDbCat} sheet`;
-    document.getElementById('dbBody').innerHTML=rows.map((r,i)=>`<tr><td style="color:var(--muted2)">${i+2}</td>${HEADERS.map((_,ci)=>{
-      const v=r[ci]||''; const isImg=ci>=8&&v.startsWith('http');
+    document.getElementById('dbBody').innerHTML=rows.map((r,i)=>`<tr><td style="color:var(--muted2)">${i+2}</td>${headers.map((_,ci)=>{
+      const v=r[ci]||'';
+      const isImg=(ci===6||ci===7||ci===8||ci>=14)&&v.startsWith('http');
       return `<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${isImg?`<a href="${escH(v)}" target="_blank" style="color:var(--gold);font-size:11px">🔗 View</a>`:escH(v)}</td>`;
     }).join('')}</tr>`).join('')||'<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">📄</div><p>No data in this sheet.</p></div></td></tr>';
   } catch(e){ toast('Failed to load database: '+e.message,'error'); }
@@ -1616,8 +1702,8 @@ async function generateAI() {
   const groqKey = cfg.groqKey;
   if (!groqKey) { toast('Set your Groq API key in Settings.', 'error'); navigate('settings'); return; }
 
-  const hasBlob = !!imgData[1]?.blob;
-  const hasUrl  = !!imgData[1]?.url;
+  const hasBlob = !!imgData[0]?.blob;
+  const hasUrl  = !!imgData[0]?.url;
   if (!hasBlob && !hasUrl) {
     toast('Upload Image 1 first — AI needs a photo to analyse.', 'error');
     return;
@@ -1630,9 +1716,9 @@ async function generateAI() {
     // Always send base64 to Groq — never a Drive URL (Groq can't reach drive.google.com)
     let b64;
     if (hasBlob) {
-      b64 = await blobToBase64(imgData[1].blob);          // new upload — local blob
+      b64 = await blobToBase64(imgData[0].blob);          // new upload — local blob
     } else {
-      b64 = await driveUrlToBase64(imgData[1].url);        // edit mode — fetch via Drive API
+      b64 = await driveUrlToBase64(imgData[0].url);        // edit mode — fetch via Drive API
     }
     const imageContent = { type:'image_url', image_url:{ url:`data:image/jpeg;base64,${b64}` } };
 
