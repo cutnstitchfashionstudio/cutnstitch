@@ -26,6 +26,7 @@
     .topbar-brand svg { width:34px; height:34px; }
     .brand-name { font-family:'Playfair Display',serif; font-size:1rem; color:var(--gold); }
     .brand-sub  { font-size:10px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; }
+    .brand-divider { width:1px; height:22px; background:rgba(201,168,76,0.3); margin:0 4px; }
     .admin-badge { background:rgba(201,168,76,.12); border:1px solid var(--border); color:var(--gold); font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; }
     .topbar-right { display:flex; align-items:center; gap:12px; }
     #logoutBtn { display:none; background:transparent; border:1px solid rgba(239,68,68,.3); color:#fca5a5; border-radius:8px; padding:7px 16px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:.2s; }
@@ -259,7 +260,7 @@
       .topbar-brand svg { width:28px; height:28px; }
       .brand-name { font-size:13px; }
       .brand-sub { display:none; }
-      .admin-badge { display:none !important; }
+      .admin-badge, .brand-divider { display:none !important; }
       .btn-nav-panel { padding:6px 12px; font-size:11px; }
       table { font-size:12px; }
       thead th, tbody td { padding:10px 10px; }
@@ -342,10 +343,11 @@
       <div class="brand-name">Cut &amp; Stitch</div>
       <div class="brand-sub">Fashion Studio</div>
     </div>
+    <div class="brand-divider"></div>
+    <span class="admin-badge">🔐 Customer Management</span>
   </div>
   <div class="topbar-right">
     <a href="admin-products.html" class="btn-nav-panel">📦 Product Manager</a>
-    <span class="admin-badge">🔐 Customer Management</span>
     <button id="logoutBtn" onclick="doLogout()">Logout</button>
   </div>
 </div>
@@ -375,9 +377,7 @@
       </div>
 
       <button class="btn-primary" id="loginBtn" onclick="doLogin()">Unlock Admin Panel</button>
-      <a href="admin-products.html" class="btn-secondary" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; text-decoration: none; border-radius: 12px; padding: 14px 24px; font-size: 15px;">
-        📦 Switch to Product Manager
-      </a>
+
 
       <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:16px;">
         🔒 Only for the shop owner. Customers cannot access this page.

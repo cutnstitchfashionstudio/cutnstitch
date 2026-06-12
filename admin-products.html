@@ -42,10 +42,10 @@
       box-shadow:0 40px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(201,168,76,.05);
       text-align:center;
     }
-    .login-crest {
-      width:72px; height:72px; margin:0 auto 20px;
-      animation:coinFlip 6s linear infinite; transform-style:preserve-3d;
-      display:block;
+    .card-icon {
+      width:58px; height:58px; background:rgba(201,168,76,.1); border:1px solid var(--border);
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      margin:0 auto 18px; font-size:22px;
     }
     @keyframes coinFlip { 0%{transform:perspective(600px) rotateY(0deg)} 100%{transform:perspective(600px) rotateY(360deg)} }
     .brand-icon-spin {
@@ -100,6 +100,7 @@
     .topbar-brand svg { width:34px; height:34px; }
     .brand-name { font-family:'Playfair Display',serif; font-size:1rem; color:var(--gold); }
     .brand-sub  { font-size:10px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; }
+    .brand-divider { width:1px; height:22px; background:rgba(201,168,76,0.3); margin:0 4px; }
     .admin-badge { background:rgba(201,168,76,.12); border:1px solid var(--border); color:var(--gold); font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; }
     .topbar-right { display:flex; align-items:center; gap:12px; }
     .user-chip { display:flex; align-items:center; gap:8px; background:var(--surface2); border:1px solid var(--border2); border-radius:20px; padding:5px 12px 5px 5px; }
@@ -420,7 +421,7 @@
       .filter-bar { flex-wrap:wrap; gap:8px; }
       .filter-bar > div { flex:1; min-width:0; display:flex; flex-wrap:wrap; gap:6px; }
       .search-box { margin-left:0 !important; width:100% !important; box-sizing:border-box; }
-      .brand-sep, .admin-badge { display:none !important; }
+      .brand-sep, .admin-badge, .brand-divider { display:none !important; }
       .btn-nav-panel { padding:6px 12px; font-size:11px; }
       .user-name { display:none; }
       .topbar-right { gap:8px; }
@@ -492,11 +493,12 @@
       <div class="brand-name">Cut &amp; Stitch</div>
       <div class="brand-sub">Fashion Studio</div>
     </div>
+    <div class="brand-divider"></div>
+    <span class="admin-badge">📦 Product Manager</span>
   </div>
   <div class="topbar-right">
     <button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()" aria-label="Menu">&#9776;</button>
     <a href="admin.html" class="btn-nav-panel">👤 Customer Manager</a>
-    <span class="admin-badge">📦 Product Manager</span>
     <div class="user-chip">
       <img id="userAvatar" class="user-avatar" src="" alt="avatar">
       <span id="userName" class="user-name">—</span>
@@ -508,17 +510,7 @@
 <!-- ══ LOGIN SCREEN ══════════════════════════════════════════ -->
 <div id="loginScreen">
   <div class="login-card">
-    <svg class="login-crest" viewBox="0 0 100 100" fill="none">
-      <circle cx="50" cy="50" r="48" fill="#0d2247"/>
-      <circle cx="50" cy="50" r="42" stroke="#c9a84c" stroke-width="2" stroke-dasharray="6 4"/>
-      <line x1="36" y1="73" x2="50" y2="22" stroke="#c9a84c" stroke-width="5" stroke-linecap="round"/>
-      <line x1="50" y1="22" x2="64" y2="73" stroke="#c9a84c" stroke-width="5" stroke-linecap="round"/>
-      <line x1="26" y1="73" x2="44" y2="73" stroke="#c9a84c" stroke-width="3.5" stroke-linecap="round"/>
-      <line x1="56" y1="73" x2="74" y2="73" stroke="#c9a84c" stroke-width="3.5" stroke-linecap="round"/>
-      <line x1="41" y1="53" x2="59" y2="53" stroke="#c9a84c" stroke-width="3.5" stroke-linecap="round"/>
-      <line x1="30" y1="62" x2="69" y2="45" stroke="#f5e6b0" stroke-width="1.3" stroke-linecap="round" opacity="0.9"/>
-      <path d="M 67 45.8 L 74 42.5 L 67.5 47.2 Z" fill="#f5e6b0" opacity="0.9"/>
-    </svg>
+    <div class="card-icon">📦</div>
     <h1 class="login-title">Product Manager</h1>
     <p class="login-sub">Enter your Gmail address to verify access, then sign in with Google.</p>
 
@@ -539,9 +531,7 @@
       <button class="btn-continue" id="btnContinue" onclick="checkEmailPreAuth()">
         🔑 Continue to Sign In
       </button>
-      <a href="admin.html" class="btn-secondary" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; text-decoration: none; border-radius: 12px; padding: 14px 24px; font-size: 15px;">
-        👤 Switch to Customer Panel
-      </a>
+
       <p class="login-note">🔒 Access restricted to authorised team members only.</p>
     </div>
 
