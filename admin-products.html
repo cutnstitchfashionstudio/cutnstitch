@@ -1363,7 +1363,15 @@ function renderTable() {
 function selectCat(cat) {
   currentCat=cat;
   ['Women','Men','Kids'].forEach(c=>document.getElementById('cat-'+c).classList.toggle('active',c===cat));
-  if(!editingProd) loadNextId();
+  if(!editingProd) {
+    loadNextId();
+  } else {
+    if (cat === editingProd.tab) {
+      document.getElementById('fId').value = editingProd.id;
+    } else {
+      loadNextId();
+    }
+  }
 }
 
 async function loadNextId() {
@@ -1607,8 +1615,21 @@ async function submitProduct() {
     }
 
     if(editingProd){
-      await sheetsUpdate(`${editingProd.tab}!A${editingProd.rowNum}:Z${editingProd.rowNum}`, row);
-      toast(`✓ Product "${name}" updated!`, 'success');
+      if (currentCat === editingProd.tab) {
+        await sheetsUpdate(`${editingProd.tab}!A${editingProd.rowNum}:Z${editingProd.rowNum}`, row);
+        toast(`✓ Product "${name}" updated!`, 'success');
+      } else {
+        const oldSid = sheetIds[editingProd.tab];
+        if (oldSid === undefined) throw new Error('Original sheet ID not found. Please refresh.');
+        
+        // 1. Append to new sheet tab
+        await sheetsAppend(currentCat, row);
+        
+        // 2. Delete from original sheet tab
+        await sheetsDeleteRow(oldSid, editingProd.rowNum);
+        
+        toast(`✓ Product "${name}" moved to ${currentCat}!`, 'success');
+      }
     } else {
       await sheetsAppend(currentCat, row);
       toast(`✓ Product "${name}" added to ${currentCat}!`, 'success');
