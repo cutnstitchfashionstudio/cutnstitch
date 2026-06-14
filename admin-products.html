@@ -1853,26 +1853,69 @@ async function testGoogleConnection() {
   }
   btn.disabled = true;
   btn.innerHTML = '<span class="spin"></span> Testing…';
+
+  let sheetsOk = false, sheetsTitle = '', sheetsTabsStr = '';
+  let driveOk  = false, driveName   = '';
+  let sheetsErr = '', driveErr = '';
+
+  // ── 1. Test Sheets ──────────────────────────────────────────
   try {
     const res = await fetch(
       `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(cfg.spreadsheetId)}?fields=properties.title,sheets.properties.title`,
       { headers: { Authorization: `Bearer ${gToken}` } }
     );
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error?.message || 'Connection failed');
-    const title  = data.properties?.title || 'Untitled';
-    const sheets = (data.sheets || []).map(s => s.properties.title).join(', ') || '—';
-    msg.style.color = 'var(--success)';
-    msg.textContent = `✓ Connected: "${title}" — Tabs: ${sheets}`;
-    toast(`✓ Google Sheets connected — "${title}"`, 'success');
+    if (!res.ok) throw new Error(data.error?.message || 'Sheets connection failed');
+    sheetsTitle   = data.properties?.title || 'Untitled';
+    sheetsTabsStr = (data.sheets || []).map(s => s.properties.title).join(', ') || '—';
+    sheetsOk = true;
   } catch(e) {
-    msg.style.color = 'var(--error)';
-    msg.textContent = '✕ ' + e.message;
-    toast('Connection failed: ' + e.message, 'error');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Test Google Connection';
+    sheetsErr = e.message;
   }
+
+  // ── 2. Test Drive (only when a folder ID is configured) ─────
+  if (cfg.folderId) {
+    try {
+      const res = await fetch(
+        `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(cfg.folderId)}?fields=name,mimeType`,
+        { headers: { Authorization: `Bearer ${gToken}` } }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || 'Drive connection failed');
+      driveName = data.name || 'Unnamed folder';
+      driveOk = true;
+    } catch(e) {
+      driveErr = e.message;
+    }
+  }
+
+  // ── 3. Build status message & toast ─────────────────────────
+  const lines = [];
+  if (sheetsOk) {
+    lines.push(`✓ Sheets: "${sheetsTitle}" — Tabs: ${sheetsTabsStr}`);
+  } else {
+    lines.push(`✕ Sheets: ${sheetsErr}`);
+  }
+
+  if (cfg.folderId) {
+    if (driveOk) {
+      lines.push(`✓ Drive: "${driveName}"`);
+    } else {
+      lines.push(`✕ Drive: ${driveErr}`);
+    }
+  } else {
+    lines.push('– Drive: no folder ID configured');
+  }
+
+  const allOk = sheetsOk && (cfg.folderId ? driveOk : true);
+  msg.style.color = allOk ? 'var(--success)' : (sheetsOk || driveOk ? 'var(--warning, #f59e0b)' : 'var(--error)');
+  msg.textContent = lines.join('   |   ');
+
+  if (sheetsOk) toast(`✓ Sheets: "${sheetsTitle}"${driveOk ? `  •  Drive: "${driveName}"` : cfg.folderId ? '  •  Drive: ✕ failed' : ''}`, allOk ? 'success' : 'warning');
+  else          toast(`✕ Sheets: ${sheetsErr}`, 'error');
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Test Google Connection';
 }
 
 // ── AUTO SIGN-IN via GIS ready callback ───────────────────────
