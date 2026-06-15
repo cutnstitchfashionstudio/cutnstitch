@@ -301,6 +301,19 @@
     /* ── Footer ── */
     .admin-footer { text-align:center; padding:16px; font-size:12px; color:var(--muted); border-top:1px solid var(--border2); margin-top:auto; }
 
+    /* Image caption input */
+    .img-caption-wrap { width:110px; margin-top:6px; }
+    .img-caption-inp {
+      width:100%; box-sizing:border-box;
+      background:rgba(255,255,255,.05); border:1px solid var(--border2);
+      border-radius:6px; color:var(--text); font-size:10px;
+      padding:4px 7px; outline:none; text-align:center;
+      transition:border-color .2s;
+    }
+    .img-caption-inp::placeholder { color:var(--muted2); }
+    .img-caption-inp:focus { border-color:var(--gold); }
+    .img-caption-label { font-size:9px; color:var(--muted2); text-align:center; margin-bottom:2px; letter-spacing:.4px; text-transform:uppercase; }
+
     /* Form footer */
     .form-footer { display:flex; align-items:center; justify-content:flex-end; gap:12px; padding-top:22px; border-top:1px solid var(--border2); margin-top:10px; }
     .btn-primary { background:linear-gradient(135deg,var(--gold),var(--gold-light)); color:var(--primary); border:none; border-radius:10px; padding:12px 28px; font-size:14px; font-weight:700; cursor:pointer; transition:all .2s; }
@@ -936,7 +949,7 @@ let editingProd   = null;   // null=add, object=edit
 let deleteTarget  = null;   // product to delete
 let currentDbTab  = 'Women';
 let sheetIds      = {};     // { Women:sheetId, Men:sheetId, Kids:sheetId }
-let imgData       = []; // array of {blob, url, id}
+let imgData       = []; // array of {blob, url, id, caption}
 let nextFileId    = 1;
 let currentCat    = 'Women';
 let cfg           = { spreadsheetId:'', folderId:'', groqKey:'', emails:'' };
@@ -1401,31 +1414,46 @@ function renderImageSlots() {
     const n = slot.id;
     const hasImg = slot.blob || slot.url;
     const isRequired = (index === 0 && !editingProd) ? ' *' : '';
-    
+    const cap = escH(slot.caption || '');
+
     html += `
-      <div class="img-slot ${hasImg ? 'has-img' : ''}" id="slot-${n}" onclick="${hasImg ? 'void(0)' : `triggerFile(${n})`}">
-        ${hasImg ? `
-          <img src="${slot.blob ? URL.createObjectURL(slot.blob) : driveThumb(slot.url, 'w600')}" alt="">
-          <button class="slot-remove" onclick="removeImg(event, ${n})">✕</button>
-          <div class="slot-badge" style="${slot.blob ? '' : 'display:none'}">${slot.blob ? (slot.blob.size/1024).toFixed(0) + 'KB' : ''}</div>
-        ` : `
-          <div class="slot-plus">+</div>
-          <div class="slot-lbl">Image ${index + 1}${isRequired}</div>
-          <div class="uploading-overlay"><span class="spin"></span></div>
-        `}
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0;">
+        <div class="img-slot ${hasImg ? 'has-img' : ''}" id="slot-${n}" onclick="${hasImg ? 'void(0)' : `triggerFile(${n})`}">
+          ${hasImg ? `
+            <img src="${slot.blob ? URL.createObjectURL(slot.blob) : driveThumb(slot.url, 'w600')}" alt="">
+            <button class="slot-remove" onclick="removeImg(event, ${n})">✕</button>
+            <div class="slot-badge" style="${slot.blob ? '' : 'display:none'}">${slot.blob ? (slot.blob.size/1024).toFixed(0) + 'KB' : ''}</div>
+          ` : `
+            <div class="slot-plus">+</div>
+            <div class="slot-lbl">Image ${index + 1}${isRequired}</div>
+            <div class="uploading-overlay"><span class="spin"></span></div>
+          `}
+        </div>
+        <div class="img-caption-wrap">
+          <div class="img-caption-label">Part name</div>
+          <input
+            class="img-caption-inp"
+            type="text"
+            placeholder="e.g. Front view"
+            value="${cap}"
+            maxlength="40"
+            title="Name this part of the outfit — used by AI to describe it specifically"
+            oninput="captionChange(event, ${n})"
+          >
+        </div>
       </div>
     `;
   });
-  
+
   html += `
     <div class="img-slot btn-upload-more" id="btn-add-slot" onclick="addImageSlot()" style="border-style: dashed; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; background: var(--surface2);">
       <div class="slot-plus" style="font-size: 24px; color: var(--gold);">＋</div>
       <div class="slot-lbl" style="font-weight: 700; color: var(--gold);">Add More</div>
     </div>
   `;
-  
+
   container.innerHTML = html;
-  
+
   const inputContainer = document.getElementById('hiddenInputsContainer');
   if (inputContainer) {
     let inputsHtml = '';
@@ -1438,7 +1466,7 @@ function renderImageSlots() {
 
 function addImageSlot() {
   const fileId = nextFileId++;
-  imgData.push({ blob: null, url: null, id: fileId });
+  imgData.push({ blob: null, url: null, id: fileId, caption: '' });
   renderImageSlots();
 }
 
@@ -1479,13 +1507,18 @@ function removeImg(e, n) {
   }
 }
 
+function captionChange(e, n) {
+  const slot = imgData.find(s => s.id === n);
+  if (slot) slot.caption = e.target.value;
+}
+
 function resetForm() {
   ['fId','fName','fPrice','fOrigPrice','fOffer','fShort','fFull','fSizeS','fSizeM','fSizeL'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   document.getElementById('fId').readOnly=true;
   document.getElementById('fActive').checked=true;
   document.getElementById('uploadProgress').classList.remove('show');
   selectCat('Women');
-  imgData = [{ blob: null, url: null, id: 1 }];
+  imgData = [{ blob: null, url: null, id: 1, caption: '' }];
   nextFileId = 2;
   renderImageSlots();
 }
@@ -1513,11 +1546,11 @@ function startEdit(idx) {
   imgData = [];
   if (p.images && p.images.length > 0) {
     p.images.forEach((imgUrl, i) => {
-      imgData.push({ blob: null, url: imgUrl, id: i + 1 });
+      imgData.push({ blob: null, url: imgUrl, id: i + 1, caption: '' });
     });
     nextFileId = p.images.length + 1;
   } else {
-    imgData = [{ blob: null, url: null, id: 1 }];
+    imgData = [{ blob: null, url: null, id: 1, caption: '' }];
     nextFileId = 2;
   }
   renderImageSlots();
@@ -1775,31 +1808,46 @@ async function generateAI() {
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Analysing…';
 
   try {
-    // Always send base64 to Groq — never a Drive URL (Groq can't reach drive.google.com)
-    let b64;
-    if (hasBlob) {
-      b64 = await blobToBase64(imgData[0].blob);          // new upload — local blob
-    } else {
-      b64 = await driveUrlToBase64(imgData[0].url);        // edit mode — fetch via Drive API
-    }
-    const imageContent = { type:'image_url', image_url:{ url:`data:image/jpeg;base64,${b64}` } };
+    // ── Collect all uploaded images as base64 ──────────────────
+    const imgContents = [];
+    const imgLabels   = [];
 
+    for (let i = 0; i < imgData.length; i++) {
+      const slot = imgData[i];
+      if (!slot.blob && !slot.url) continue;
+      let b64;
+      if (slot.blob) {
+        b64 = await blobToBase64(slot.blob);
+      } else {
+        b64 = await driveUrlToBase64(slot.url);
+      }
+      imgContents.push({ type:'image_url', image_url:{ url:`data:image/jpeg;base64,${b64}` } });
+      const label = slot.caption?.trim() || `Image ${i + 1}`;
+      imgLabels.push(`Image ${i + 1} — "${label}"`);
+    }
+
+    // ── Build prompt ───────────────────────────────────────────
     const sizeS = document.getElementById('fSizeS').value.trim();
     const sizeM = document.getElementById('fSizeM').value.trim();
     const sizeL = document.getElementById('fSizeL').value.trim();
     const hasSizes = sizeS || sizeM || sizeL;
     const sizeInfo = hasSizes
-      ? `\n\nAvailable size measurements:\n${sizeS?'• Small (S): '+sizeS:''}${sizeM?'\n• Medium (M): '+sizeM:''}${sizeL?'\n• Large (L): '+sizeL:''}\n\nNaturally weave the size range into the FullDesc (e.g. mention fit, silhouette, and that it's available from S to L with specific measurements). Keep it professional and elegant — do not list sizes robotically.`
+      ? `\n\nAvailable size measurements:\n${sizeS?'• Small (S): '+sizeS:''}${sizeM?'\n• Medium (M): '+sizeM:''}${sizeL?'\n• Large (L): '+sizeL:''}\n\nNaturally weave the size range into the FullDesc (e.g. mention fit, silhouette, and that it\'s available from S to L with specific measurements). Keep it professional and elegant — do not list sizes robotically.`
       : '';
-    const prompt = `You are a fashion product copywriter for "Cut & Stitch Fashion Studio", a premium Pakistani fashion store.\nAnalyse the garment image and write product descriptions for: "${name}".${sizeInfo}\n\nReturn ONLY valid JSON with exactly these two keys:\n{"ShortDesc":"A crisp 2-3 sentence overview highlighting the style, key design element, and who it suits.","FullDesc":"A rich 8-10 sentence store listing describing design details, fabric appearance, embellishments, colour palette, silhouette, craftsmanship${hasSizes?', fit across the size range,':''} and overall premium appeal."}`;
+
+    const imageGuide = imgLabels.length > 1
+      ? `\n\nYou are provided ${imgLabels.length} photos of this outfit:\n${imgLabels.map((l,i) => `  ${i+1}. ${l}`).join('\n')}\nIn the FullDesc, specifically describe each part shown in its corresponding photo (stitching detail, embroidery, silhouette, fabric texture, etc.) using the photo\'s name as a reference point. Weave them naturally into the description — do not list them as bullet points.`
+      : (imgData[0]?.caption?.trim() ? `\n\nThe photo shows the "${imgData[0].caption.trim()}" of this outfit. Reference this in your descriptions.` : '');
+
+    const prompt = `You are a fashion product copywriter for "Cut & Stitch Fashion Studio", a premium Pakistani fashion store.\nAnalyse the garment image(s) and write product descriptions for: "${name}".${sizeInfo}${imageGuide}\n\nReturn ONLY valid JSON with exactly these two keys:\n{"ShortDesc":"A crisp 2-3 sentence overview highlighting the style, key design element, and who it suits.","FullDesc":"A rich 8-10 sentence store listing describing design details, fabric appearance, embellishments, colour palette, silhouette, craftsmanship${hasSizes?', fit across the size range,':''} and overall premium appeal. Reference each photo part by name where relevant."}`;
 
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: { Authorization:`Bearer ${groqKey}`, 'Content-Type':'application/json' },
       body: JSON.stringify({
         model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-        messages: [{ role:'user', content:[{ type:'text', text:prompt }, imageContent] }],
-        max_tokens: 800,
+        messages: [{ role:'user', content:[{ type:'text', text:prompt }, ...imgContents] }],
+        max_tokens: 900,
         response_format: { type:'json_object' }
       })
     });
